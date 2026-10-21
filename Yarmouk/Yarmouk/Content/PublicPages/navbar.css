@@ -1,0 +1,91 @@
+/* Shared public navigation. Based on Aceternity's Resizable Navbar pattern.
+   Scoped classes keep student pills and staff sidebars independent. */
+.yu-public-navbar {
+  --nav-green: #006837;
+  --nav-green-hover: #00552d;
+  --nav-paper: #fff;
+  --nav-ink: #264438;
+  --nav-hover: #edf4ef;
+  --nav-line: #dce6df;
+  --nav-glass: rgb(255 255 255 / .94);
+  --nav-shadow: 0 8px 30px rgb(0 46 24 / .1);
+  --nav-font: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --nav-height: 96px;
+  --nav-body-height: 72px;
+  --nav-logo-width: 126px;
+  --nav-logo-height: 46px;
+  --nav-control: 44px;
+  --nav-type: 14px;
+  --nav-radius: 8px;
+  --nav-pill: 999px;
+  --nav-space: 12px;
+  --nav-inset: 24px;
+  --nav-wide: 100%;
+  --nav-compact: 960px;
+  --nav-motion: 220ms cubic-bezier(.22, 1, .36, 1);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  flex: none;
+  height: var(--nav-height);
+  padding: 12px var(--nav-inset);
+  font: 500 var(--nav-type)/1.4 var(--nav-font);
+  color: var(--nav-ink);
+  pointer-events: none;
+}
+.yu-public-navbar *, .yu-public-navbar *::before, .yu-public-navbar *::after { box-sizing: border-box; }
+.yu-nav-body {
+  position: relative;
+  width: 100%;
+  max-width: var(--nav-wide);
+  min-height: var(--nav-body-height);
+  margin: 0 auto;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nav-space);
+  background: var(--nav-paper);
+  border: 1px solid transparent;
+  border-radius: var(--nav-radius);
+  pointer-events: auto;
+  transition: max-width var(--nav-motion), min-height var(--nav-motion), border-radius var(--nav-motion), background var(--nav-motion), box-shadow var(--nav-motion), border-color var(--nav-motion);
+}
+.yu-public-navbar.is-compact .yu-nav-body {
+  max-width: var(--nav-compact);
+  border-radius: var(--nav-pill);
+  background: var(--nav-glass);
+  border-color: var(--nav-line);
+  box-shadow: var(--nav-shadow);
+  backdrop-filter: blur(16px);
+}
+.yu-public-navbar .yu-nav-brand { display: flex; flex: none; align-items: center; min-height: var(--nav-control); background: var(--nav-green); border-radius: var(--nav-radius); padding: 2px 12px; }
+.yu-public-navbar .yu-nav-brand img { display: block; width: var(--nav-logo-width); height: var(--nav-logo-height); object-fit: contain; transition: width var(--nav-motion), height var(--nav-motion); }
+.yu-nav-links { display: flex; align-items: center; justify-content: center; gap: 4px; flex: 1; padding-right: 150px; }
+.yu-public-navbar .yu-nav-links a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--nav-control); padding: 10px 16px; border-radius: var(--nav-pill); color: var(--nav-ink); text-decoration: none; white-space: nowrap; font: inherit; transition: background var(--nav-motion), color var(--nav-motion); }
+.yu-public-navbar .yu-nav-links a:hover, .yu-public-navbar .yu-nav-links a[aria-current="page"] { background: var(--nav-hover); color: var(--nav-green); }
+.yu-public-navbar .yu-nav-links .yu-nav-login { position: absolute; right: 20px; gap: 18px; color: var(--nav-paper); background: var(--nav-green); border-radius: var(--nav-radius); }
+.yu-public-navbar .yu-nav-links .yu-nav-login:hover { background: var(--nav-green-hover); color: var(--nav-paper); }
+.yu-public-navbar :is(a, button):focus-visible { outline: 2px solid var(--nav-green); outline-offset: 4px; }
+.yu-nav-toggle { display: none; }
+.yu-public-navbar[data-resize="gate"] { position: fixed; left: 0; right: 0; }
+@media (max-width: 700px) {
+  .yu-public-navbar { --nav-inset: 12px; --nav-height: 84px; --nav-type: 14px; --nav-control: 44px; padding-top: 8px; }
+  .yu-nav-body { min-height: 64px; padding: 6px 12px; flex-wrap: wrap; }
+  .yu-public-navbar .yu-nav-brand img { width: 110px; height: 40px; }
+  .yu-public-navbar.is-compact .yu-nav-body { border-radius: 28px; }
+  .yu-nav-links { flex-basis: 100%; flex-wrap: wrap; padding: 4px 0; }
+  .yu-public-navbar .yu-nav-links .yu-nav-login { position: static; }
+  .is-enhanced .yu-nav-toggle { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; width: var(--nav-control); height: var(--nav-control); border: 1px solid var(--nav-line); border-radius: var(--nav-radius); background: var(--nav-paper); color: var(--nav-green); cursor: pointer; }
+  .yu-nav-toggle span { width: 18px; height: 2px; background: currentColor; transition: transform var(--nav-motion); }
+  .is-open .yu-nav-toggle span:first-child { transform: translateY(4px) rotate(45deg); }
+  .is-open .yu-nav-toggle span:last-child { transform: translateY(-4px) rotate(-45deg); }
+  .is-enhanced .yu-nav-links { display: none; }
+  .is-enhanced.is-open .yu-nav-links { display: flex; align-items: stretch; flex-direction: column; padding-top: 8px; }
+  .yu-public-navbar .yu-nav-links a { justify-content: flex-start; border-radius: var(--nav-radius); }
+  .is-open .yu-nav-body { border-color: var(--nav-line); box-shadow: var(--nav-shadow); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yu-public-navbar *, .yu-public-navbar *::before, .yu-public-navbar *::after { transition: none; }
+}
+@media print { .yu-public-navbar { display: none; } }

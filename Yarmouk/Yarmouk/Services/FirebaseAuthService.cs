@@ -60,6 +60,21 @@ namespace Yarmouk.Services
             var json = await PostAsync("signInWithPassword", new { email, password, returnSecureToken = true }).ConfigureAwait(false);
             return ReadSession(json, email);
         }
+        public async Task<AuthSession> SignInWithIdTokenAsync(string idToken)
+        {
+            if (string.IsNullOrWhiteSpace(idToken) || idToken.Length > 8192)
+                throw new AuthException("The social sign-in token is missing or invalid.");
+            var json = await PostAsync("lookup", new { idToken }).ConfigureAwait(false);
+            var accounts = json["users"] as JArray;
+            if (accounts == null || accounts.Count != 1 || (bool?)accounts[0]["disabled"] == true)
+                throw new AuthException("This social account is unavailable. Contact the internship coordinator.");
+            string uid = (string)accounts[0]["localId"];
+            string email = (string)accounts[0]["email"];
+            if (string.IsNullOrWhiteSpace(uid) || string.IsNullOrWhiteSpace(email))
+                throw new AuthException("Firebase did not return a complete social account.");
+            return new AuthSession { Uid = uid, Email = email, IdToken = idToken,
+                ExpiresUtc = DateTime.UtcNow.AddMinutes(50) };
+        }
         private static AuthSession ReadSession(JObject json, string email)
         {
             string uid = (string)json["localId"], token = (string)json["idToken"];
