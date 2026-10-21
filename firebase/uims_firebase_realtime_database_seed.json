@@ -1,0 +1,268 @@
+{
+  "users": {
+    "HFUwKpEu34b2GPfLYBF9WWT022c2": {
+      "uid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "fullName": "Test Student",
+      "email": "student@example.com",
+      "role": "student",
+      "isActive": true,
+      "mustChangePassword": true
+    },
+    "demo-company-supervisor": {
+      "uid": "demo-company-supervisor",
+      "fullName": "Mona Khaled",
+      "email": "company.supervisor@example.com",
+      "role": "c_hr",
+      "isActive": true,
+      "mustChangePassword": true,
+      "companyId": "COMP001"
+    },
+    "demo-academic-supervisor": {
+      "uid": "demo-academic-supervisor",
+      "fullName": "Dr. Sami Ahmad",
+      "email": "academic.supervisor@example.com",
+      "role": "uni_sp",
+      "isActive": true,
+      "mustChangePassword": true
+    },
+    "demo-coordinator": {
+      "uid": "demo-coordinator",
+      "fullName": "Training Coordinator",
+      "email": "coordinator@example.com",
+      "role": "admin",
+      "isActive": true,
+      "mustChangePassword": true
+    }
+  },
+  "majors": {
+    "CIS": {
+      "id": "CIS",
+      "name": "Computer Information Systems",
+      "faculty": "Information Technology",
+      "requiredCreditHours": 90
+    },
+    "CS": {
+      "id": "CS",
+      "name": "Computer Science",
+      "faculty": "Information Technology",
+      "requiredCreditHours": 90
+    },
+    "SE": {
+      "id": "SE",
+      "name": "Software Engineering",
+      "faculty": "Information Technology",
+      "requiredCreditHours": 90
+    }
+  },
+  "students": {
+    "HFUwKpEu34b2GPfLYBF9WWT022c2": {
+      "uid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "studentId": "20260001",
+      "majorId": "CIS",
+      "academicSupervisorId": "demo-academic-supervisor",
+      "completedCreditHours": 100,
+      "internshipStatus": "InProgress",
+      "technicalSkills": [
+        "C#",
+        "ASP.NET Web Forms",
+        "HTML",
+        "CSS"
+      ],
+      "softSkills": [
+        "Communication",
+        "Teamwork"
+      ],
+      "acceptedApplicationId": "APP001",
+      "companyId": "COMP001",
+      "trainingStartDate": "2026-10-01",
+      "requiredTrainingHours": 160,
+      "approvedTrainingHours": 24
+    }
+  },
+  "companies": {
+    "COMP001": {
+      "id": "COMP001",
+      "name": "Future Tech Solutions",
+      "industry": "Software Development",
+      "location": "Irbid, Jordan",
+      "contactEmail": "hr@example.com",
+      "isApproved": true,
+      "supervisorUids": {
+        "demo-company-supervisor": true
+      }
+    },
+    "COMP002": {
+      "id": "COMP002",
+      "name": "Digital Horizons",
+      "industry": "Information Technology",
+      "location": "Amman, Jordan",
+      "contactEmail": "contact@example.com",
+      "isApproved": false,
+      "supervisorUids": {}
+    }
+  },
+  "opportunities": {
+    "OPP001": {
+      "id": "OPP001",
+      "companyId": "COMP001",
+      "title": "ASP.NET Developer Intern",
+      "description": "Assist with ASP.NET web applications and database integration.",
+      "eligibleMajorIds": [
+        "CIS",
+        "CS",
+        "SE"
+      ],
+      "availablePositions": 2,
+      "isActive": true,
+      "location": "Irbid, Jordan",
+      "workMode": "OnSite",
+      "requiredSkills": [
+        "C#",
+        "SQL"
+      ]
+    },
+    "OPP002": {
+      "id": "OPP002",
+      "companyId": "COMP001",
+      "title": "QA Intern",
+      "description": "Test web applications and document bugs.",
+      "eligibleMajorIds": [
+        "CIS",
+        "CS",
+        "SE"
+      ],
+      "availablePositions": 1,
+      "isActive": true,
+      "location": "Irbid, Jordan",
+      "workMode": "Hybrid",
+      "requiredSkills": [
+        "Testing"
+      ]
+    }
+  },
+  "applications": {
+    "APP001": {
+      "id": "APP001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "opportunityId": "OPP001",
+      "companyId": "COMP001",
+      "status": "Accepted",
+      "appliedAtUnixMs": 1790000000000,
+      "reviewedByUid": "demo-company-supervisor",
+      "reviewedAtUnixMs": 1790100000000,
+      "isConfirmedPlacement": true
+    }
+  },
+  "placements": {
+    "PLC001": {
+      "id": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "applicationId": "APP001",
+      "companyId": "COMP001",
+      "opportunityId": "OPP001",
+      "academicSupervisorUid": "demo-academic-supervisor",
+      "companySupervisorUid": "demo-company-supervisor",
+      "status": "InProgress",
+      "startDate": "2026-10-01",
+      "endDate": "2026-11-30",
+      "requiredHours": 160,
+      "approvedHours": 24
+    }
+  },
+  "tasks": {
+    "TASK001": {
+      "id": "TASK001",
+      "placementId": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "supervisorUid": "demo-company-supervisor",
+      "title": "Create a Student Profile Page",
+      "description": "Implement an ASP.NET Web Forms student profile page.",
+      "status": "Submitted",
+      "dueAtUnixMs": 1791504000000,
+      "createdAtUnixMs": 1790900000000
+    },
+    "TASK002": {
+      "id": "TASK002",
+      "placementId": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "supervisorUid": "demo-company-supervisor",
+      "title": "Write Database Queries",
+      "description": "Create and test basic queries.",
+      "status": "Pending",
+      "dueAtUnixMs": 1792108800000,
+      "createdAtUnixMs": 1791000000000
+    }
+  },
+  "taskSubmissions": {
+    "SUB001": {
+      "id": "SUB001",
+      "taskId": "TASK001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "submissionUrl": "https://example.com/demo-submission",
+      "notes": "Initial implementation for review.",
+      "submittedAtUnixMs": 1791100000000,
+      "reviewStatus": "Pending"
+    }
+  },
+  "trainingLogs": {
+    "LOG001": {
+      "id": "LOG001",
+      "placementId": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "date": "2026-10-05",
+      "hours": 8,
+      "description": "ASP.NET page development",
+      "status": "Approved",
+      "approvedByUid": "demo-company-supervisor"
+    },
+    "LOG002": {
+      "id": "LOG002",
+      "placementId": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "date": "2026-10-06",
+      "hours": 8,
+      "description": "Firebase database integration",
+      "status": "Approved",
+      "approvedByUid": "demo-company-supervisor"
+    },
+    "LOG003": {
+      "id": "LOG003",
+      "placementId": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "date": "2026-10-07",
+      "hours": 8,
+      "description": "Testing and documentation",
+      "status": "Approved",
+      "approvedByUid": "demo-company-supervisor"
+    }
+  },
+  "evaluations": {
+    "EVAL001": {
+      "id": "EVAL001",
+      "placementId": "PLC001",
+      "studentUid": "HFUwKpEu34b2GPfLYBF9WWT022c2",
+      "academicSupervisorUid": "demo-academic-supervisor",
+      "companySupervisorUid": "demo-company-supervisor",
+      "academicScore": 0,
+      "companyScore": 0,
+      "academicSubmitted": false,
+      "companySubmitted": false,
+      "coordinatorApproved": false,
+      "finalScore": null,
+      "status": "NotReady",
+      "academicWeight": 0.6,
+      "companyWeight": 0.4
+    }
+  },
+  "contactMessages": {
+    "MSG001": {
+      "id": "MSG001",
+      "fullName": "Sample Visitor",
+      "email": "visitor@example.com",
+      "subject": "Internship inquiry",
+      "message": "I would like to learn more about internship opportunities.",
+      "status": "New",
+      "createdAtUnixMs": 1791000000000
+    }
+  }
+}
