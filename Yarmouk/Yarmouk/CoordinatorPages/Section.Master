@@ -1,0 +1,19 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.CoordinatorPages.SectionMaster" %>
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UIMS</title>
+<link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/CoordinatorPages/shared.css") %>" rel="stylesheet" />
+<asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+<form id="form1" runat="server">
+<header class="container py-3 border-bottom"><a href="<%= ResolveUrl("~/Default.aspx") %>">UIMS</a> <span class="ms-3">Coordinator</span></header>
+<main class="container py-4"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
+<footer class="container py-3 border-top"><small>UIMS - University Internship Management System</small></footer>
+</form>
+</body>
+</html>

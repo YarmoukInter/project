@@ -49,6 +49,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
@@ -118,6 +119,113 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="PublicPages\Home.Master" />
+    <Content Include="PublicPages\Section.Master" />
+    <Content Include="Content\PublicPages\shared.css" />
+    <Content Include="PublicPages\Home.aspx" />
+    <Content Include="Content\PublicPages\Home.css" />
+    <Content Include="Scripts\PublicPages\Home.js" />
+    <Content Include="PublicPages\AboutUs.aspx" />
+    <Content Include="Content\PublicPages\AboutUs.css" />
+    <Content Include="Scripts\PublicPages\AboutUs.js" />
+    <Content Include="PublicPages\ContactUs.aspx" />
+    <Content Include="Content\PublicPages\ContactUs.css" />
+    <Content Include="Scripts\PublicPages\ContactUs.js" />
+    <Content Include="PublicPages\Login.aspx" />
+    <Content Include="Content\PublicPages\Login.css" />
+    <Content Include="Scripts\PublicPages\Login.js" />
+    <Content Include="StudentPages\Section.Master" />
+    <Content Include="Content\StudentPages\shared.css" />
+    <Content Include="StudentPages\ChangePassword.aspx" />
+    <Content Include="Content\StudentPages\ChangePassword.css" />
+    <Content Include="Scripts\StudentPages\ChangePassword.js" />
+    <Content Include="StudentPages\Dashboard.aspx" />
+    <Content Include="Content\StudentPages\Dashboard.css" />
+    <Content Include="Scripts\StudentPages\Dashboard.js" />
+    <Content Include="StudentPages\Profile.aspx" />
+    <Content Include="Content\StudentPages\Profile.css" />
+    <Content Include="Scripts\StudentPages\Profile.js" />
+    <Content Include="StudentPages\Opportunities.aspx" />
+    <Content Include="Content\StudentPages\Opportunities.css" />
+    <Content Include="Scripts\StudentPages\Opportunities.js" />
+    <Content Include="StudentPages\Apply.aspx" />
+    <Content Include="Content\StudentPages\Apply.css" />
+    <Content Include="Scripts\StudentPages\Apply.js" />
+    <Content Include="StudentPages\MyApplications.aspx" />
+    <Content Include="Content\StudentPages\MyApplications.css" />
+    <Content Include="Scripts\StudentPages\MyApplications.js" />
+    <Content Include="StudentPages\MyTasks.aspx" />
+    <Content Include="Content\StudentPages\MyTasks.css" />
+    <Content Include="Scripts\StudentPages\MyTasks.js" />
+    <Content Include="StudentPages\Progress.aspx" />
+    <Content Include="Content\StudentPages\Progress.css" />
+    <Content Include="Scripts\StudentPages\Progress.js" />
+    <Content Include="CompanyPages\Section.Master" />
+    <Content Include="Content\CompanyPages\shared.css" />
+    <Content Include="CompanyPages\Dashboard.aspx" />
+    <Content Include="Content\CompanyPages\Dashboard.css" />
+    <Content Include="Scripts\CompanyPages\Dashboard.js" />
+    <Content Include="CompanyPages\ManageOpportunities.aspx" />
+    <Content Include="Content\CompanyPages\ManageOpportunities.css" />
+    <Content Include="Scripts\CompanyPages\ManageOpportunities.js" />
+    <Content Include="CompanyPages\ApplicationsReview.aspx" />
+    <Content Include="Content\CompanyPages\ApplicationsReview.css" />
+    <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
+    <Content Include="CompanyPages\MyTrainees.aspx" />
+    <Content Include="Content\CompanyPages\MyTrainees.css" />
+    <Content Include="Scripts\CompanyPages\MyTrainees.js" />
+    <Content Include="CompanyPages\ManageTasks.aspx" />
+    <Content Include="Content\CompanyPages\ManageTasks.css" />
+    <Content Include="Scripts\CompanyPages\ManageTasks.js" />
+    <Content Include="CompanyPages\FinalEvaluation.aspx" />
+    <Content Include="Content\CompanyPages\FinalEvaluation.css" />
+    <Content Include="Scripts\CompanyPages\FinalEvaluation.js" />
+    <Content Include="CompanyPages\Account.aspx" />
+    <Content Include="Content\CompanyPages\Account.css" />
+    <Content Include="Scripts\CompanyPages\Account.js" />
+    <Content Include="AcademicPages\Section.Master" />
+    <Content Include="Content\AcademicPages\shared.css" />
+    <Content Include="AcademicPages\Dashboard.aspx" />
+    <Content Include="Content\AcademicPages\Dashboard.css" />
+    <Content Include="Scripts\AcademicPages\Dashboard.js" />
+    <Content Include="AcademicPages\StudentProgress.aspx" />
+    <Content Include="Content\AcademicPages\StudentProgress.css" />
+    <Content Include="Scripts\AcademicPages\StudentProgress.js" />
+    <Content Include="AcademicPages\FinalEvaluation.aspx" />
+    <Content Include="Content\AcademicPages\FinalEvaluation.css" />
+    <Content Include="Scripts\AcademicPages\FinalEvaluation.js" />
+    <Content Include="AcademicPages\Account.aspx" />
+    <Content Include="Content\AcademicPages\Account.css" />
+    <Content Include="Scripts\AcademicPages\Account.js" />
+    <Content Include="CoordinatorPages\Section.Master" />
+    <Content Include="Content\CoordinatorPages\shared.css" />
+    <Content Include="CoordinatorPages\Dashboard.aspx" />
+    <Content Include="Content\CoordinatorPages\Dashboard.css" />
+    <Content Include="Scripts\CoordinatorPages\Dashboard.js" />
+    <Content Include="CoordinatorPages\ManageStudents.aspx" />
+    <Content Include="Content\CoordinatorPages\ManageStudents.css" />
+    <Content Include="Scripts\CoordinatorPages\ManageStudents.js" />
+    <Content Include="CoordinatorPages\ManageCompanies.aspx" />
+    <Content Include="Content\CoordinatorPages\ManageCompanies.css" />
+    <Content Include="Scripts\CoordinatorPages\ManageCompanies.js" />
+    <Content Include="CoordinatorPages\ManageAcademicSupervisors.aspx" />
+    <Content Include="Content\CoordinatorPages\ManageAcademicSupervisors.css" />
+    <Content Include="Scripts\CoordinatorPages\ManageAcademicSupervisors.js" />
+    <Content Include="CoordinatorPages\AssignAcademicSupervisors.aspx" />
+    <Content Include="Content\CoordinatorPages\AssignAcademicSupervisors.css" />
+    <Content Include="Scripts\CoordinatorPages\AssignAcademicSupervisors.js" />
+    <Content Include="CoordinatorPages\MonitorPlacements.aspx" />
+    <Content Include="Content\CoordinatorPages\MonitorPlacements.css" />
+    <Content Include="Scripts\CoordinatorPages\MonitorPlacements.js" />
+    <Content Include="CoordinatorPages\FinalCompletionReview.aspx" />
+    <Content Include="Content\CoordinatorPages\FinalCompletionReview.css" />
+    <Content Include="Scripts\CoordinatorPages\FinalCompletionReview.js" />
+    <Content Include="CoordinatorPages\ContactMessages.aspx" />
+    <Content Include="Content\CoordinatorPages\ContactMessages.css" />
+    <Content Include="Scripts\CoordinatorPages\ContactMessages.js" />
+    <Content Include="CoordinatorPages\Account.aspx" />
+    <Content Include="Content\CoordinatorPages\Account.css" />
+    <Content Include="Scripts\CoordinatorPages\Account.js" />
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -183,6 +291,290 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PublicPages\Home.Master.cs">
+      <DependentUpon>Home.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Home.Master.designer.cs">
+      <DependentUpon>Home.Master</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\Home.aspx.cs">
+      <DependentUpon>Home.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Home.aspx.designer.cs">
+      <DependentUpon>Home.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\AboutUs.aspx.cs">
+      <DependentUpon>AboutUs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\AboutUs.aspx.designer.cs">
+      <DependentUpon>AboutUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\ContactUs.aspx.cs">
+      <DependentUpon>ContactUs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\ContactUs.aspx.designer.cs">
+      <DependentUpon>ContactUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\ChangePassword.aspx.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\ChangePassword.aspx.designer.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Opportunities.aspx.cs">
+      <DependentUpon>Opportunities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Opportunities.aspx.designer.cs">
+      <DependentUpon>Opportunities.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Apply.aspx.cs">
+      <DependentUpon>Apply.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Apply.aspx.designer.cs">
+      <DependentUpon>Apply.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\MyApplications.aspx.cs">
+      <DependentUpon>MyApplications.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\MyApplications.aspx.designer.cs">
+      <DependentUpon>MyApplications.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\MyTasks.aspx.cs">
+      <DependentUpon>MyTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\MyTasks.aspx.designer.cs">
+      <DependentUpon>MyTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Progress.aspx.cs">
+      <DependentUpon>Progress.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Progress.aspx.designer.cs">
+      <DependentUpon>Progress.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\ManageOpportunities.aspx.cs">
+      <DependentUpon>ManageOpportunities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\ManageOpportunities.aspx.designer.cs">
+      <DependentUpon>ManageOpportunities.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\ApplicationsReview.aspx.cs">
+      <DependentUpon>ApplicationsReview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\ApplicationsReview.aspx.designer.cs">
+      <DependentUpon>ApplicationsReview.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\MyTrainees.aspx.cs">
+      <DependentUpon>MyTrainees.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\MyTrainees.aspx.designer.cs">
+      <DependentUpon>MyTrainees.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\ManageTasks.aspx.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\ManageTasks.aspx.designer.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\FinalEvaluation.aspx.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\FinalEvaluation.aspx.designer.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\Account.aspx.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\Account.aspx.designer.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\StudentProgress.aspx.cs">
+      <DependentUpon>StudentProgress.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\StudentProgress.aspx.designer.cs">
+      <DependentUpon>StudentProgress.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\FinalEvaluation.aspx.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\FinalEvaluation.aspx.designer.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\Account.aspx.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Account.aspx.designer.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageStudents.aspx.cs">
+      <DependentUpon>ManageStudents.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageStudents.aspx.designer.cs">
+      <DependentUpon>ManageStudents.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageCompanies.aspx.cs">
+      <DependentUpon>ManageCompanies.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageCompanies.aspx.designer.cs">
+      <DependentUpon>ManageCompanies.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageAcademicSupervisors.aspx.cs">
+      <DependentUpon>ManageAcademicSupervisors.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageAcademicSupervisors.aspx.designer.cs">
+      <DependentUpon>ManageAcademicSupervisors.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\AssignAcademicSupervisors.aspx.cs">
+      <DependentUpon>AssignAcademicSupervisors.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\AssignAcademicSupervisors.aspx.designer.cs">
+      <DependentUpon>AssignAcademicSupervisors.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\MonitorPlacements.aspx.cs">
+      <DependentUpon>MonitorPlacements.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\MonitorPlacements.aspx.designer.cs">
+      <DependentUpon>MonitorPlacements.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.cs">
+      <DependentUpon>FinalCompletionReview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.designer.cs">
+      <DependentUpon>FinalCompletionReview.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ContactMessages.aspx.cs">
+      <DependentUpon>ContactMessages.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ContactMessages.aspx.designer.cs">
+      <DependentUpon>ContactMessages.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\Account.aspx.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Account.aspx.designer.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\Student.cs" />
+    <Compile Include="Models\Major.cs" />
+    <Compile Include="Models\Company.cs" />
+    <Compile Include="Models\Opportunity.cs" />
+    <Compile Include="Models\Application.cs" />
+    <Compile Include="Models\Placement.cs" />
+    <Compile Include="Models\TrainingTask.cs" />
+    <Compile Include="Models\TaskSubmission.cs" />
+    <Compile Include="Models\TrainingLog.cs" />
+    <Compile Include="Models\Evaluation.cs" />
+    <Compile Include="Models\ContactMessage.cs" />
+    <Compile Include="Services\StudentService.cs" />
+    <Compile Include="Services\OpportunityService.cs" />
+    <Compile Include="Services\ApplicationService.cs" />
+    <Compile Include="Services\EvaluationService.cs" />
+    <Compile Include="Helpers\FirebaseHelper.cs" />
+    <Compile Include="Helpers\DatabasePaths.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
@@ -219,12 +611,14 @@
     </Compile>
     <Compile Include="Site.Mobile.Master.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Site.Mobile.Master.designer.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.designer.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
@@ -282,4 +676,14 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
+  <ItemGroup>
+    <Compile Include="Helpers\AuthPolicy.cs" />
+    <Compile Include="Helpers\AuthPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Helpers\AuthGuard.cs" />
+    <Compile Include="Services\FirebaseAuthService.cs" />
+    <Compile Include="Services\PasswordSetupService.cs" />
+    <Content Include="Content\Images\yarmouk-college-logo.png" />
+  </ItemGroup>
 </Project>
