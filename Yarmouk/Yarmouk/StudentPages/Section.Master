@@ -1,0 +1,40 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.StudentPages.SectionMaster" %>
+<!DOCTYPE html>
+<html lang="en" class="student-app">
+<head runat="server">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title><%: Page.Title %> — Student Workspace</title>
+<link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/StudentPages/shared.css") %>" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/StudentPages/student-shell.css") %>?v=1" rel="stylesheet" />
+<asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body class="student-app">
+<form id="form1" runat="server" class="student-layout">
+<header class="student-header" data-student-nav>
+  <div class="student-header-inner">
+    <a class="student-brand" href="<%= ResolveUrl("~/StudentPages/Dashboard.aspx") %>" aria-label="Yarmouk student workspace home">
+      <img src="<%= ResolveUrl("~/Content/Images/yarmouk-logo-on-dark.svg") %>" width="126" height="46" alt="Yarmouk University" />
+      <span class="student-brand-copy">Internship Workspace<small>Student portal</small></span>
+    </a>
+    <button class="student-nav-toggle" type="button" aria-expanded="false" aria-controls="student-navigation" aria-label="Open student navigation" hidden><span></span><span></span></button>
+    <nav class="student-navigation" id="student-navigation" aria-label="Student workspace">
+      <a href="<%= ResolveUrl("~/StudentPages/Dashboard.aspx") %>">Dashboard</a>
+      <a href="<%= ResolveUrl("~/StudentPages/Opportunities.aspx") %>">Opportunities</a>
+      <a href="<%= ResolveUrl("~/StudentPages/MyApplications.aspx") %>">Applications</a>
+      <a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>">My tasks</a>
+      <a href="<%= ResolveUrl("~/StudentPages/Progress.aspx") %>">Progress</a>
+      <a href="<%= ResolveUrl("~/StudentPages/Profile.aspx") %>">Profile</a>
+    </nav>
+    <asp:LinkButton ID="SignOutButton" runat="server" CssClass="student-signout" OnClick="SignOut_Click" CausesValidation="false">Sign out <span aria-hidden="true">↗</span></asp:LinkButton>
+  </div>
+</header>
+<main class="student-main"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
+<footer class="student-footer">
+  <div class="student-footer-inner"><a href="<%= ResolveUrl("~/StudentPages/Dashboard.aspx") %>">Yarmouk University</a><span>Internship Management System · Student Workspace</span><span>© <span data-student-year>2026</span> Faculty of IT and Computer Science</span></div>
+</footer>
+</form>
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/student-shell.js") %>?v=1" defer></script>
+</body>
+</html>
