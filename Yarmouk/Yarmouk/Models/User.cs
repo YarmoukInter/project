@@ -9,5 +9,8 @@ namespace Yarmouk.Models
         public string Role { get; set; }
         public bool IsActive { get; set; }
         public bool MustChangePassword { get; set; } = true;
+        public string Phone { get; set; }
+        public string CvLink { get; set; }
+        public string PortfolioLink { get; set; }
     }
 }
