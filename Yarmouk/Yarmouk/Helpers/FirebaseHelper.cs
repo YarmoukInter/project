@@ -22,7 +22,7 @@ namespace Yarmouk.Helpers
                 throw new ConfigurationErrorsException("Set FirebaseDatabaseUrl to a valid HTTPS URL in Web.config.");
             databaseUrl = databaseUrl.TrimEnd('/');
         }
-        private string GetUrl(string path, string idToken)
+        private string GetUrl(string path, string idToken, string query = null)
         {
             if (string.IsNullOrWhiteSpace(idToken)) throw new UnauthorizedAccessException("Sign in first.");
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Database path required.");
@@ -30,11 +30,11 @@ namespace Yarmouk.Helpers
                 if (string.IsNullOrWhiteSpace(segment) || segment == "." || segment == ".."
                     || segment.IndexOfAny(new[] { '.', '#', '$', '[', ']', '?', '&' }) >= 0)
                     throw new ArgumentException("Invalid Firebase path.");
-            return databaseUrl + "/" + path + ".json?auth=" + Uri.EscapeDataString(idToken);
+            return databaseUrl + "/" + path + ".json?" + (string.IsNullOrEmpty(query) ? "" : query + "&") + "auth=" + Uri.EscapeDataString(idToken);
         }
-        private async Task<string> SendAsync(HttpMethod method, string path, string idToken, object value = null)
+        private async Task<string> SendAsync(HttpMethod method, string path, string idToken, object value = null, string query = null)
         {
-            using (var request = new HttpRequestMessage(method, GetUrl(path, idToken)))
+            using (var request = new HttpRequestMessage(method, GetUrl(path, idToken, query)))
             {
                 if (value != null)
                     request.Content = new StringContent(JsonConvert.SerializeObject(value, Settings), Encoding.UTF8, "application/json");
@@ -49,6 +49,16 @@ namespace Yarmouk.Helpers
         public async Task<T> GetAsync<T>(string path, string idToken)
         {
             string json = await SendAsync(HttpMethod.Get, path, idToken).ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<T>(json, Settings);
+        }
+        public async Task<T> GetByChildAsync<T>(string path, string child, string value, string idToken)
+        {
+            if (string.IsNullOrWhiteSpace(child)) throw new ArgumentException("Child field required.");
+            foreach (char character in child)
+                if (!char.IsLetterOrDigit(character) && character != '_') throw new ArgumentException("Invalid Firebase child field.");
+            string query = "orderBy=" + Uri.EscapeDataString("\"" + child + "\"") +
+                "&equalTo=" + Uri.EscapeDataString(JsonConvert.SerializeObject(value));
+            string json = await SendAsync(HttpMethod.Get, path, idToken, null, query).ConfigureAwait(false);
             return JsonConvert.DeserializeObject<T>(json, Settings);
         }
         public async Task SaveAsync<T>(string path, T value, string idToken)

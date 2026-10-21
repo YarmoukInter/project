@@ -26,7 +26,9 @@
     </nav>
   </div>
 </header>
-<main id="top" class="yu-page-main"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
+<main id="top" class="yu-page-main">
+        <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+        </main>
 <yu:SiteFooter ID="SiteFooter" runat="server" />
 </form>
 <script src="<%= ResolveUrl("~/Scripts/PublicPages/navbar.js") %>?v=1" defer></script>

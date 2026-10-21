@@ -16,5 +16,22 @@ namespace Yarmouk.Models
         public string TrainingStartDate { get; set; }
         public int RequiredTrainingHours { get; set; }
         public int ApprovedTrainingHours { get; set; }
+
+        public string StudentNumber { get; set; }
+        public string EnglishName { get; set; }
+        public string NationalId { get; set; }
+        public string Gender { get; set; }
+        public string Nationality { get; set; }
+        public string BirthPlace { get; set; }
+        public string BirthDate { get; set; }
+        public string AcademicStatus { get; set; }
+        public string Gpa { get; set; }
+        public string ExpectedGraduation { get; set; }
+        public string Term { get; set; }
+        public string AcademicSupervisorName { get; set; }
+        public int CompletedCredits { get; set; }
+        public int RequiredHours { get; set; }
+        public string CvUrl { get; set; }
+
     }
 }

@@ -8,5 +8,7 @@ namespace Yarmouk.Models
         public string OpportunityId { get; set; }
         public string Status { get; set; }
         public long AppliedAtUnixMs { get; set; }
+        public Dictionary<string, string> Answers { get; set; }
+        public string RejectionReason { get; set; }
     }
 }

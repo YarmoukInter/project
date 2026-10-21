@@ -11,5 +11,11 @@ namespace Yarmouk.Models
         public int AvailablePositions { get; set; }
         public bool IsActive { get; set; }
         public string Deadline { get; set; }
+        public List<string> ApplicationQuestions { get; set; }
+        public string Requirements { get; set; }
+        public string Duration { get; set; }
+        public int RequiredTrainingHours { get; set; }
+        public string WorkMode { get; set; }
+        public List<string> Skills { get; set; }
     }
 }
