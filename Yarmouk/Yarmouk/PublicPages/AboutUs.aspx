@@ -1,10 +1,13 @@
-<%@ Page Title="عن المنظومة | جامعة اليرموك" Language="C#" MasterPageFile="~/PublicPages/Section.Master" AutoEventWireup="true" CodeBehind="AboutUs.aspx.cs" Inherits="Yarmouk.PublicPages.AboutUs" %>
-
-<asp:Content ID="Content1" ContentPlaceHolderID="HeadContent" runat="server">
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" /><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" /><link rel="stylesheet" href="<%= ResolveUrl("~/Content/PublicPages/AboutUs.css") %>" /><script src="<%= ResolveUrl("~/Scripts/PublicPages/AboutUs.js") %>" defer></script>
+<%@ Page Title="AboutUs" Language="C#" MasterPageFile="~/PublicPages/Section.Master" AutoEventWireup="true" CodeBehind="AboutUs.aspx.cs" Inherits="Yarmouk.PublicPages.AboutUs" %>
+<asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
+<link href="<%= ResolveUrl("~/Content/PublicPages/AboutUs.css") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/PublicPages/AboutUs.js") %>" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
 </asp:Content>
+<asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 
-<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
     <div class="about-page" id="aboutPage" lang="ar" dir="rtl">
         <section class="about-hero" aria-labelledby="aboutTitle">
             <div class="about-hero-pattern" aria-hidden="true"><span class="about-hero-orbit about-hero-orbit-one"></span><span class="about-hero-orbit about-hero-orbit-two"></span><span class="about-hero-spark about-hero-spark-one"></span><span class="about-hero-spark about-hero-spark-two"></span></div>
