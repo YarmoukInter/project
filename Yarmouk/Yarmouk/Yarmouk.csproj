@@ -119,7 +119,7 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\Site.css" />
-        <Content Include="PublicPages\Home.Master" />
+    <Content Include="PublicPages\Home.Master" />
     <Content Include="PublicPages\Section.Master" />
     <Content Include="Content\PublicPages\shared.css" />
     <Content Include="PublicPages\Home.aspx" />
@@ -291,82 +291,272 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
-        <Compile Include="PublicPages\Home.Master.cs"><DependentUpon>Home.Master</DependentUpon></Compile>
-    <Compile Include="PublicPages\Home.Master.designer.cs"><DependentUpon>Home.Master</DependentUpon></Compile>
-    <Compile Include="PublicPages\Section.Master.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="PublicPages\Section.Master.designer.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="PublicPages\Home.aspx.cs"><DependentUpon>Home.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="PublicPages\Home.aspx.designer.cs"><DependentUpon>Home.aspx</DependentUpon></Compile>
-    <Compile Include="PublicPages\AboutUs.aspx.cs"><DependentUpon>AboutUs.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="PublicPages\AboutUs.aspx.designer.cs"><DependentUpon>AboutUs.aspx</DependentUpon></Compile>
-    <Compile Include="PublicPages\ContactUs.aspx.cs"><DependentUpon>ContactUs.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="PublicPages\ContactUs.aspx.designer.cs"><DependentUpon>ContactUs.aspx</DependentUpon></Compile>
-    <Compile Include="PublicPages\Login.aspx.cs"><DependentUpon>Login.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="PublicPages\Login.aspx.designer.cs"><DependentUpon>Login.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\Section.Master.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="StudentPages\Section.Master.designer.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="StudentPages\ChangePassword.aspx.cs"><DependentUpon>ChangePassword.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\ChangePassword.aspx.designer.cs"><DependentUpon>ChangePassword.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\Dashboard.aspx.cs"><DependentUpon>Dashboard.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\Dashboard.aspx.designer.cs"><DependentUpon>Dashboard.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\Profile.aspx.cs"><DependentUpon>Profile.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\Profile.aspx.designer.cs"><DependentUpon>Profile.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\Opportunities.aspx.cs"><DependentUpon>Opportunities.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\Opportunities.aspx.designer.cs"><DependentUpon>Opportunities.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\Apply.aspx.cs"><DependentUpon>Apply.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\Apply.aspx.designer.cs"><DependentUpon>Apply.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\MyApplications.aspx.cs"><DependentUpon>MyApplications.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\MyApplications.aspx.designer.cs"><DependentUpon>MyApplications.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\MyTasks.aspx.cs"><DependentUpon>MyTasks.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\MyTasks.aspx.designer.cs"><DependentUpon>MyTasks.aspx</DependentUpon></Compile>
-    <Compile Include="StudentPages\Progress.aspx.cs"><DependentUpon>Progress.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="StudentPages\Progress.aspx.designer.cs"><DependentUpon>Progress.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\Section.Master.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="CompanyPages\Section.Master.designer.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="CompanyPages\Dashboard.aspx.cs"><DependentUpon>Dashboard.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\Dashboard.aspx.designer.cs"><DependentUpon>Dashboard.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\ManageOpportunities.aspx.cs"><DependentUpon>ManageOpportunities.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\ManageOpportunities.aspx.designer.cs"><DependentUpon>ManageOpportunities.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\ApplicationsReview.aspx.cs"><DependentUpon>ApplicationsReview.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\ApplicationsReview.aspx.designer.cs"><DependentUpon>ApplicationsReview.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\MyTrainees.aspx.cs"><DependentUpon>MyTrainees.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\MyTrainees.aspx.designer.cs"><DependentUpon>MyTrainees.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\ManageTasks.aspx.cs"><DependentUpon>ManageTasks.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\ManageTasks.aspx.designer.cs"><DependentUpon>ManageTasks.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\FinalEvaluation.aspx.cs"><DependentUpon>FinalEvaluation.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\FinalEvaluation.aspx.designer.cs"><DependentUpon>FinalEvaluation.aspx</DependentUpon></Compile>
-    <Compile Include="CompanyPages\Account.aspx.cs"><DependentUpon>Account.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CompanyPages\Account.aspx.designer.cs"><DependentUpon>Account.aspx</DependentUpon></Compile>
-    <Compile Include="AcademicPages\Section.Master.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="AcademicPages\Section.Master.designer.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="AcademicPages\Dashboard.aspx.cs"><DependentUpon>Dashboard.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="AcademicPages\Dashboard.aspx.designer.cs"><DependentUpon>Dashboard.aspx</DependentUpon></Compile>
-    <Compile Include="AcademicPages\StudentProgress.aspx.cs"><DependentUpon>StudentProgress.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="AcademicPages\StudentProgress.aspx.designer.cs"><DependentUpon>StudentProgress.aspx</DependentUpon></Compile>
-    <Compile Include="AcademicPages\FinalEvaluation.aspx.cs"><DependentUpon>FinalEvaluation.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="AcademicPages\FinalEvaluation.aspx.designer.cs"><DependentUpon>FinalEvaluation.aspx</DependentUpon></Compile>
-    <Compile Include="AcademicPages\Account.aspx.cs"><DependentUpon>Account.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="AcademicPages\Account.aspx.designer.cs"><DependentUpon>Account.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\Section.Master.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\Section.Master.designer.cs"><DependentUpon>Section.Master</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\Dashboard.aspx.cs"><DependentUpon>Dashboard.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\Dashboard.aspx.designer.cs"><DependentUpon>Dashboard.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\ManageStudents.aspx.cs"><DependentUpon>ManageStudents.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\ManageStudents.aspx.designer.cs"><DependentUpon>ManageStudents.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\ManageCompanies.aspx.cs"><DependentUpon>ManageCompanies.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\ManageCompanies.aspx.designer.cs"><DependentUpon>ManageCompanies.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\ManageAcademicSupervisors.aspx.cs"><DependentUpon>ManageAcademicSupervisors.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\ManageAcademicSupervisors.aspx.designer.cs"><DependentUpon>ManageAcademicSupervisors.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\AssignAcademicSupervisors.aspx.cs"><DependentUpon>AssignAcademicSupervisors.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\AssignAcademicSupervisors.aspx.designer.cs"><DependentUpon>AssignAcademicSupervisors.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\MonitorPlacements.aspx.cs"><DependentUpon>MonitorPlacements.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\MonitorPlacements.aspx.designer.cs"><DependentUpon>MonitorPlacements.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.cs"><DependentUpon>FinalCompletionReview.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.designer.cs"><DependentUpon>FinalCompletionReview.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\ContactMessages.aspx.cs"><DependentUpon>ContactMessages.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\ContactMessages.aspx.designer.cs"><DependentUpon>ContactMessages.aspx</DependentUpon></Compile>
-    <Compile Include="CoordinatorPages\Account.aspx.cs"><DependentUpon>Account.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
-    <Compile Include="CoordinatorPages\Account.aspx.designer.cs"><DependentUpon>Account.aspx</DependentUpon></Compile>
+    <Compile Include="PublicPages\Home.Master.cs">
+      <DependentUpon>Home.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Home.Master.designer.cs">
+      <DependentUpon>Home.Master</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\Home.aspx.cs">
+      <DependentUpon>Home.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Home.aspx.designer.cs">
+      <DependentUpon>Home.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\AboutUs.aspx.cs">
+      <DependentUpon>AboutUs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\AboutUs.aspx.designer.cs">
+      <DependentUpon>AboutUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\ContactUs.aspx.cs">
+      <DependentUpon>ContactUs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\ContactUs.aspx.designer.cs">
+      <DependentUpon>ContactUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicPages\Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\ChangePassword.aspx.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\ChangePassword.aspx.designer.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Opportunities.aspx.cs">
+      <DependentUpon>Opportunities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Opportunities.aspx.designer.cs">
+      <DependentUpon>Opportunities.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Apply.aspx.cs">
+      <DependentUpon>Apply.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Apply.aspx.designer.cs">
+      <DependentUpon>Apply.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\MyApplications.aspx.cs">
+      <DependentUpon>MyApplications.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\MyApplications.aspx.designer.cs">
+      <DependentUpon>MyApplications.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\MyTasks.aspx.cs">
+      <DependentUpon>MyTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\MyTasks.aspx.designer.cs">
+      <DependentUpon>MyTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StudentPages\Progress.aspx.cs">
+      <DependentUpon>Progress.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StudentPages\Progress.aspx.designer.cs">
+      <DependentUpon>Progress.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\ManageOpportunities.aspx.cs">
+      <DependentUpon>ManageOpportunities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\ManageOpportunities.aspx.designer.cs">
+      <DependentUpon>ManageOpportunities.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\ApplicationsReview.aspx.cs">
+      <DependentUpon>ApplicationsReview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\ApplicationsReview.aspx.designer.cs">
+      <DependentUpon>ApplicationsReview.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\MyTrainees.aspx.cs">
+      <DependentUpon>MyTrainees.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\MyTrainees.aspx.designer.cs">
+      <DependentUpon>MyTrainees.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\ManageTasks.aspx.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\ManageTasks.aspx.designer.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\FinalEvaluation.aspx.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\FinalEvaluation.aspx.designer.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompanyPages\Account.aspx.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompanyPages\Account.aspx.designer.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\StudentProgress.aspx.cs">
+      <DependentUpon>StudentProgress.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\StudentProgress.aspx.designer.cs">
+      <DependentUpon>StudentProgress.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\FinalEvaluation.aspx.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\FinalEvaluation.aspx.designer.cs">
+      <DependentUpon>FinalEvaluation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AcademicPages\Account.aspx.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Account.aspx.designer.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\Section.Master.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Section.Master.designer.cs">
+      <DependentUpon>Section.Master</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageStudents.aspx.cs">
+      <DependentUpon>ManageStudents.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageStudents.aspx.designer.cs">
+      <DependentUpon>ManageStudents.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageCompanies.aspx.cs">
+      <DependentUpon>ManageCompanies.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageCompanies.aspx.designer.cs">
+      <DependentUpon>ManageCompanies.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageAcademicSupervisors.aspx.cs">
+      <DependentUpon>ManageAcademicSupervisors.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageAcademicSupervisors.aspx.designer.cs">
+      <DependentUpon>ManageAcademicSupervisors.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\AssignAcademicSupervisors.aspx.cs">
+      <DependentUpon>AssignAcademicSupervisors.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\AssignAcademicSupervisors.aspx.designer.cs">
+      <DependentUpon>AssignAcademicSupervisors.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\MonitorPlacements.aspx.cs">
+      <DependentUpon>MonitorPlacements.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\MonitorPlacements.aspx.designer.cs">
+      <DependentUpon>MonitorPlacements.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.cs">
+      <DependentUpon>FinalCompletionReview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.designer.cs">
+      <DependentUpon>FinalCompletionReview.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\ContactMessages.aspx.cs">
+      <DependentUpon>ContactMessages.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ContactMessages.aspx.designer.cs">
+      <DependentUpon>ContactMessages.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CoordinatorPages\Account.aspx.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Account.aspx.designer.cs">
+      <DependentUpon>Account.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Models\Major.cs" />
@@ -421,12 +611,14 @@
     </Compile>
     <Compile Include="Site.Mobile.Master.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Site.Mobile.Master.designer.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.designer.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
@@ -484,4 +676,14 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
+  <ItemGroup>
+    <Compile Include="Helpers\AuthPolicy.cs" />
+    <Compile Include="Helpers\AuthPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Helpers\AuthGuard.cs" />
+    <Compile Include="Services\FirebaseAuthService.cs" />
+    <Compile Include="Services\PasswordSetupService.cs" />
+    <Content Include="Content\Images\yarmouk-college-logo.png" />
+  </ItemGroup>
 </Project>

@@ -13,6 +13,6 @@ Each page has .aspx, .aspx.cs, .aspx.designer.cs, and separate CSS/JS. Public Ho
 ## Before running
 - Review database fields against the approved JSON before connecting live data.
 - FirebaseDatabaseUrl must be configured in Web.config locally.
-- Login, role checks, first-time password change, approvals, and write workflows are NOT implemented.
+- Login, server role guards, and first-time password change are implemented; see AUTH_SETUP.md for the required Firebase configuration. Approvals and other feature write workflows remain unimplemented.
 - Only the student Profile has a simple hardcoded Model example.
 - No live Firebase write is enabled by these page templates.
