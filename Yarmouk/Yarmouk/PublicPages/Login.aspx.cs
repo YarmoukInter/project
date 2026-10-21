@@ -1,5 +1,6 @@
 using System;
 using System.Web;
+using System.Threading.Tasks;
 using System.Web.UI;
 using Yarmouk.Helpers;
 using Yarmouk.Services;
@@ -19,24 +20,10 @@ namespace Yarmouk.PublicPages
                 string email = loginEmail.Text.Trim();
                 if (!AuthPolicy.ValidEmail(email) || string.IsNullOrEmpty(loginPassword.Text) || loginPassword.Text.Length > 128)
                 { Message.Text = "Enter a valid email address and password."; return; }
-                string requestedRole = AuthPolicy.NormalizeRole(SelectedRole.Value);
-                if (AuthPolicy.Home(requestedRole) == null)
-                { Message.Text = "Choose a valid account type."; return; }
                 try
                 {
                     var auth = await new FirebaseAuthService().SignInAsync(email, loginPassword.Text);
-                    var user = await new StudentService().GetUserAsync(auth.Uid, auth.IdToken);
-                    if (user == null)
-                        throw new AuthException("Firebase accepted your sign-in, but this account has no profile at users/{Authentication UID}. Copy this account's UID from Firebase Authentication and use it as both the users record key and the profile uid.");
-                    if (!AuthPolicy.ValidUser(user, auth.Uid))
-                        throw new AuthException("The Firebase profile is inactive or has an unsupported role. Ask the coordinator to check isActive and role.");
-                    user.Role = AuthPolicy.NormalizeRole(user.Role);
-                    if (!string.Equals(user.Role, requestedRole, StringComparison.Ordinal))
-                        throw new AuthException("This account is registered for a different role. Select the role assigned to your account and try again.");
-                    auth.User = user;
-                    Session.Clear();
-                    Session[AuthGuard.SessionKey] = auth;
-                    Go(user.Role == "student" && user.MustChangePassword ? "~/StudentPages/ChangePassword.aspx" : AuthPolicy.Home(user.Role));
+                    await CompleteSignInAsync(auth);
                 }
                 catch (AuthException error) { Message.Text = HttpUtility.HtmlEncode(error.Message); }
                 catch (Exception error)
@@ -46,6 +33,38 @@ namespace Yarmouk.PublicPages
                 }
                 finally { loginPassword.Text = ""; }
             }));
+        }
+        protected void SocialSignIn_Click(object sender, EventArgs e)
+        {
+            RegisterAsyncTask(new PageAsyncTask(async () =>
+            {
+                string token = SocialIdToken.Value;
+                SocialIdToken.Value = "";
+                try
+                {
+                    var auth = await new FirebaseAuthService().SignInWithIdTokenAsync(token);
+                    await CompleteSignInAsync(auth);
+                }
+                catch (AuthException error) { Message.Text = HttpUtility.HtmlEncode(error.Message); }
+                catch (Exception error)
+                {
+                    System.Diagnostics.Trace.TraceWarning("Social sign-in failed: " + error.GetType().Name);
+                    Message.Text = "Social sign-in is temporarily unavailable. Please contact the internship coordinator.";
+                }
+            }));
+        }
+        private async Task CompleteSignInAsync(AuthSession auth)
+        {
+            var user = await new StudentService().GetUserAsync(auth.Uid, auth.IdToken);
+            if (user == null)
+                throw new AuthException("This account has no user profile in the internship portal. Contact the coordinator.");
+            if (!AuthPolicy.ValidUser(user, auth.Uid))
+                throw new AuthException("This account is inactive or has an unsupported role. Contact the coordinator.");
+            user.Role = AuthPolicy.NormalizeRole(user.Role);
+            auth.User = user;
+            Session.Clear();
+            Session[AuthGuard.SessionKey] = auth;
+            Go(user.Role == "student" && user.MustChangePassword ? "~/StudentPages/ChangePassword.aspx" : AuthPolicy.Home(user.Role));
         }
         protected void Recover_Click(object sender, EventArgs e)
         {

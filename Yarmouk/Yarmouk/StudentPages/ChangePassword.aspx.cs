@@ -53,11 +53,5 @@ namespace Yarmouk.StudentPages
                 finally { CurrentPassword.Text = NewPassword.Text = ConfirmPassword.Text = ""; }
             }));
         }
-        protected void SignOut_Click(object sender, EventArgs e)
-        {
-            Session.Clear();
-            Session.Abandon();
-            Go("~/PublicPages/Login.aspx");
-        }
     }
 }

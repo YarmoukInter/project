@@ -1,41 +1,63 @@
 /* Presentation only. Authentication and redirects are handled by the server. */
 (() => {
   const gate = document.getElementById('gatePanel');
+  const socialButtons = [...document.querySelectorAll('.social-login-btn[data-provider]')];
   const email = document.getElementById('loginEmail');
   const password = document.getElementById('loginPassword');
   const toggle = document.getElementById('togglePasswordBtn');
+  socialButtons.forEach(button => {
+    button.addEventListener('click', () => startSocialSignIn(button.dataset.provider));
+  });
+  async function startSocialSignIn(providerName) {
+    const createProvider = {
+      google: () => new firebase.auth.GoogleAuthProvider(),
+      github: () => new firebase.auth.GithubAuthProvider()
+    }[providerName];
+    if (!createProvider) return;
+    const providerLabel = { google: 'Google', github: 'GitHub' }[providerName];
+    socialButtons.forEach(button => { button.disabled = true; });
+    const message = document.querySelector('.auth-message');
+    message.textContent = '';
+    try {
+      if (!window.firebase || !window.yarmoukFirebaseConfig) throw new Error('Firebase setup is unavailable.');
+      if (!firebase.apps.length) firebase.initializeApp(window.yarmoukFirebaseConfig);
+      const auth = firebase.auth();
+      const provider = createProvider();
+      if (providerName === 'google')
+        provider.setCustomParameters({ prompt: 'select_account' });
+      if (providerName === 'github') provider.addScope('user:email');
+      const result = await auth.signInWithPopup(provider);
+      document.getElementById('SocialIdToken').value = await result.user.getIdToken();
+      document.getElementById('SocialSignInButton').click();
+    } catch (error) {
+      gate.classList.add('is-error');
+      const messages = {
+        'auth/operation-not-allowed': `${providerLabel} sign-in is not enabled in Firebase Authentication yet.`,
+        'auth/popup-closed-by-user': `The ${providerLabel} sign-in window was closed before completion.`,
+        'auth/popup-blocked': `Your browser blocked the ${providerLabel} sign-in window. Allow pop-ups and try again.`,
+        'auth/unauthorized-domain': 'This website domain is not authorized for sign-in. Add localhost in Firebase Authentication settings for local development.',
+        'auth/account-exists-with-different-credential': 'This email already uses a different sign-in method. Contact the coordinator to link your account.'
+      };
+      message.textContent = messages[error.code] || `${providerLabel} sign-in could not be completed. Check that the provider is enabled and its OAuth settings are complete in Firebase.`;
+    } finally {
+      socialButtons.forEach(button => { button.disabled = false; });
+    }
+  }
   email.addEventListener('focus', () => gate.classList.add('is-email-focus'));
   email.addEventListener('blur', () => gate.classList.remove('is-email-focus'));
-  password.addEventListener('focus', () => gate.classList.add('is-doors-closed'));
-  password.addEventListener('input', () => {
-    gate.classList.toggle('is-doors-closed', !!password.value);
-    document.querySelectorAll('.gate-carved-dot').forEach((dot, i) => dot.classList.toggle('is-active', i < password.value.length));
-  });
   toggle.addEventListener('click', () => {
     const show = password.type === 'password';
     password.type = show ? 'text' : 'password';
     toggle.setAttribute('aria-pressed', String(show));
     toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
     document.getElementById('toggleIcon').textContent = show ? 'Hide' : 'Show';
-    gate.classList.toggle('is-password-revealed', show);
   });
-  const cards = [...document.querySelectorAll('.lb-role-card')];
-  const selectedRole = document.getElementById('SelectedRole');
-  function choose(card) {
-    cards.forEach(item => { const active = item === card; item.classList.toggle('is-active', active); item.setAttribute('aria-checked', String(active)); item.tabIndex = active ? 0 : -1; });
-    selectedRole.value = card.dataset.role;
-  }
-  cards.forEach((card, index) => {
-    card.tabIndex = index ? -1 : 0;
-    card.addEventListener('click', () => choose(card));
-    card.addEventListener('keydown', event => {
-      if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) return;
-      event.preventDefault();
-      const next = cards[(index + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + cards.length) % cards.length];
-      choose(next); next.focus();
-    });
+  document.getElementById('SignInButton').addEventListener('click', () => {
+    if (!email.value.trim() || !password.value) return;
+    gate.classList.remove('is-error');
   });
-  choose(cards.find(card => card.dataset.role === selectedRole.value) || cards[0]);
+  const authMessage = document.querySelector('#hrLoginForm .auth-message');
+  if (authMessage && authMessage.textContent.trim()) gate.classList.add('is-error');
   document.getElementById('loginThemeToggle').addEventListener('click', () => {
     const dark = document.documentElement.dataset.theme !== 'dark';
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
@@ -47,7 +69,7 @@
       gate.classList.add('has-pointer');
       gate.style.setProperty('--mouse-x', `${event.clientX - rect.left}px`);
       gate.style.setProperty('--mouse-y', `${event.clientY - rect.top}px`);
-      gate.style.setProperty('--tilt-y', `${((event.clientX - rect.left) / rect.width - .5) * 7}deg`);
+      gate.style.setProperty('--tilt-y', `${((event.clientX - rect.left) / rect.width - .5) * 3}deg`);
     });
     gate.addEventListener('pointerleave', () => { gate.classList.remove('has-pointer'); gate.style.setProperty('--tilt-y', '0deg'); });
   }

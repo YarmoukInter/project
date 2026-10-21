@@ -1,20 +1,34 @@
 <%@ Page Title="Sign In" Language="C#" Async="true" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Yarmouk.PublicPages.Login" %>
 <!DOCTYPE html><html lang="en"><head runat="server"><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Sign In — Yarmouk University</title>
 <link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
-<link href="<%= ResolveUrl("~/Content/PublicPages/Login.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/PublicPages/Login.js") %>" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/PublicPages/Login.css") %>?v=oauth-google-github-3" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/PublicPages/Login.js") %>?v=oauth-google-github-3" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/PublicPages/EmblemMorph.js") %>" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+  window.yarmoukFirebaseConfig = {
+    apiKey: '<%= System.Web.Configuration.WebConfigurationManager.AppSettings["FirebaseWebApiKey"] %>',
+    authDomain: 'yarmouk-uims.firebaseapp.com',
+    projectId: 'yarmouk-uims',
+    appId: '1:930938489436:web:70e4d7616b8886446c7499'
+  };
+</script>
 </head><body id="page-login"><form id="AuthForm" runat="server" novalidate>
     <div class="login-page">
       <div class="lb-ambience" aria-hidden="true"></div>
 
       <div class="lb-container">
         <!-- ================================================================
-             THE GATE: Official Architectural Stone Arch Gateway Visual
+             UNIVERSITY EMBLEM AND GOLDEN JUBILEE TRANSFORMATION
              ================================================================ -->
         <section
           class="gate-panel"
           id="gatePanel"
-          aria-label="Yarmouk University Gateway Visual"
+          aria-label="Yarmouk University emblem"
         >
           <!-- Faint gold radial light following cursor on desktop -->
           <div class="gate-cursor-light" id="gateCursorLight" aria-hidden="true"></div>
@@ -42,372 +56,13 @@
             </a>
           </header>
 
-          <!-- Interactive Stone Arch Artwork Stage -->
-          <div class="gate-stage-area" id="gateStageArea">
-            <svg
-              class="gate-arch-svg"
-              id="gateArchSvg"
-              viewBox="0 0 500 580"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <defs>
-                <!-- Arch Opening ClipPath (Doors never appear outside the arch opening) -->
-                <clipPath id="archOpeningClip">
-                  <path d="M 125 522 V 250 A 125 125 0 0 1 375 250 V 522 Z" />
-                </clipPath>
-
-                <!-- Limestone Gradients -->
-                <linearGradient id="gateStoneBase" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#f5f0e6" />
-                  <stop offset="50%" stop-color="#dfd8c8" />
-                  <stop offset="100%" stop-color="#baa990" />
-                </linearGradient>
-
-                <linearGradient id="gateStoneDark" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#dfd8c8" />
-                  <stop offset="100%" stop-color="#9e917a" />
-                </linearGradient>
-
-                <!-- Ancient Heavy Stone/Timber Door Leaves (Warm Brown-Grey Stone) -->
-                <linearGradient id="gateDoorStone" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#4d453b" />
-                  <stop offset="30%" stop-color="#645b4e" />
-                  <stop offset="70%" stop-color="#645b4e" />
-                  <stop offset="100%" stop-color="#443c32" />
-                </linearGradient>
-
-                <linearGradient id="gateDoorPanel" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#3d362c" />
-                  <stop offset="100%" stop-color="#524a3e" />
-                </linearGradient>
-
-                <!-- Meeting Strip Astragal Gradient -->
-                <linearGradient id="astragalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#524531" />
-                  <stop offset="50%" stop-color="#7a694e" />
-                  <stop offset="100%" stop-color="#443826" />
-                </linearGradient>
-
-                <!-- Solid Gold Inlaid Thread & Terminal Gradient -->
-                <linearGradient id="gateGoldThreadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#c5a059" />
-                  <stop offset="45%" stop-color="#f5e1ad" />
-                  <stop offset="55%" stop-color="#fff6d6" />
-                  <stop offset="70%" stop-color="#e6c67c" />
-                  <stop offset="100%" stop-color="#8f6f32" />
-                </linearGradient>
-
-                <!-- Central Gold Seal Gradient (Kept Exactly As-Is) -->
-                <linearGradient id="gateGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#f7e8be" />
-                  <stop offset="50%" stop-color="#c5a059" />
-                  <stop offset="100%" stop-color="#8f6f32" />
-                </linearGradient>
-
-                <!-- Bronze Boss Gradient -->
-                <linearGradient id="bronzeBossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#8c7853" />
-                  <stop offset="50%" stop-color="#5a4d35" />
-                  <stop offset="100%" stop-color="#3b3222" />
-                </linearGradient>
-
-                <!-- Soft Faint Glow Behind Arch -->
-                <radialGradient id="gateBackdropGlow" cx="50%" cy="45%" r="55%">
-                  <stop offset="0%" stop-color="#004a25" stop-opacity="0.45" />
-                  <stop offset="60%" stop-color="#002d17" stop-opacity="0.2" />
-                  <stop offset="100%" stop-color="#001f11" stop-opacity="0" />
-                </radialGradient>
-
-                <!-- Behind the Doors: Warm Gold Light Radial Layer -->
-                <radialGradient id="gateHallWarmth" cx="50%" cy="42%" r="55%">
-                  <stop offset="0%" stop-color="#fff4d4" stop-opacity="0.95" />
-                  <stop offset="35%" stop-color="#e6c67c" stop-opacity="0.65" />
-                  <stop offset="70%" stop-color="#c5a059" stop-opacity="0.25" />
-                  <stop offset="100%" stop-color="#c5a059" stop-opacity="0" />
-                </radialGradient>
-
-                <!-- Stone Grain Stipple Texture (Applied to Static Arch Only) -->
-                <pattern id="stoneStipplePattern" width="32" height="32" patternUnits="userSpaceOnUse">
-                  <rect width="32" height="32" fill="none" />
-                  <circle cx="5" cy="7" r="0.75" fill="#786c57" opacity="0.32" />
-                  <circle cx="19" cy="15" r="0.7" fill="#786c57" opacity="0.28" />
-                  <circle cx="27" cy="8" r="0.8" fill="#786c57" opacity="0.3" />
-                  <circle cx="11" cy="25" r="0.75" fill="#786c57" opacity="0.28" />
-                  <circle cx="29" cy="27" r="0.7" fill="#786c57" opacity="0.32" />
-                </pattern>
-              </defs>
-
-              <!-- Faint Warm Glow Behind Arch -->
-              <ellipse cx="250" cy="280" rx="235" ry="240" fill="url(#gateBackdropGlow)" />
-
-              <!-- Ground Soft Shadow Under Foundation Steps -->
-              <ellipse cx="250" cy="564" rx="230" ry="9" fill="rgba(0, 12, 6, 0.75)" />
-
-              <!-- ==============================================================
-                   BEHIND THE DOORS: Receding Stone Hall & Warm Gold Light Layer
-                   ============================================================== -->
-              <g id="gateStoneHall" class="gate-stone-hall">
-                <!-- Portal Interior Vault Silhouette -->
-                <path
-                  d="M125 500 V250 A125 125 0 0 1 375 250 V500 Z"
-                  fill="#1c1610"
-                />
-                <!-- Stone Hall Perspective Floor Flags -->
-                <polygon points="125,502 215,365 285,365 375,502" fill="#29221a" stroke="#3d3429" stroke-width="0.8" />
-                <line x1="165" y1="502" x2="232" y2="365" stroke="#3d3429" stroke-width="0.8" />
-                <line x1="335" y1="502" x2="268" y2="365" stroke="#3d3429" stroke-width="0.8" />
-
-                <!-- Receding Arch Vault 1 -->
-                <path
-                  d="M165 480 V275 A85 85 0 0 1 335 275 V480 Z"
-                  fill="#231d16"
-                  stroke="#473c2f"
-                  stroke-width="1.2"
-                />
-                <!-- Receding Arch Vault 2 -->
-                <path
-                  d="M195 460 V295 A55 55 0 0 1 305 295 V460 Z"
-                  fill="#1c1611"
-                  stroke="#574a3b"
-                  stroke-width="1"
-                />
-
-                <!-- Warm Gold Light Layer (Hidden when doors are closed, fades in as doors open) -->
-                <ellipse
-                  cx="250"
-                  cy="325"
-                  rx="68"
-                  ry="175"
-                  fill="url(#gateHallWarmth)"
-                  class="gate-light-spill"
-                  id="gateLightSpill"
-                />
-              </g>
-
-              <!-- ==============================================================
-                   DARK BACKING SHAPE BEHIND DOORS (Ensures Closed Doors Never Reveal Green)
-                   ============================================================== -->
-              <path
-                d="M 122 522 V 248 A 128 128 0 0 1 378 248 V 522 Z"
-                fill="#15100a"
-                class="gate-dark-backing"
-              />
-
-              <!-- ==============================================================
-                   THE TWO STONE DOOR LEAVES (Clipped to Arch Opening)
-                   ============================================================== -->
-              <g id="gateDoorsGroup" class="gate-doors-group" clip-path="url(#archOpeningClip)">
-                <!-- Left Stone Door Leaf -->
-                <g id="gateDoorLeft" class="gate-door-leaf gate-door-left">
-                  <!-- Door base slab extending 4px under jambs, intrados, and meeting strip -->
-                  <path
-                    d="M 120 522 V 248 A 130 130 0 0 1 252 120 V 522 Z"
-                    fill="url(#gateDoorStone)"
-                    stroke="#383025"
-                    stroke-width="1.5"
-                  />
-
-                  <!-- Carved Frieze Band near top of left leaf -->
-                  <rect x="138" y="156" width="102" height="22" fill="#3b3329" stroke="#2b251e" stroke-width="1" />
-                  <line x1="144" y1="167" x2="234" y2="167" stroke="#251f18" stroke-width="1" />
-                  <!-- Thin gold inlay line under top frieze -->
-                  <line x1="138" y1="182" x2="240" y2="182" stroke="rgba(197, 160, 89, 0.45)" stroke-width="0.9" />
-
-                  <!-- Upper Coffered Stone Panel -->
-                  <rect x="140" y="196" width="98" height="120" fill="url(#gateDoorPanel)" stroke="#2b241c" stroke-width="1.5" />
-                  <!-- Gold Inlay Border -->
-                  <rect x="144" y="200" width="90" height="112" fill="none" stroke="rgba(197, 160, 89, 0.45)" stroke-width="0.8" />
-
-                  <!-- Lower Coffered Stone Panel -->
-                  <rect x="140" y="342" width="98" height="135" fill="url(#gateDoorPanel)" stroke="#2b241c" stroke-width="1.5" />
-                  <!-- Gold Inlay Border -->
-                  <rect x="144" y="346" width="90" height="127" fill="none" stroke="rgba(197, 160, 89, 0.45)" stroke-width="0.8" />
-
-                  <!-- 6 Square Bronze Bosses on Left Leaf (Regular Grid) -->
-                  <rect id="gateDot0" class="gate-carved-dot" x="214" y="220" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot1" class="gate-carved-dot" x="214" y="250" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot2" class="gate-carved-dot" x="214" y="280" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot3" class="gate-carved-dot" x="214" y="365" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot4" class="gate-carved-dot" x="214" y="395" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot5" class="gate-carved-dot" x="214" y="425" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                </g>
-
-                <!-- Right Stone Door Leaf -->
-                <g id="gateDoorRight" class="gate-door-leaf gate-door-right">
-                  <!-- Door base slab extending 4px under jambs, intrados, and meeting strip -->
-                  <path
-                    d="M 380 522 V 248 A 130 130 0 0 0 248 120 V 522 Z"
-                    fill="url(#gateDoorStone)"
-                    stroke="#383025"
-                    stroke-width="1.5"
-                  />
-
-                  <!-- Carved Frieze Band near top of right leaf -->
-                  <rect x="260" y="156" width="102" height="22" fill="#3b3329" stroke="#2b251e" stroke-width="1" />
-                  <line x1="266" y1="167" x2="356" y2="167" stroke="#251f18" stroke-width="1" />
-                  <!-- Thin gold inlay line under top frieze -->
-                  <line x1="260" y1="182" x2="362" y2="182" stroke="rgba(197, 160, 89, 0.45)" stroke-width="0.9" />
-
-                  <!-- Upper Coffered Stone Panel -->
-                  <rect x="262" y="196" width="98" height="120" fill="url(#gateDoorPanel)" stroke="#2b241c" stroke-width="1.5" />
-                  <!-- Gold Inlay Border -->
-                  <rect x="266" y="200" width="90" height="112" fill="none" stroke="rgba(197, 160, 89, 0.45)" stroke-width="0.8" />
-
-                  <!-- Lower Coffered Stone Panel -->
-                  <rect x="262" y="342" width="98" height="135" fill="url(#gateDoorPanel)" stroke="#2b241c" stroke-width="1.5" />
-                  <!-- Gold Inlay Border -->
-                  <rect x="266" y="346" width="90" height="127" fill="none" stroke="rgba(197, 160, 89, 0.45)" stroke-width="0.8" />
-
-                  <!-- 6 Square Bronze Bosses on Right Leaf (Identical Regular Grid) -->
-                  <rect id="gateDot6" class="gate-carved-dot" x="277" y="220" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot7" class="gate-carved-dot" x="277" y="250" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot8" class="gate-carved-dot" x="277" y="280" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot9" class="gate-carved-dot" x="277" y="365" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot10" class="gate-carved-dot" x="277" y="395" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                  <rect id="gateDot11" class="gate-carved-dot" x="277" y="425" width="9" height="9" rx="1" fill="url(#bronzeBossGrad)" stroke="#382e20" stroke-width="0.8" />
-                </g>
-
-                <!-- Bronze Meeting Strip / Astragal (Covers Center Seam Behind Seal) -->
-                <rect
-                  id="gateMeetingStrip"
-                  class="gate-meeting-strip"
-                  x="248.5"
-                  y="125"
-                  width="3"
-                  height="377"
-                  fill="url(#astragalGrad)"
-                  stroke="#382e20"
-                  stroke-width="0.6"
-                />
-              </g>
-
-              <!-- Central Gold Seal / Medallion (Kept Exactly As-Is with Dark Contrast Ring) -->
-              <g id="gateSealMedallion" class="gate-seal-medallion">
-                <!-- Thin dark ring behind seal so it keeps strong contrast against door stone -->
-                <circle cx="250" cy="325" r="26.5" fill="#18130d" stroke="#36291a" stroke-width="1.2" />
-                <!-- Exact seal circles, rosette, and gold tones kept identical -->
-                <circle cx="250" cy="325" r="23" fill="url(#gateGoldGrad)" stroke="#594218" stroke-width="1.8" />
-                <circle cx="250" cy="325" r="17.5" fill="none" stroke="#fae9bb" stroke-width="1.1" stroke-dasharray="3 2" />
-                <path d="M250 311 L250 339 M236 325 L264 325 M240 315 L260 335 M240 335 L260 315" stroke="#594218" stroke-width="1.5" />
-                <circle cx="250" cy="325" r="4" fill="#fdf0cd" />
-              </g>
-
-              <!-- ==============================================================
-                   SURROUNDING ROMAN STONE ARCH STRUCTURE (With Door Jambs & Cornice)
-                   ============================================================== -->
-              <g id="gateArchStructure" class="gate-arch-structure">
-                <!-- Stepped Plinth Foundation -->
-                <rect x="30" y="520" width="440" height="24" rx="2" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.5" />
-                <rect x="18" y="544" width="464" height="20" rx="2" fill="url(#gateStoneDark)" stroke="#786c57" stroke-width="1.5" />
-
-                <!-- Visible Stone Door Jambs / Frame (Leaves Sit Inside Opening) -->
-                <rect x="120" y="250" width="7" height="270" fill="#baa990" stroke="#786c57" stroke-width="1.2" />
-                <rect x="373" y="250" width="7" height="270" fill="#baa990" stroke="#786c57" stroke-width="1.2" />
-                <path d="M 120 250 A 130 130 0 0 1 380 250 H 373 A 125 125 0 0 0 127 250 Z" fill="#baa990" stroke="#786c57" stroke-width="1" />
-
-                <!-- Left Plinth & Column Ashlar Courses -->
-                <rect x="42" y="475" width="80" height="45" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <rect x="46" y="420" width="72" height="55" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <rect x="46" y="360" width="72" height="60" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <rect x="46" y="300" width="72" height="60" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <!-- Left Impost Capital -->
-                <rect x="36" y="250" width="92" height="50" rx="2" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.6" />
-                <line x1="42" y1="266" x2="122" y2="266" stroke="#786c57" stroke-width="1.2" />
-                <line x1="42" y1="282" x2="122" y2="282" stroke="#786c57" stroke-width="1.2" />
-
-                <!-- Right Plinth & Column Ashlar Courses -->
-                <rect x="378" y="475" width="80" height="45" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <rect x="382" y="420" width="72" height="55" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <rect x="382" y="360" width="72" height="60" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <rect x="382" y="300" width="72" height="60" rx="1.5" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.4" />
-                <!-- Right Impost Capital -->
-                <rect x="372" y="250" width="92" height="50" rx="2" fill="url(#gateStoneBase)" stroke="#8c7e68" stroke-width="1.6" />
-                <line x1="378" y1="266" x2="458" y2="266" stroke="#786c57" stroke-width="1.2" />
-                <line x1="378" y1="282" x2="458" y2="282" stroke="#786c57" stroke-width="1.2" />
-
-                <!-- Semicircular Arch Outer Vault & Voussoirs -->
-                <path
-                  d="M46 250 A204 204 0 0 1 454 250 H375 A125 125 0 0 0 125 250 Z"
-                  fill="url(#gateStoneBase)"
-                  stroke="#8c7e68"
-                  stroke-width="1.8"
-                />
-
-                <!-- Carved Radial Voussoir Divider Lines -->
-                <line x1="72" y1="195" x2="142" y2="215" stroke="#786c57" stroke-width="1.5" />
-                <line x1="110" y1="140" x2="168" y2="178" stroke="#786c57" stroke-width="1.5" />
-                <line x1="165" y1="92" x2="204" y2="152" stroke="#786c57" stroke-width="1.5" />
-                <line x1="335" y1="92" x2="296" y2="152" stroke="#786c57" stroke-width="1.5" />
-                <line x1="390" y1="140" x2="332" y2="178" stroke="#786c57" stroke-width="1.5" />
-                <line x1="428" y1="195" x2="358" y2="215" stroke="#786c57" stroke-width="1.5" />
-
-                <!-- Proper Keystone Wedge (Larger, Flush with Voussoir Ring, No Gold) -->
-                <polygon
-                  points="210,50 290,50 272,138 228,138"
-                  fill="url(#gateStoneBase)"
-                  stroke="#786c57"
-                  stroke-width="2"
-                />
-                <!-- Carved Relief Panel on Keystone (Limestone Tones Only) -->
-                <polygon
-                  points="218,58 282,58 266,130 234,130"
-                  fill="url(#gateStoneDark)"
-                  stroke="#786c57"
-                  stroke-width="1.2"
-                />
-                <rect x="245" y="68" width="10" height="48" rx="1.5" fill="#dfd8c8" stroke="#8c7e68" stroke-width="1" />
-
-                <!-- Classical Stone Cornice (Sits Directly on Arch, No Pale Sliver) -->
-                <!-- Cast shadow under cornice directly onto arch ashlars -->
-                <polygon points="32,74 468,74 454,82 46,82" fill="rgba(0, 16, 8, 0.55)" />
-                <!-- Cornice Bed-Moulding & Architrave -->
-                <rect x="32" y="62" width="436" height="12" rx="1.5" fill="url(#gateStoneDark)" stroke="#665b49" stroke-width="1.4" />
-                <!-- Projecting Cornice Crown Slab -->
-                <rect x="22" y="44" width="456" height="18" rx="2.5" fill="url(#gateStoneBase)" stroke="#786c57" stroke-width="1.6" />
-                <line x1="26" y1="58" x2="474" y2="58" stroke="#8c7e68" stroke-width="1.2" />
-
-                <!-- Static Stone Texture Overlay -->
-                <rect x="18" y="44" width="464" height="520" fill="url(#stoneStipplePattern)" pointer-events="none" />
-              </g>
-
-              <!-- ==============================================================
-                   SOLID INLAID GOLD THREAD: Purposeful Continuous Path
-                   ============================================================== -->
-              <!-- Starts at door seal (250,302), rises up center seam to keystone (250,125),
-                   follows arch voussoir ring on form side to right impost (395,252). Never cut off. -->
-              <g id="gateThreadInlayGroup" class="gate-thread-inlay-group">
-                <!-- Shallow Inlay Groove in Stone -->
-                <path
-                  class="gate-thread-groove"
-                  d="M 250 302 V 125 C 250 100, 335 125, 375 185 C 390 208, 395 230, 395 252"
-                  stroke="#3d3425"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  fill="none"
-                />
-                <!-- Continuous Solid Gold Inlaid Thread (~2px) -->
-                <path
-                  id="gateGoldenThread"
-                  class="gate-golden-thread"
-                  d="M 250 302 V 125 C 250 100, 335 125, 375 185 C 390 208, 395 230, 395 252"
-                  stroke="url(#gateGoldThreadGrad)"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  fill="none"
-                />
-                <!-- Small Gold Terminal Finial on Right Impost Block -->
-                <circle cx="395" cy="252" r="3" fill="url(#gateGoldGrad)" stroke="#594218" stroke-width="0.8" />
-              </g>
-            </svg>
-          </div>
-
-          <!-- Formal Institutional Caption (>= 4.5:1 Contrast, No Clipping) -->
+          <!-- Persistent emblem geometry morphs into the Golden Jubilee mark. -->
+          <figure class="gate-stage-area emblem-stage" id="gateStageArea">
+            <img class="gate-emblem" src="<%= ResolveUrl("~/Content/Images/yarmouk-emblem-assembly.svg") %>" width="500" height="640" alt="Yarmouk University emblem transforming into the Golden Jubilee emblem." />
+          </figure>
           <footer class="gate-footer">
-            <p class="gate-caption-text">
-              Architectural artwork inspired by the heritage architecture of Irbid. Original artwork, not an official emblem of the university.
-            </p>
+            <span class="gate-footer-line"></span>
+            <p class="gate-caption-text">Irbid, Jordan <span aria-hidden="true">·</span> Since 1976</p>
           </footer>
         </section>
 
@@ -445,147 +100,46 @@
             </div>
 
             <div class="lb-header-block">
-              <h1 class="lb-title">Sign In</h1>
-              <p class="lb-subtitle">
-                Faculty of Information Technology and Computer Science
-              </p>
+              <span class="lb-section-label">YARMOUK INTERNSHIP PORTAL</span>
+              <h1 class="lb-title">Welcome back<span class="lb-title-dot">.</span></h1>
+              <p class="lb-subtitle">Sign in to continue your internship journey.</p>
             </div>
 
-            <!-- Role Selector -->
-            <div class="lb-roles-section" aria-label="Select Platform Role">
-              <asp:HiddenField ID="SelectedRole" runat="server" ClientIDMode="Static" Value="student" />
-              <div
-                class="lb-roles-grid"
-                role="radiogroup"
-                aria-label="Platform Roles"
-              >
-                <button
-                  type="button"
-                  class="lb-role-card is-active role-card--student"
-                  data-role="student"
-                  role="radio"
-                  aria-checked="true"
-                  id="roleStudent"
-                >
-                  <div class="lb-role-card__icon role-icon--student"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8 12 3l9 5-9 5-9-5Zm4 3v6c3 3 7 3 10 0v-6M21 8v8" /></svg>
-                  </div>
-                  <div class="lb-role-card__text">
-                    <span class="lb-role-card__title">Student</span>
-                    <span class="lb-role-card__desc">Intern Trainee</span>
-                  </div>
-                  <div class="lb-role-card__dot"></div>
-                </button>
-
-                <button
-                  type="button"
-                  class="lb-role-card role-card--supervisor"
-                  data-role="academic"
-                  role="radio"
-                  aria-checked="false"
-                  id="roleSupervisor"
-                >
-                  <div class="lb-role-card__icon role-icon--supervisor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M16 11l2 2 4-4" /></svg>
-                  </div>
-                  <div class="lb-role-card__text">
-                    <span class="lb-role-card__title">Academic Supervisor</span>
-                    <span class="lb-role-card__desc">Faculty Supervisor</span>
-                  </div>
-                  <div class="lb-role-card__dot"></div>
-                </button>
-
-                <button
-                  type="button"
-                  class="lb-role-card role-card--company"
-                  data-role="company"
-                  role="radio"
-                  aria-checked="false"
-                  id="roleCompany"
-                >
-                  <div class="lb-role-card__icon role-icon--company"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V3h12v18M16 10h4v11M8 7h4M8 11h4M8 15h4M9 21v-3h2v3" /></svg>
-                  </div>
-                  <div class="lb-role-card__text">
-                    <span class="lb-role-card__title">Company Supervisor</span>
-                    <span class="lb-role-card__desc">Host Partner</span>
-                  </div>
-                  <div class="lb-role-card__dot"></div>
-                </button>
-
-                <button
-                  type="button"
-                  class="lb-role-card role-card--coordinator"
-                  data-role="coordinator"
-                  role="radio"
-                  aria-checked="false"
-                  id="roleCoordinator"
-                >
-                  <div class="lb-role-card__icon role-icon--coordinator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Zm-4 9 3 3 5-6" /></svg>
-                  </div>
-                  <div class="lb-role-card__text">
-                    <span class="lb-role-card__title">Coordinator</span>
-                    <span class="lb-role-card__desc">University Coordinator</span>
-                  </div>
-                  <div class="lb-role-card__dot"></div>
-                </button>
-              </div>
-            </div>
-
-            <!-- Login Form Card -->
-            <div class="card lb-auth-card">
+            <div class="lb-auth-card">
               <div id="hrLoginForm">
-
-
-                <div class="form-floating mb-2">
-                  <asp:TextBox runat="server" ID="loginEmail" ClientIDMode="Static" TextMode="Email" CssClass="form-control rounded-2 lb-form-control" placeholder="name@yu.edu.jo" autocomplete="username" MaxLength="254" />
-                  <label for="loginEmail" id="loginEmailLabel">
-                    <span aria-hidden="true">◇</span> University email
-                  </label>
-                  <div class="invalid-feedback" id="emailError">
-                    Invalid email address. Please try again.
+                <asp:HiddenField ID="SocialIdToken" runat="server" ClientIDMode="Static" />
+                <div class="lb-field">
+                  <label for="loginEmail">Email address</label>
+                  <asp:TextBox runat="server" ID="loginEmail" ClientIDMode="Static" TextMode="Email" CssClass="form-control lb-form-control" placeholder="Enter your registered email" autocomplete="username" MaxLength="254" />
+                </div>
+                <div class="lb-field">
+                  <div class="lb-field-heading">
+                    <label for="loginPassword">Password</label>
+                    <a href="#recovery" id="forgotPasswordLink" class="lb-link-forgot">Forgot password?</a>
+                  </div>
+                  <div class="lb-password-wrap">
+                    <asp:TextBox runat="server" ID="loginPassword" ClientIDMode="Static" TextMode="Password" CssClass="form-control lb-form-control" placeholder="Enter your password" autocomplete="current-password" MaxLength="128" />
+                    <button class="lb-pwd-toggle" type="button" id="togglePasswordBtn" aria-label="Toggle password visibility"><span id="toggleIcon">Show</span></button>
                   </div>
                 </div>
-
-                <div class="d-flex align-items-center justify-content-between px-1 mb-2">
-                  <span class="lb-email-helper" id="loginEmailHint">
-                    <span aria-hidden="true">◇</span> Institutional domain: <code>yu.edu.jo</code>
-                  </span>
-                </div>
-
-                <div class="form-floating mb-3 position-relative">
-                  <asp:TextBox runat="server" ID="loginPassword" ClientIDMode="Static" TextMode="Password" CssClass="form-control rounded-2 pe-5 lb-form-control" placeholder="Password" autocomplete="current-password" MaxLength="128" />
-                  <label for="loginPassword">
-                    <span aria-hidden="true">◇</span> Password
-                  </label>
-                  <button
-                    class="btn border-0 position-absolute top-50 end-0 translate-middle-y me-2 p-2 lb-pwd-toggle"
-                    type="button"
-                    id="togglePasswordBtn"
-                    aria-label="Toggle password visibility"
-                  >
-                    <span id="toggleIcon">Show</span>
+                <p class="auth-message" role="alert"><asp:Literal ID="Message" runat="server" /></p>
+                <asp:Button runat="server" ID="SignInButton" Text="Sign in" CssClass="btn btn-primary w-100 lb-submit-btn" OnClick="SignIn_Click" />
+                <div class="login-divider"><span>or continue with</span></div>
+                <div class="social-login" aria-label="Sign in with a provider">
+                  <button type="button" class="social-login-btn" id="googleSignIn" data-provider="google" aria-label="Continue with Google">
+                    <svg class="social-provider-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.42-.18-2.1H12v3.98h5.38a4.6 4.6 0 0 1-2 3.01v2.5h3.24c1.9-1.75 2.98-4.34 2.98-7.39z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.38l-3.23-2.5c-.9.6-2.04.96-3.39.96-2.6 0-4.8-1.76-5.58-4.12H3.1v2.58A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.42 13.84a6 6 0 0 1 0-3.68V7.58H3.1a10 10 0 0 0 0 8.84l3.32-2.58z"/><path fill="#EA4335" d="M12 5.96c1.43 0 2.71.49 3.72 1.46l2.79-2.79A10 10 0 0 0 3.1 7.58l3.32 2.58C7.2 7.72 9.4 5.96 12 5.96z"/></svg>
+                    <span>Continue with Google</span>
                   </button>
-                  <div class="invalid-feedback" id="passwordError">
-                    Invalid password. Please try again.
-                  </div>
+                  <button type="button" class="social-login-btn" id="githubSignIn" data-provider="github" aria-label="Continue with GitHub">
+                    <svg class="social-provider-mark social-github-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.42-1.305.762-1.605-2.665-.3-5.466-1.333-5.466-5.93 0-1.31.467-2.38 1.235-3.22-.135-.303-.54-1.523.115-3.176 0 0 1.005-.322 3.3 1.23a11.5 11.5 0 0 1 6.005 0c2.295-1.552 3.3-1.23 3.3-1.23.655 1.653.25 2.873.12 3.176.77.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.37.81 1.096.81 2.21 0 1.595-.015 2.88-.015 3.27 0 .32.21.695.825.575C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12z"/></svg>
+                    <span>Continue with GitHub</span>
+                  </button>
                 </div>
-
-                <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                  <a
-                    href="#recovery"
-                    id="forgotPasswordLink"
-                    class="text-decoration-none small lb-link-forgot"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-
-                <p class="auth-message" role="alert"><asp:Literal ID="Message" runat="server" /></p><asp:Button runat="server" ID="SignInButton" Text="Sign In" CssClass="btn btn-primary w-100 lb-submit-btn" OnClick="SignIn_Click" />
+                <asp:Button runat="server" ID="SocialSignInButton" Text="Continue" CssClass="social-postback" OnClick="SocialSignIn_Click" UseSubmitBehavior="false" />
               </div>
-
-              <div class="mt-3 pt-2.5 border-top text-center lb-card-footer-note">
-                <span class="small d-inline-flex align-items-center gap-1">
-                  <span aria-hidden="true">◇</span>
-                  <span>Accounts are administered by the University Internship Coordinator.</span>
-                </span>
+              <div class="lb-card-footer-note">
+                <span class="lb-note-mark" aria-hidden="true">✓</span>
+                <span>Accounts are managed by the University Internship Coordinator.</span>
               </div>
             </div>
           </div>

@@ -1,19 +1,35 @@
 <%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.PublicPages.SectionMaster" %>
+<%@ Register Src="~/Controls/PublicPages/SiteFooter.ascx" TagPrefix="yu" TagName="SiteFooter" %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="yu-footer-page">
 <head runat="server">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>UIMS</title>
+<title><%: Page.Title %> — Yarmouk University</title>
 <link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/PublicPages/shared.css") %>" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/PublicPages/navbar.css") %>?v=1" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/PublicPages/yarmouk-footer.css") %>?v=1" rel="stylesheet" />
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
 </head>
-<body>
-<form id="form1" runat="server">
-<header class="container py-3 border-bottom"><a href="<%= ResolveUrl("~/Default.aspx") %>">UIMS</a> <span class="ms-3">Public</span></header>
-<main class="container py-4"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
-<footer class="container py-3 border-top"><small>UIMS - University Internship Management System</small></footer>
+<body class="yu-footer-page">
+<form id="form1" runat="server" class="yu-page-form">
+<header class="yu-public-navbar" data-public-navbar aria-label="Yarmouk University navigation">
+  <div class="yu-nav-body">
+    <a class="yu-nav-brand" href="<%= ResolveUrl("~/PublicPages/Home.aspx") %>" aria-label="Yarmouk University home"><img src="<%= ResolveUrl("~/Content/Images/yarmouk-logo-on-dark.svg") %>" width="126" height="46" alt="Yarmouk University" /></a>
+    <button class="yu-nav-toggle" type="button" aria-expanded="false" aria-controls="yu-public-links" aria-label="Open navigation" hidden><span></span><span></span></button>
+    <nav class="yu-nav-links" id="yu-public-links" aria-label="Main navigation">
+      <a href="<%= ResolveUrl("~/PublicPages/Home.aspx") %>">Home</a>
+      <a href="<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>">About Us</a>
+      <a href="<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>">Contact Us</a>
+      <a class="yu-nav-login" href="<%= ResolveUrl("~/PublicPages/Login.aspx") %>">Log in <span aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</header>
+<main id="top" class="yu-page-main"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
+<yu:SiteFooter ID="SiteFooter" runat="server" />
 </form>
+<script src="<%= ResolveUrl("~/Scripts/PublicPages/navbar.js") %>?v=1" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/PublicPages/yarmouk-footer.js") %>?v=1" defer></script>
 </body>
 </html>
