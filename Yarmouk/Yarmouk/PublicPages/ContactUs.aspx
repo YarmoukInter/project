@@ -22,7 +22,7 @@
         <header class="contact-form-heading"><h2 id="contact-form-title">Leave a message</h2><p>All fields are required.</p></header>
         <div class="contact-fields" data-form="contact">
           <div class="form-grid">
-            <label class="field"><span>Name</span><input class="ui-input" name="name" id="contact-name" type="text" autocomplete="on" maxlength="120" required /></label>
+            <label class="field"><span>XXName</span><input class="ui-input" name="name" id="contact-name" type="text" autocomplete="on" maxlength="120" required /></label>
             <label class="field"><span>Email address</span><input class="ui-input" name="email" id="contact-email" type="email" autocomplete="on" maxlength="254" required /></label>
             <label class="field"><span>Subject</span><input class="ui-input" name="subject" id="contact-subject" type="text" maxlength="180" required /></label>
             <label class="field field-wide"><span>Message</span><textarea class="ui-textarea" name="message" id="contact-message" rows="5" maxlength="5000" required></textarea></label>
