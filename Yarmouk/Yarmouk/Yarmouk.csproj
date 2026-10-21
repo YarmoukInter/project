@@ -569,6 +569,7 @@
     </Compile>
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\Student.cs" />
+    <Compile Include="Models\SupervisorWorkspace.cs" />
     <Compile Include="Models\Major.cs" />
     <Compile Include="Models\Company.cs" />
     <Compile Include="Models\Opportunity.cs" />
@@ -583,6 +584,7 @@
     <Compile Include="Services\OpportunityService.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\EvaluationService.cs" />
+    <Compile Include="Services\SupervisorWorkspaceService.cs" />
     <Compile Include="Helpers\FirebaseHelper.cs" />
     <Compile Include="Helpers\DatabasePaths.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -692,6 +694,9 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Helpers\AuthGuard.cs" />
+    <Compile Include="Helpers\SupervisorPageBase.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Services\FirebaseAuthService.cs" />
     <Compile Include="Services\PasswordSetupService.cs" />
     <Content Include="Content\Images\yarmouk-college-logo.png" />

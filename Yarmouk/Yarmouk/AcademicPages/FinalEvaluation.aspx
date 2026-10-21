@@ -1,9 +1,26 @@
-<%@ Page Title="FinalEvaluation" Language="C#" MasterPageFile="~/AcademicPages/Section.Master" AutoEventWireup="true" CodeBehind="FinalEvaluation.aspx.cs" Inherits="Yarmouk.AcademicPages.FinalEvaluation" %>
+<%@ Page Title="Final Academic Evaluation" Language="C#" MasterPageFile="~/AcademicPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="FinalEvaluation.aspx.cs" Inherits="Yarmouk.AcademicPages.FinalEvaluation" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/AcademicPages/FinalEvaluation.css") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/AcademicPages/FinalEvaluation.js") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<h1>Final Evaluation</h1>
-<p>Page layout placeholder. Add controls and events here.</p>
+<section class="academic-evaluation-workspace">
+  <header class="evaluation-heading"><div><span class="evaluation-eyebrow">ACADEMIC SUPERVISOR</span><h1>Final Academic Evaluation</h1><p>Record your final assessment for an assigned placement and follow the company and university approval steps.</p></div><span class="evaluation-cycle"><span aria-hidden="true">◷</span> Academic · 60%</span></header>
+  <asp:Panel ID="EvaluationMessage" runat="server" CssClass="evaluation-alert" Visible="false" role="status"><asp:Literal ID="EvaluationMessageText" runat="server" /></asp:Panel>
+  <div class="evaluation-process" aria-label="Evaluation workflow"><span class="process-step process-step--academic"><b>1</b><span>Academic evaluation</span></span><i></i><span class="process-step"><b>2</b><span>Company evaluation</span></span><i></i><span class="process-step"><b>3</b><span>University approval</span></span></div>
+  <div class="evaluation-list-heading"><div><span class="evaluation-eyebrow">ASSIGNED PLACEMENTS</span><h2>Students awaiting your review</h2></div><span class="evaluation-count"><asp:Literal ID="EvaluationQueueCount" runat="server" /> placements</span></div>
+  <asp:Panel ID="EvaluationEmpty" runat="server" CssClass="evaluation-empty" Visible="false"><span class="evaluation-empty-icon" aria-hidden="true">✳</span><h3>No evaluations in your queue</h3><p>Academic evaluations appear here for placements assigned to your account.</p></asp:Panel>
+  <asp:Repeater ID="EvaluationQueue" runat="server" OnItemCommand="EvaluationQueue_ItemCommand">
+    <HeaderTemplate><div class="evaluation-cards"></HeaderTemplate>
+    <ItemTemplate>
+      <article class="evaluation-card">
+        <header class="evaluation-card-header"><div><span class="evaluation-student-id">STUDENT <%#: Eval("StudentNumber") %></span><h3><%#: Eval("StudentName") %></h3><p><%#: Eval("CompanyName") %> <span aria-hidden="true">·</span> <%#: Eval("PlacementStatus") %></p></div><span class='evaluation-status <%# Convert.ToBoolean(Eval("AcademicSubmitted")) ? "is-submitted" : "" %>'><%#: Eval("EvaluationStatusLabel") %></span></header>
+        <div class="evaluation-workflow-grid"><div><span class="workflow-label">Company assessment</span><strong><%#: Eval("CompanyStatusLabel") %></strong><small><%#: Eval("CompanyScoreLabel") %></small></div><div><span class="workflow-label">University review</span><strong><%#: Eval("ApprovalStatusLabel") %></strong><small><%#: Eval("ProposedFinalScoreLabel") %></small></div></div>
+        <div class="evaluation-form-grid"><div class="evaluation-field evaluation-field--score"><div class="evaluation-field-label"><asp:Label ID="AcademicScoreLabel" runat="server" AssociatedControlID="AcademicScoreInput" Text="Academic score" /><span>0–100</span></div><div class="score-input-wrap"><asp:TextBox ID="AcademicScoreInput" runat="server" TextMode="Number" min="0" max="100" step="1" Text='<%# Eval("AcademicScoreInput") %>' Enabled='<%# Convert.ToBoolean(Eval("CanSave")) %>' required="required" /><span>/ 100</span></div><small>Weighted at 60% when combined with the company evaluation.</small></div><div class="evaluation-field"><asp:Label ID="AcademicFeedbackLabel" runat="server" CssClass="evaluation-field-label" AssociatedControlID="AcademicFeedbackInput" Text="Academic feedback" /><asp:TextBox ID="AcademicFeedbackInput" runat="server" TextMode="MultiLine" Rows="4" MaxLength="2000" placeholder="Summarize achievements, professional conduct, and recommendations..." Text='<%# Eval("AcademicFeedback") %>' Enabled='<%# Convert.ToBoolean(Eval("CanSave")) %>' data-evaluation-feedback="true" /><div class="feedback-field-hint"><small>Visible to the university review workflow.</small><span data-char-count aria-live="polite">0 / 2000</span></div></div></div>
+        <footer class="evaluation-card-actions"><span class="evaluation-lock-note"><%# Convert.ToBoolean(Eval("CanSave")) ? "Save a draft now; submit after the company assessment arrives." : "This evaluation is locked after submission." %></span><div><asp:Button ID="SaveDraftButton" runat="server" Text="Save draft" CssClass="evaluation-button evaluation-button--secondary" CommandName="draft" CommandArgument='<%# Eval("PlacementId") %>' CausesValidation="false" Enabled='<%# Convert.ToBoolean(Eval("CanSave")) %>' /><asp:Button ID="SubmitEvaluationButton" runat="server" Text="Submit evaluation" CssClass="evaluation-button evaluation-button--primary" CommandName="submit" CommandArgument='<%# Eval("PlacementId") %>' CausesValidation="false" Enabled='<%# Convert.ToBoolean(Eval("CanSubmit")) %>' /></div></footer>
+      </article>
+    </ItemTemplate>
+    <FooterTemplate></div></FooterTemplate>
+  </asp:Repeater>
+</section>
 </asp:Content>
