@@ -22,22 +22,39 @@ namespace Yarmouk.StudentPages
                 try
                 {
                     var opportunity = await new OpportunityService().GetByIdAsync(id, auth.IdToken);
-                    if (opportunity == null || !opportunity.IsActive) { SetMessage("This opportunity is no longer available.", true); return; }
+                    if (opportunity == null) { SetMessage("This opportunity is no longer available.", true); return; }
                     var user = auth.User ?? await new StudentService().GetUserAsync(auth.Uid, auth.IdToken);
                     var student = await new StudentService().GetStudentAsync(auth.Uid, auth.IdToken);
                     if (user == null || student == null) { SetMessage("Your student profile could not be loaded. Please contact the internship coordinator.", true); return; }
+                    if (!string.IsNullOrWhiteSpace(student.AcceptedApplicationId))
+                    { SetMessage("You have already confirmed an internship. Other opportunities are unavailable.", true); return; }
+                    if (!OpportunityService.IsAvailableForStudent(opportunity, student))
+                    { SetMessage("This opportunity is closed, full, or not available for your major.", true); return; }
                     var company = string.IsNullOrWhiteSpace(opportunity.CompanyId) ? null :
                         await new FirebaseHelper().GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, auth.IdToken);
+                    if (company == null || !company.IsApproved)
+                    { SetMessage("The company for this opportunity is unavailable.", true); return; }
                     OpportunityTitle.Text = HttpUtility.HtmlEncode(opportunity.Title ?? "Internship");
                     var applications = await new ApplicationService().GetForStudentAsync(auth.Uid, auth.IdToken);
                     if (applications.Any(a => a.OpportunityId == opportunity.Id))
                     { SetMessage("You have already applied for this opportunity. You can track it in My Applications.", true); return; }
                     var questions = (opportunity.ApplicationQuestions ?? new List<string>()).Where(q => !string.IsNullOrWhiteSpace(q)).Select(q => q.Trim()).ToList();
-                    ApplicationDataJson.Text = SafeJson(new { opportunity = new { id = opportunity.Id, title = opportunity.Title,
-                        companyName = company == null ? "Company" : company.Name,
-                        companyLogoUrl = company == null ? "" : company.LogoUrl,
-                        questions = questions },
-                        student = new { fullName = user.FullName, email = auth.Email ?? user.Email, cvUrl = student.CvUrl } });
+                    ApplicationDataJson.Text = SafeJson(new
+                    {
+                        opportunity = new
+                        {
+                            id = opportunity.Id,
+                            title = opportunity.Title,
+                            companyName = company == null ? "Company" : company.Name,
+                            companyLogoUrl = company == null ? "" : company.LogoUrl,
+                            questions = questions
+                        },
+                        student = new
+                        {
+                            fullName = user.FullName,
+                            email = auth.Email ?? user.Email,
+                        }
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -53,19 +70,34 @@ namespace Yarmouk.StudentPages
             {
                 var auth = Session[AuthGuard.SessionKey] as AuthSession;
                 if (auth == null) { GoToLogin(); return; }
-                var opportunity = await new OpportunityService().GetByIdAsync(Request.QueryString["id"], auth.IdToken);
-                if (opportunity == null || !opportunity.IsActive) { SetMessage("This opportunity is no longer available.", true); return; }
-                var student = await new StudentService().GetStudentAsync(auth.Uid, auth.IdToken);
-                var user = await new StudentService().GetUserAsync(auth.Uid, auth.IdToken);
+                Opportunity opportunity;
+                Student student;
+                User user;
+                try
+                {
+                    opportunity = await new OpportunityService().GetByIdAsync(Request.QueryString["id"], auth.IdToken);
+                    if (opportunity == null) { SetMessage("This opportunity is no longer available.", true); return; }
+                    student = await new StudentService().GetStudentAsync(auth.Uid, auth.IdToken);
+                    user = await new StudentService().GetUserAsync(auth.Uid, auth.IdToken);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceWarning("Could not verify application request: " + ex.GetType().Name);
+                    SetMessage("We could not verify this opportunity right now. Please try again.", true);
+                    return;
+                }
                 if (student == null || user == null) { SetMessage("Your student profile could not be verified. Please sign in again.", true); return; }
-                if (opportunity.EligibleMajorIds != null && opportunity.EligibleMajorIds.Count > 0 &&
-                    !opportunity.EligibleMajorIds.Contains(student.MajorId))
-                { SetMessage("This opportunity is not available for your current major.", true); return; }
+                if (!string.IsNullOrWhiteSpace(student.AcceptedApplicationId))
+                { SetMessage("You have already confirmed an internship. You cannot apply for another opportunity.", true); return; }
+                var companyRecord = string.IsNullOrWhiteSpace(opportunity.CompanyId) ? null :
+                    await new FirebaseHelper().GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, auth.IdToken);
+                if (companyRecord == null || !companyRecord.IsApproved)
+                { SetMessage("The company for this opportunity is unavailable.", true); return; }
                 var questions = (opportunity.ApplicationQuestions ?? new List<string>()).Where(q => !string.IsNullOrWhiteSpace(q)).Select(q => q.Trim()).ToList();
                 Dictionary<string, string> answers;
                 try { answers = JsonConvert.DeserializeObject<Dictionary<string, string>>(AnswersJson.Value ?? "") ?? new Dictionary<string, string>(); }
                 catch { SetMessage("Please review your answers and try again.", true); return; }
-                var validatedAnswers = new Dictionary<string, string>();
+                var validatedAnswers = new List<string>();
                 for (int i = 0; i < questions.Count; i++)
                 {
                     string answer;
@@ -73,7 +105,7 @@ namespace Yarmouk.StudentPages
                     { SetMessage("Please answer all company questions before submitting.", true); return; }
                     answer = answer.Trim();
                     if (answer.Length > 3000) { SetMessage("Each answer must be 3,000 characters or fewer.", true); return; }
-                    validatedAnswers[i.ToString()] = answer;
+                    validatedAnswers.Add(answer);
                 }
                 try
                 {
@@ -81,8 +113,16 @@ namespace Yarmouk.StudentPages
                     var existing = await service.GetForStudentAsync(auth.Uid, auth.IdToken);
                     if (existing.Any(a => a.OpportunityId == opportunity.Id))
                     { SetMessage("You have already applied for this opportunity.", true); return; }
-                    await service.SaveForStudentAsync(new Application {
-                        StudentUid = auth.Uid, OpportunityId = opportunity.Id, Status = "pending", Answers = validatedAnswers
+                    if (!OpportunityService.IsAvailableForStudent(opportunity, student))
+                    { SetMessage("This opportunity is closed, full, or not available for your major.", true); return; }
+                    await service.SaveForStudentAsync(new Application
+                    {
+                        StudentUid = auth.Uid,
+                        OpportunityId = opportunity.Id,
+                        CompanyId = opportunity.CompanyId,
+                        Status = "pending",
+                        Answers = validatedAnswers,
+                        ApplicationQuestions = questions
                     }, auth.Uid, auth.IdToken);
                     SetMessage("Your application was submitted. <a href=\"" + ResolveUrl("~/StudentPages/MyApplications.aspx") + "\">View My Applications</a>", false);
                     SubmitApplication.Enabled = false;

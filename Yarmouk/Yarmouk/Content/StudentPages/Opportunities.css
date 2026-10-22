@@ -107,6 +107,42 @@
 .detail-facts span { display:block; padding:12px; border:1px solid #e6eee8; border-radius:10px; color:#32664b; background:#f8fbf8; }
 .apply-link { border-radius:9px; background:linear-gradient(100deg,#006b46,#008258); box-shadow:0 8px 18px #006b4625; transition:transform .2s,box-shadow .2s; }
 .apply-link:hover { transform:translateY(-2px); box-shadow:0 12px 22px #006b4635; }
+.opportunities-page .opportunity-card.unavailable { background:#f6f8f7; color:#87928c; }
+.opportunities-page .opportunity-card.unavailable .company-photo,.opportunities-page .opportunity-card.unavailable .company-fallback { filter:grayscale(1); opacity:.58; }
+.opportunities-page .opportunity-card.unavailable h3,.opportunities-page .opportunity-card.unavailable .company-name { color:#839089; }
+.opportunity-state { align-self:flex-start; flex:0 0 auto; padding:5px 9px; border-radius:99px; background:#e6f4ec; color:#176344; font-size:10px; font-weight:800; }
+.opportunity-card.unavailable .opportunity-state { background:#e9edeb; color:#737e77; }
+.opportunities-page .apply-link { border:0; cursor:pointer; font:inherit; font-weight:700; }
+.apply-unavailable { margin:19px 0 0; padding:14px; border-radius:9px; background:#f0f2f1; color:#65716a; text-align:center; font-weight:700; }
+body.opportunity-modal-open { overflow:hidden; }
+.opportunity-modal[hidden] { display:none; }
+.opportunity-modal { position:fixed; z-index:2000; inset:0; display:grid; place-items:center; padding:18px; }
+.opportunity-modal-backdrop { position:absolute; inset:0; background:#071d16b8; backdrop-filter:blur(5px); }
+.opportunity-modal-panel { position:relative; width:min(780px,100%); max-height:min(90vh,900px); overflow:auto; padding:32px; border:1px solid #e8efe9; border-radius:22px; background:#fff; box-shadow:0 36px 90px #001e1955; outline:none; }
+.opportunity-modal-close { position:absolute; top:18px; right:18px; width:38px; height:38px; border:0; border-radius:50%; background:#eff4f0; color:#28513b; font-size:25px; cursor:pointer; }
+.modal-eyebrow { color:#167150; font-size:11px; font-weight:800; letter-spacing:.16em; }
+.opportunity-modal-panel h2 { margin:8px 46px 4px 0; color:#143d2d; font-size:clamp(25px,3vw,34px); }
+.modal-intro { color:#64786c; margin-bottom:20px; }
+.modal-section { padding:19px 0; border-top:1px solid #e7eee9; }
+.modal-section h3 { margin:0 0 12px; color:#1d4a34; font-size:16px; }
+.modal-student-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.modal-student-grid > div { display:grid; gap:4px; padding:12px 14px; border:1px solid #e6eee8; border-radius:10px; background:#f8fbf8; overflow-wrap:anywhere; }
+.modal-student-grid span { color:#6f8175; font-size:11px; }
+.modal-student-grid strong { color:#1c4330; font-size:14px; }
+.modal-section p { color:#63766b; line-height:1.6; }
+.modal-facts { display:flex; flex-wrap:wrap; gap:8px; }
+.modal-facts span { padding:7px 10px; border-radius:7px; background:#eaf4ec; color:#2b6446; font-size:12px; }
+.modal-question { display:grid; gap:8px; margin:0 0 15px; color:#264b36; font-size:14px; font-weight:700; }
+.modal-question em { color:#ba5148; }
+.modal-question textarea { width:100%; min-height:86px; resize:vertical; padding:12px; border:1px solid #cedfd2; border-radius:10px; color:#183b2a; background:#fff; font:inherit; font-weight:400; }
+.modal-question textarea:focus { outline:2px solid #2a9369; outline-offset:2px; }
+.modal-error { padding:10px 12px; border-radius:8px; background:#fff0ee; color:#a53f36; }
+.modal-actions { display:flex; justify-content:flex-end; gap:10px; padding-top:15px; border-top:1px solid #e7eee9; }
+.modal-actions button,.modal-submit { min-height:44px; padding:0 18px; border-radius:9px; font-weight:700; cursor:pointer; }
+.modal-cancel { border:1px solid #cbdcd0; background:#fff; color:#31513c; }
+.modal-submit { border:0; background:#006b46; color:#fff; }
+.modal-submit:hover { background:#005338; }
+@media(max-width:600px) { .opportunity-modal { padding:0; } .opportunity-modal-panel { width:100%; max-height:100dvh; min-height:100dvh; border-radius:0; padding:26px 18px; } .modal-student-grid { grid-template-columns:1fr; } .opportunity-state { font-size:9px; } }
 @keyframes note-float { 0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(-3deg)} }
 @keyframes float-chip { 0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)} }
 @keyframes orbit-pulse { 0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.06);opacity:1} }

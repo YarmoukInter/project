@@ -1,1 +1,8 @@
-namespace Yarmouk.PublicPages { public partial class Home {  } }
+// Controls declared in the corresponding ASPX markup.
+namespace Yarmouk.PublicPages
+{
+    public partial class Home
+    {
+        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+    }
+}

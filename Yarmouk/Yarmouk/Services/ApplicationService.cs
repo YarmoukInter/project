@@ -15,7 +15,21 @@ namespace Yarmouk.Services
 
         public async Task<List<Application>> GetForStudentAsync(string verifiedUid, string idToken)
         {
-            var data = await firebase.GetByChildAsync<Dictionary<string, Application>>(DatabasePaths.Applications, "studentUid", verifiedUid, idToken);
+            Dictionary<string, Application> data;
+            try
+            {
+                data = await firebase.GetByChildAsync<Dictionary<string, Application>>(
+                    DatabasePaths.Applications, "studentUid", verifiedUid, idToken);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Firebase returns HTTP 400 for this query until studentUid is
+                // indexed. The small demo database can still be read and filtered
+                // locally while the index rule is being published.
+                if (ex.Message != "Firebase HTTP error 400") throw;
+                data = await firebase.GetAsync<Dictionary<string, Application>>(
+                    DatabasePaths.Applications, idToken);
+            }
             var results = new List<Application>();
             if (data == null) return results;
             foreach (var item in data)

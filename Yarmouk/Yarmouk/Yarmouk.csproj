@@ -131,6 +131,9 @@
     <Content Include="PublicPages\AboutUs.aspx" />
     <Content Include="Content\PublicPages\AboutUs.css" />
     <Content Include="Scripts\PublicPages\AboutUs.js" />
+    <Content Include="PublicPages\Team.aspx" />
+    <Content Include="Content\PublicPages\Team.css" />
+    <Content Include="Scripts\PublicPages\Team.js" />
     <Content Include="PublicPages\ContactUs.aspx" />
     <Content Include="Content\PublicPages\ContactUs.css" />
     <Content Include="Scripts\PublicPages\ContactUs.js" />
@@ -329,6 +332,13 @@
     <Compile Include="PublicPages\AboutUs.aspx.designer.cs">
       <DependentUpon>AboutUs.aspx</DependentUpon>
     </Compile>
+    <Compile Include="PublicPages\Team.aspx.cs">
+      <DependentUpon>Team.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PublicPages\Team.aspx.designer.cs">
+      <DependentUpon>Team.aspx</DependentUpon>
+    </Compile>
     <Compile Include="PublicPages\ContactUs.aspx.cs">
       <DependentUpon>ContactUs.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -343,6 +353,7 @@
     <Compile Include="PublicPages\Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Services\CompanySupervisorService.cs" />
     <Compile Include="StudentPages\Section.Master.cs">
       <DependentUpon>Section.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -569,6 +580,7 @@
     </Compile>
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\Student.cs" />
+    <Compile Include="Models\SupervisorWorkspace.cs" />
     <Compile Include="Models\Major.cs" />
     <Compile Include="Models\Company.cs" />
     <Compile Include="Models\Opportunity.cs" />
@@ -583,6 +595,7 @@
     <Compile Include="Services\OpportunityService.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\EvaluationService.cs" />
+    <Compile Include="Services\SupervisorWorkspaceService.cs" />
     <Compile Include="Helpers\FirebaseHelper.cs" />
     <Compile Include="Helpers\DatabasePaths.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -692,8 +705,13 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Helpers\AuthGuard.cs" />
+    <Compile Include="Helpers\SupervisorPageBase.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Services\FirebaseAuthService.cs" />
     <Compile Include="Services\PasswordSetupService.cs" />
     <Content Include="Content\Images\yarmouk-college-logo.png" />
+    <Content Include="Content\CoordinatorPages\notifications.css" />
+    <Content Include="Scripts\CoordinatorPages\notifications.js" />
   </ItemGroup>
 </Project>

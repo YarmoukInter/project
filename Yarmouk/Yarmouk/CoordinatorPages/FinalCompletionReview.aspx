@@ -1,9 +1,8 @@
-<%@ Page Title="FinalCompletionReview" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="FinalCompletionReview.aspx.cs" Inherits="Yarmouk.CoordinatorPages.FinalCompletionReview" %>
+<%@ Page Title="Final Completion Review" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" Async="true" CodeBehind="FinalCompletionReview.aspx.cs" Inherits="Yarmouk.CoordinatorPages.FinalCompletionReview" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/CoordinatorPages/FinalCompletionReview.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CoordinatorPages/FinalCompletionReview.js") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/CoordinatorPages/FinalCompletionReview.css?v=20261021-4") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/CoordinatorPages/FinalCompletionReview.js?v=20261021-4") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<h1>Final Completion Review</h1>
-<p>Page layout placeholder. Add controls and events here.</p>
+<div class="co-final-review" data-final-review-page></div>
 </asp:Content>

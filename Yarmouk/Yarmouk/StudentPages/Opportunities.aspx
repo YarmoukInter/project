@@ -1,7 +1,7 @@
 <%@ Page Title="Explore Opportunities" Language="C#" MasterPageFile="~/StudentPages/Section.Master" AutoEventWireup="true" Async="true" CodeBehind="Opportunities.aspx.cs" Inherits="Yarmouk.StudentPages.Opportunities" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href="<%= ResolveUrl("~/Content/StudentPages/Opportunities.css") %>" rel="stylesheet" />
-    <script src="<%= ResolveUrl("~/Scripts/StudentPages/Opportunities.js") %>" defer></script>
+    <link href="<%= ResolveUrl("~/Content/StudentPages/Opportunities.css?v=apply-modal-1") %>" rel="stylesheet" />
+    <script src="<%= ResolveUrl("~/Scripts/StudentPages/Opportunities.js?v=apply-modal-1") %>" defer="defer"></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="opportunities-page">
@@ -36,7 +36,7 @@
 
         <div class="opportunity-layout">
             <section class="opportunity-results" aria-live="polite">
-                <div class="results-heading"><h2>Available internships</h2><span id="opportunityCount">0 opportunities</span></div>
+                <div class="results-heading"><h2>Internship opportunities</h2><span id="opportunityCount">0 opportunities</span></div>
                 <div class="opportunity-list" id="opportunityList"></div>
                 <div class="empty-state" id="opportunityEmpty" hidden>No opportunities match your search right now.</div>
             </section>
@@ -45,7 +45,24 @@
             </aside>
         </div>
 
-        <p class="page-feedback" id="opportunityFeedback" role="status"></p>
-        <script id="opportunities-data" type="application/json"><asp:Literal ID="OpportunityData" runat="server" /></script>
+        <p class="page-feedback" id="opportunityFeedback" role="status"><asp:Literal ID="OpportunityFeedback" runat="server" /></p>
+        <asp:HiddenField ID="SelectedOpportunityId" runat="server" />
+        <asp:HiddenField ID="ApplicationAnswers" runat="server" />
+        <div class="opportunity-modal" id="opportunityModal" hidden>
+            <div class="opportunity-modal-backdrop" data-close-modal></div>
+            <section class="opportunity-modal-panel" role="dialog" aria-modal="true" aria-labelledby="applicationModalTitle" tabindex="-1">
+                <button type="button" class="opportunity-modal-close" data-close-modal aria-label="Close application">×</button>
+                <span class="modal-eyebrow">INTERNSHIP APPLICATION</span>
+                <h2 id="applicationModalTitle">Apply for an opportunity</h2>
+                <p class="modal-intro" id="applicationModalIntro"></p>
+                <div class="modal-section"><h3>Your information</h3><div class="modal-student-grid" id="applicationStudent"></div></div>
+                <div class="modal-section"><h3>Opportunity details</h3><div id="applicationOpportunity"></div></div>
+                <div class="modal-section"><h3>Company questions</h3><div id="applicationQuestions"></div></div>
+                <p class="modal-error" id="applicationError" role="alert" hidden></p>
+                <div class="modal-actions"><button type="button" class="modal-cancel" data-close-modal>Cancel</button><asp:Button ID="SubmitApplication" runat="server" Text="Submit application" CssClass="modal-submit" OnClick="SubmitApplication_Click" OnClientClick="return prepareOpportunityApplication();" /></div>
+            </section>
+        </div>
+        <script id="opportunities-data" type="application/json"><asp:Literal ID="OpportunityData" runat="server" Mode="PassThrough" /></script>
+        <script id="opportunity-student-data" type="application/json"><asp:Literal ID="StudentData" runat="server" Mode="PassThrough" /></script>
     </section>
 </asp:Content>

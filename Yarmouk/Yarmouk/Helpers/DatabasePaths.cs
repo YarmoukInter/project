@@ -4,6 +4,7 @@ namespace Yarmouk.Helpers
     {
         public const string Users = "users";
         public const string Students = "students";
+        public const string StudentCvFiles = "studentCvFiles";
         public const string Majors = "majors";
         public const string Companies = "companies";
         public const string Opportunities = "opportunities";

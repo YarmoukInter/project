@@ -2,6 +2,7 @@
     "use strict";
     var tabs = Array.prototype.slice.call(document.querySelectorAll("[role=tab][aria-controls^=panel-]"));
     var groups = Array.prototype.slice.call(document.querySelectorAll("[data-skill-group]"));
+    var activeTabField = document.getElementById("hidActiveProfileTab");
 
     function hidden(group) {
         return group.querySelector("input[type=hidden]");
@@ -36,6 +37,7 @@
 
     function showTab(tab) {
         var panelId = tab.getAttribute("aria-controls");
+        if (activeTabField) activeTabField.value = panelId.replace("panel-", "");
         tabs.forEach(function (item) {
             var selected = item === tab;
             item.setAttribute("aria-selected", selected ? "true" : "false");
@@ -59,6 +61,22 @@
 
     groups.forEach(function (group) { save(group, values(group)); });
 
+    function addSkill(group) {
+        var items = values(group);
+        var error = group.querySelector("[data-skill-error]");
+        var input = group.querySelector("[data-skill-input]");
+        var value = input.value.trim();
+        error.textContent = "";
+        if (!value) return true;
+        if (value.length > 40) { error.textContent = "Keep each skill to 40 characters or fewer."; return false; }
+        if (items.some(function (item) { return item.toLowerCase() === value.toLowerCase(); })) { error.textContent = "That skill is already in the list."; return false; }
+        if (items.length >= 20) { error.textContent = "You can add up to 20 skills here."; return false; }
+        items.push(value);
+        input.value = "";
+        save(group, items);
+        return true;
+    }
+
     document.addEventListener("click", function (event) {
         var group = event.target.closest("[data-skill-group]");
         if (!group) return;
@@ -72,17 +90,8 @@
             return;
         }
         if (!event.target.closest("[data-skill-add]")) return;
-        var input = group.querySelector("[data-skill-input]");
-        var value = input.value.trim();
-        error.textContent = "";
-        if (!value) { input.focus(); return; }
-        if (value.length > 40) { error.textContent = "Keep each skill to 40 characters or fewer."; return; }
-        if (items.some(function (item) { return item.toLowerCase() === value.toLowerCase(); })) { error.textContent = "That skill is already in the list."; return; }
-        if (items.length >= 20) { error.textContent = "You can add up to 20 skills here."; return; }
-        items.push(value);
-        input.value = "";
-        save(group, items);
-        input.focus();
+        addSkill(group);
+        group.querySelector("[data-skill-input]").focus();
     });
 
     document.addEventListener("keydown", function (event) {
@@ -92,6 +101,13 @@
         }
     });
 
+    var saveSkillsButton = document.getElementById("btnSaveSkills");
+    if (saveSkillsButton) saveSkillsButton.addEventListener("click", function (event) {
+        var valid = groups.every(addSkill);
+        if (!valid) event.preventDefault();
+    });
+
     var requestedTab = location.hash && document.getElementById("tab-" + location.hash.slice(1));
+    if (!requestedTab && activeTabField) requestedTab = document.getElementById("tab-" + activeTabField.value);
     if (requestedTab) showTab(requestedTab);
 })();

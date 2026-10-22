@@ -239,6 +239,8 @@
     let scene = null;
     let camera = null;
     let archGroup = null;
+    let emblemGroup = null;
+    let emblemLayers = [];
     let threadMesh = null;
     let threadWireMesh = null;
     let stoneBlocks = [];
@@ -247,6 +249,8 @@
     let goldMaterial = null;
     let threadGlowMaterial = null;
     let isSceneReady = false;
+    let gateInView = true;
+    if (runway) new IntersectionObserver(entries => { gateInView = entries[0].isIntersecting; }).observe(runway);
     const originalStages = STAGES;
     const smallViewport = matchMedia('(max-width: 900px)');
     const staticJourney = () => isReducedMotion || smallViewport.matches || document.body.classList.contains('no-webgl');
@@ -432,6 +436,7 @@
         scene.add(archGroup);
 
         buildEmblemGateGeometry(T);
+        buildEmblemInterior(T);
         buildGoldenThread(T);
 
         document.body.classList.add("has-webgl");
@@ -526,6 +531,117 @@
             }
         }
         archGroup.userData.gateShape = 'pointed-emblem';
+    }
+
+    // The crest is real relief geometry: a recessed ivory field, raised dark
+    // motif, interwoven red tubes and individual green wheat leaves.
+    // Coordinates follow the project's supplied emblem illustration.
+    function buildEmblemInterior(T) {
+        emblemGroup = new T.Group();
+        emblemGroup.name = 'Yarmouk crest interior';
+        emblemGroup.visible = false;
+        archGroup.add(emblemGroup);
+        emblemLayers = [];
+        const ivory = new T.MeshStandardMaterial({ color: 0xf0eadb, roughness: .76, metalness: .03 });
+        const dark = new T.MeshStandardMaterial({ color: 0x14201b, roughness: .38, metalness: .28 });
+        const red = new T.MeshStandardMaterial({ color: 0xc62838, roughness: .3, metalness: .24 });
+        const green = new T.MeshStandardMaterial({ color: 0x39874a, roughness: .42, metalness: .16 });
+        // Match the supplied sRGB logo inks under the scene's linear lighting.
+        [ivory, dark, red, green].forEach(material => material.color.convertSRGBToLinear());
+        const point = (x, y) => new T.Vector2((x - 250) * .0175, 5.5 - y * .0175);
+        function shapeFrom(commands) {
+            const shape = new T.Shape();
+            commands.forEach(([command, ...values]) => {
+                const points = [];
+                for (let i = 0; i < values.length; i += 2) points.push(point(values[i], values[i + 1]));
+                if (command === 'M') shape.moveTo(points[0].x, points[0].y);
+                else if (command === 'L') shape.lineTo(points[0].x, points[0].y);
+                else if (command === 'C') shape.bezierCurveTo(...points.flatMap(p => [p.x, p.y]));
+                else shape.closePath();
+            });
+            return shape;
+        }
+        function relief(shape, material, depth, z, parent) {
+            const geometry = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 18, steps: 1 });
+            const mesh = new T.Mesh(geometry, material);
+            mesh.position.z = z;
+            parent.add(mesh);
+            return mesh;
+        }
+        function layer(name, start, end) {
+            const group = new T.Group();
+            group.name = name;
+            emblemGroup.add(group);
+            emblemLayers.push({ group, start, end });
+            return group;
+        }
+        const field = layer('Recessed ivory field', .805, .845);
+        const shield = new T.Shape();
+        shield.moveTo(0, 4.49);
+        shield.bezierCurveTo(.35, 3.92, 1, 3.73, 1.78, 3.2);
+        shield.bezierCurveTo(2.37, 2.8, 2.46, 2.15, 2.46, 1.3);
+        shield.lineTo(2.46, -1.8);
+        shield.bezierCurveTo(2.46, -2.3, 2.6, -2.73, 2.79, -3.26);
+        shield.lineTo(-2.79, -3.26);
+        shield.bezierCurveTo(-2.6, -2.73, -2.46, -2.3, -2.46, -1.8);
+        shield.lineTo(-2.46, 1.3);
+        shield.bezierCurveTo(-2.46, 2.15, -2.37, 2.8, -1.78, 3.2);
+        shield.bezierCurveTo(-1, 3.73, -.35, 3.92, 0, 4.49);
+        shield.closePath();
+        relief(shield, ivory, .18, -.22, field);
+
+        const motifLayer = layer('Raised dark university motif', .835, .885);
+        const motif = shapeFrom([['M',185,106],['L',228,230],['L',235,230],['L',240,198],['L',261,198],['L',267,230],['L',274,230],['L',315,106],['L',266,365],['L',250,478],['L',234,365],['Z']]);
+        const opening = shapeFrom([['M',214,254],['L',250,448],['L',286,254],['Z']]);
+        motif.holes.push(opening);
+        relief(motif, dark, .12, .015, motifLayer);
+
+        const orbits = layer('Interwoven red orbital rings', .865, .925);
+        [-43, 43].forEach((degrees, index) => {
+            const angle = degrees * Math.PI / 180, points = [];
+            for (let i = 0; i < 128; i++) {
+                const t = i / 128 * Math.PI * 2;
+                const x = 58 * Math.cos(t), y = 109 * Math.sin(t);
+                const p = point(250 + x * Math.cos(angle) - y * Math.sin(angle), 337 + x * Math.sin(angle) + y * Math.cos(angle));
+                points.push(new T.Vector3(p.x, p.y, .27 + Math.sin(t) * .11 * (index ? -1 : 1)));
+            }
+            const curve = new T.CatmullRomCurve3(points, true);
+            orbits.add(new T.Mesh(new T.TubeGeometry(curve, 128, .035, 8, true), red));
+        });
+
+        const wheat = layer('Green wheat sprig', .905, .95);
+        const stem = new T.LineCurve3(new T.Vector3(0, point(250,430).y, .43), new T.Vector3(0, point(250,303).y, .43));
+        wheat.add(new T.Mesh(new T.TubeGeometry(stem, 1, .018, 8, false), green));
+        const leaves = [
+            [['M',250,313],['C',240,300,247,285,250,279],['C',256,289,258,302,250,313],['Z']],
+            [['M',249,336],['C',235,332,232,319,234,310],['C',244,313,250,325,249,336],['Z']],
+            [['M',251,336],['C',265,332,268,319,266,310],['C',256,313,250,325,251,336],['Z']],
+            [['M',249,368],['C',232,365,230,350,232,340],['C',244,345,251,357,249,368],['Z']],
+            [['M',251,368],['C',268,365,270,350,268,340],['C',256,345,249,357,251,368],['Z']],
+            [['M',249,399],['C',232,397,231,383,233,374],['C',245,378,250,388,249,399],['Z']],
+            [['M',251,399],['C',268,397,269,383,267,374],['C',255,378,250,388,251,399],['Z']]
+        ];
+        leaves.forEach(commands => relief(shapeFrom(commands), green, .055, .4, wheat));
+        emblemGroup.userData.revealAfter = .8;
+    }
+
+    function updateEmblemInterior(progress) {
+        if (!emblemGroup) return;
+        // Completely absent until every stone tier has finished. Reversing the
+        // scroll removes the relief before the gate begins to come apart.
+        emblemGroup.visible = progress > .805;
+        emblemLayers.forEach(({ group, start, end }) => {
+            const t = smoothstep(start, end, progress);
+            group.visible = t > 0;
+            group.position.z = lerp(-.28, 0, t);
+            group.scale.setScalar(lerp(.97, 1, t));
+            group.traverse(object => {
+                if (!object.isMesh) return;
+                object.material.transparent = t < 1;
+                object.material.opacity = t;
+                object.material.depthWrite = t >= 1;
+            });
+        });
     }
 
     // ========================================================================
@@ -649,6 +765,7 @@
             threadWireMesh.material.opacity = wireOpacity;
             threadWireMesh.visible = wireOpacity > 0.01;
         }
+        updateEmblemInterior(progress);
     }
 
     // ========================================================================
@@ -777,7 +894,7 @@
         if (!staticJourney()) updateCameraAndOrbit(scrollProgress);
         syncStageUI(scrollProgress);
 
-        if (!staticJourney() && isSceneReady && renderer && scene && camera) {
+        if (gateInView && !staticJourney() && isSceneReady && renderer && scene && camera) {
             renderer.render(scene, camera);
         }
     }
@@ -800,7 +917,7 @@
         const preserveProgress = scrollProgress, wasLive = !!renderer && !document.body.classList.contains('static-journey');
         document.body.classList.toggle('static-journey', staticJourney());
         if (!staticJourney() && !renderer) initThreeScene();
-        if (wasLive && !staticJourney()) {
+        if (wasLive && !staticJourney() && !document.body.classList.contains('content-view')) {
             window.scrollTo({ top: scrollForProgress(preserveProgress), behavior: 'instant' });
             targetProgress = preserveProgress;
         }
@@ -1039,7 +1156,9 @@
             get scene() { return scene; },
             get camera() { return camera; },
             get archGroup() { return archGroup; },
+            get emblemGroup() { return emblemGroup; },
             getRenderer: () => renderer,
+            createStoneTexture: createProceduralStoneTexture,
             getStops: () => STAGES.map(stage => stage.targetScroll),
             scrollForProgress,
         };
@@ -1111,4 +1230,549 @@
     const video = document.getElementById('application-video');
     new IntersectionObserver(entries => { if (!entries[0].isIntersecting) video.pause(); }, { threshold: 0 }).observe(video);
     document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
+})();
+
+/* A separate, reversible book scene below the completed gate. */
+(() => {
+    'use strict';
+    function initStoneBook() {
+        const story = document.querySelector('[data-stone-story]');
+        if (!story || story.dataset.ready) return;
+        story.dataset.ready = 'true';
+        const sections = [...story.querySelectorAll('.stone-story-chapters > section')];
+        const rail = story.querySelector('.stone-book-rail');
+        const rows = sections.map(section => {
+            const row = document.createElement('div'), slot = document.createElement('div');
+            row.className = 'stone-chapter-row'; slot.className = 'stone-book-slot';
+            const panel = document.createElement('div'); panel.className = 'stone-section-panel';
+            panel.append(...section.childNodes); section.append(panel);
+            section.before(row); row.append(section, slot); return { row, slot, panel };
+        });
+        rows[rows.length - 1].row.classList.add('is-last-chapter');
+        const chapters = story.querySelector('.stone-story-chapters');
+        const track = document.createElement('div');
+        track.className = 'book-flight-track'; chapters.append(track);
+        story.classList.add('book-alternating');
+        const stage = story.querySelector('.stone-book-stage');
+        const canvas = document.getElementById('stone-book-canvas');
+        const toggle = document.getElementById('book-motion');
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+        const T = window.THREE;
+        const BOOK = { pageWidth: 2.6, coverWidth: 2.76, scrollPerTurn: 380, response: .3, travelResponse: .48, movingLeaves: 3, snapFraction: .22 };
+        let renderer, scene, camera, book, leftWing, rightWing, spine, flightCenter, shadowRig, leaves = [], frame = 0, visible = false;
+        let tiltX = 0, tiltY = 0, targetTiltX = 0, targetTiltY = 0, previousTime = 0;
+        let progress = 0, paused = false, disposed = false, available = false;
+        let activeChapter = 0, journey = 0, targetJourney = 0, closure = 0;
+        let flightLift = 0, flightDirection = -1, flightTravel = 0, flightSpin = 0;
+        let journeyVelocity = 0, turnVelocity = 0, turnTarget = 0, lastTurnScroll = scrollY;
+        let flightAnimation, flightWindows = [], slotPositions = [], leftEdge = 0, rightEdge = 0;
+        let pendingPanelFocus = null;
+        let autoScroll = null, autoFrame = 0, snapLanding = null, lastIntent = 0, intentDirection = 0, touching = false;
+        let touchY = 0;
+        let panelAnimations = [], panelHomes = [], panelHeights = [], panelRange = 1, sceneTop = 0, sceneBottom = 0;
+        let reflectionFrom = 0, reflectionTo = 0, reflectionMix = 1, paintReflection = () => {};
+        const clamp = n => Math.max(0, Math.min(1, n));
+        const ease = n => { n = clamp(n); return n * n * n * (n * (n * 6 - 15) + 10); };
+        // Critically damped motion keeps its velocity when scrolling reverses.
+        function spring(value, target, velocity, response, speedLimit, delta) {
+            const omega = 2 / response, offset = value - target;
+            const step = (velocity + omega * offset) * delta, decay = Math.exp(-omega * delta);
+            const next = target + (offset + step) * decay;
+            const distance = Math.max(-speedLimit * delta, Math.min(speedLimit * delta, next - value));
+            return { value: value + distance, velocity: Math.max(-speedLimit, Math.min(speedLimit, Math.abs(next - value) > speedLimit * delta ? Math.sign(distance) * speedLimit : (velocity - omega * step) * decay)) };
+        }
+        function revealSection(section) {
+            if (!section.classList.contains('book-awaiting')) return;
+            section.classList.add('book-entered'); section.classList.remove('book-awaiting');
+            sectionObserver.unobserve(section);
+        }
+        function selectChapter(index) {
+            activeChapter = index;
+            if (reflectionTo !== index) { reflectionFrom = reflectionTo; reflectionTo = index; reflectionMix = 0; }
+        }
+        function snapEnabled() { return innerWidth > 1000 && available && !reduced.matches && !disposed; }
+        function stopAutoScroll() {
+            cancelAnimationFrame(autoFrame); autoFrame = 0; autoScroll = snapLanding = null; lastIntent = 0;
+        }
+        function beginSnap(index, source = activeChapter) {
+            stopAutoScroll();
+            index = Math.max(0, Math.min(sections.length - 1, index));
+            const top = Math.round(panelHomes[index] - 120);
+            snapLanding = { index, source, direction: Math.sign(index - source) || intentDirection, top };
+            autoScroll = { from: scrollY, top, start: performance.now() };
+            function advance(now) {
+                if (!autoScroll || !snapEnabled()) { stopAutoScroll(); return; }
+                const phase = clamp((now - autoScroll.start) / 1100);
+                scrollTo({ top: autoScroll.from + (autoScroll.top - autoScroll.from) * ease(phase), behavior: 'instant' });
+                if (phase < 1) autoFrame = requestAnimationFrame(advance);
+                else { autoScroll = null; autoFrame = 0; updateChapter(); }
+            }
+            autoFrame = requestAnimationFrame(advance);
+        }
+        function maybeSnap() {
+            if (!snapEnabled() || autoScroll || snapLanding || touching || !lastIntent || performance.now() - lastIntent > 500) return;
+            const origin = panelHomes[activeChapter] - 120, threshold = innerHeight * BOOK.snapFraction;
+            if (intentDirection > 0 && activeChapter < sections.length - 1 && scrollY - origin >= threshold)
+                beginSnap(activeChapter + 1);
+            else if (intentDirection < 0 && activeChapter > 0 && origin - scrollY >= threshold)
+                beginSnap(activeChapter - 1);
+        }
+        function ignoreScrollAssist(target) {
+            return target instanceof Element && !!target.closest('input,select,textarea,button,video,dialog,[contenteditable="true"],#home-opportunities');
+        }
+        function scrollIntent(event, direction) {
+            if (!direction || !snapEnabled()) return;
+            if (ignoreScrollAssist(event.target)) { stopAutoScroll(); return; }
+            if (scrollY < sceneTop - 120 || scrollY > panelHomes[sections.length - 1] - 120 + innerHeight * .6) return;
+            intentDirection = direction; lastIntent = performance.now();
+            if (snapLanding) {
+                const previous = snapLanding;
+                if (direction !== previous.direction) beginSnap(previous.source, previous.index);
+                if (event.cancelable) event.preventDefault();
+            }
+        }
+        function wheelIntent(event) {
+            if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) { lastIntent = 0; return; }
+            scrollIntent(event, Math.sign(event.deltaY));
+        }
+        function keyIntent(event) {
+            if (event.key === 'Escape' || event.key === 'Tab' || event.key === 'Home' || event.key === 'End') { stopAutoScroll(); return; }
+            if (event.altKey || event.ctrlKey || event.metaKey) return;
+            const direction = event.key === 'ArrowDown' || event.key === 'PageDown' || (event.key === ' ' && !event.shiftKey) ? 1
+                : event.key === 'ArrowUp' || event.key === 'PageUp' || (event.key === ' ' && event.shiftKey) ? -1 : 0;
+            scrollIntent(event, direction);
+        }
+        function pointerIntent(event) {
+            if (!rail.contains(event.target)) stopAutoScroll();
+        }
+        function touchStart(event) { stopAutoScroll(); touching = true; touchY = event.touches[0].clientY; }
+        function touchMove(event) {
+            if (!snapEnabled() || ignoreScrollAssist(event.target)) return;
+            const next = event.touches[0].clientY;
+            intentDirection = Math.sign(touchY - next); lastIntent = performance.now(); touchY = next;
+        }
+        function touchEnd() { touching = false; maybeSnap(); }
+        function updateChapter() {
+            const scrollDelta = scrollY - lastTurnScroll; lastTurnScroll = scrollY;
+            if (visible && available && !paused && !reduced.matches) {
+                // Fast scrolling queues at most one gentle turn, rather than many catch-up flips.
+                turnTarget = progress + Math.max(-.9, Math.min(.9, turnTarget - progress + scrollDelta / BOOK.scrollPerTurn));
+            }
+            if (innerWidth <= 1000) {
+                let index = 0;
+                sections.forEach((section, i) => { if (section.getBoundingClientRect().top <= innerHeight * .45) index = i; });
+                selectChapter(index); targetJourney = index;
+            } else {
+                targetJourney = 0;
+                flightWindows.forEach((window, i) => {
+                    if (scrollY >= window.start) targetJourney = i + clamp((scrollY - window.start) / (window.end - window.start));
+                });
+            }
+            if (innerWidth <= 1000 || reduced.matches || !available) { journey = targetJourney; positionBook(); }
+            maybeSnap(); requestDraw();
+        }
+        function positionBook() {
+            const index = Math.min(rows.length - 1, Math.floor(journey));
+            const phase = journey - index;
+            const travel = ease((phase - .04) / .92);
+            flightTravel = travel;
+            flightDirection = index % 2 === 0 ? -1 : 1;
+            // One complete turn per crossing; retain the accumulated angle at each landing.
+            flightSpin = innerWidth > 1000 && !reduced.matches ? -Math.PI * 2 * (index + travel) : 0;
+            // A shallow arc toward the viewer, with flat tangents at both landings.
+            flightLift = innerWidth > 1000 && !reduced.matches ? Math.pow(Math.sin(Math.PI * travel), 2) : 0;
+            closure = innerWidth <= 1000 || reduced.matches ? 0 : phase < .34 ? ease(phase / .34) : 1 - ease((phase - .66) / .34);
+            if (flightAnimation) {
+                const start = slotPositions[index] || 0, end = slotPositions[Math.min(index + 1, rows.length - 1)] || 0;
+                const x = start + (end - start) * travel;
+                flightAnimation.currentTime = (x - leftEdge) / Math.max(1, rightEdge - leftEdge) * 1000;
+            }
+            const synchronized = innerWidth > 1000 && !reduced.matches && available;
+            const settledChapter = phase <= .055 ? index : phase >= .945 ? Math.min(index + 1, rows.length - 1) : -1;
+            const arrived = settledChapter >= 0 && Math.abs(targetJourney - settledChapter) < .15;
+            if (innerWidth > 1000 && arrived) selectChapter(settledChapter);
+            const sceneInView = sceneTop - scrollY < innerHeight && sceneBottom - scrollY > 120;
+            rows.forEach(({ panel }, i) => {
+                if (panelAnimations[i]) {
+                    const top = Math.min(Math.max(120, sceneTop - scrollY), sceneBottom - scrollY - Math.max(panelHeights[i], rail.offsetHeight));
+                    const offset = synchronized ? top - (panelHomes[i] - scrollY) : 0;
+                    panelAnimations[i].currentTime = Math.max(0, Math.min(panelRange * 2, panelRange + offset));
+                }
+                const shown = !synchronized || (sceneInView && arrived && i === settledChapter);
+                panel.inert = synchronized && !shown;
+                if (shown && pendingPanelFocus && panel.contains(pendingPanelFocus)) {
+                    pendingPanelFocus.focus({ preventScroll: true }); pendingPanelFocus = null;
+                }
+                if (synchronized) {
+                    sections[i].classList.toggle('book-entered', shown);
+                    sections[i].classList.toggle('book-awaiting', !shown);
+                } else {
+                    const rect = sections[i].getBoundingClientRect();
+                    if (rect.top < innerHeight * .95 && rect.bottom > 0) revealSection(sections[i]);
+                }
+            });
+        }
+        function measure() {
+            stopAutoScroll();
+            const desktop = innerWidth > 1000, host = desktop ? track : story;
+            if (rail.parentElement !== host) {
+                const focused = rail.contains(document.activeElement) ? document.activeElement : null;
+                if (desktop) track.append(rail); else story.prepend(rail);
+                focused?.focus({ preventScroll: true });
+            }
+            flightAnimation?.cancel(); flightAnimation = null;
+            panelAnimations.forEach(animation => animation.cancel()); panelAnimations = [];
+            if (desktop) {
+                sceneTop = rows[0].row.getBoundingClientRect().top + scrollY;
+                sceneBottom = track.getBoundingClientRect().bottom + scrollY;
+                panelHomes = sections.map(section => section.getBoundingClientRect().top + scrollY);
+                panelHeights = rows.map(({ panel }) => panel.offsetHeight);
+                panelRange = chapters.offsetHeight + innerHeight;
+                panelAnimations = rows.map(({ panel }) => {
+                    const animation = panel.animate([
+                        { transform: `translate3d(0,${-panelRange}px,0)` },
+                        { transform: `translate3d(0,${panelRange}px,0)` }
+                    ], { duration: panelRange * 2, fill: 'both' });
+                    animation.pause(); animation.currentTime = panelRange; return animation;
+                });
+                const trackLeft = track.getBoundingClientRect().left;
+                slotPositions = rows.map(({ slot }) => {
+                    const rect = slot.getBoundingClientRect();
+                    return rect.left - trackLeft + (rect.width - rail.clientWidth) / 2;
+                });
+                leftEdge = Math.min(...slotPositions); rightEdge = Math.max(...slotPositions);
+                flightWindows = rows.slice(0, -1).map(({ row }, i) => ({
+                    start: row.getBoundingClientRect().bottom + scrollY - 120,
+                    end: rows[i + 1].row.getBoundingClientRect().top + scrollY - 120
+                }));
+                flightAnimation = rail.animate([
+                    { transform: `translate3d(${leftEdge}px,0,0)` },
+                    { transform: `translate3d(${rightEdge}px,0,0)` }
+                ], { duration: 1000, fill: 'both' });
+                flightAnimation.pause();
+            }
+            if (renderer) {
+                const width = stage.clientWidth, height = canvas.clientHeight;
+                renderer.setSize(width, height, false);
+                camera.aspect = width / Math.max(height, 1);
+                // Keep the whole spread visible in both the tall desktop and wide mobile frame.
+                camera.userData.bookDistance = Math.max(6.3, 9 / camera.aspect);
+                camera.position.z = camera.userData.bookDistance;
+                camera.updateProjectionMatrix();
+            }
+            updateChapter(); positionBook(); requestDraw();
+        }
+        // Each leaf is a thick, closed stone slab, with a bowed surface and chipped rim.
+        function sculptLeaf(geometry, original, turn, seed) {
+            const positions = geometry.attributes.position;
+            const angle = Math.PI * turn;
+            for (let i = 0; i < positions.count; i++) {
+                const x = original[i * 3], y = original[i * 3 + 1], depth = original[i * 3 + 2];
+                const u = clamp(x / BOOK.pageWidth), v = y / 1.36;
+                const bow = .29 * Math.pow(Math.sin(Math.PI * u), .8) + .055 * u;
+                const chip = .046 * Math.exp(-Math.pow((y + .83 + seed * .04) / .09, 2))
+                    + .032 * Math.exp(-Math.pow((y - .52 + seed * .03) / .075, 2));
+                const corner = Math.max(0, Math.abs(v) - .94) * .6;
+                const rim = clamp((u - .93) / .07);
+                const bevel = 1 - .38 * Math.max(rim, clamp((Math.abs(v) - .94) / .06));
+                positions.setXYZ(i, x - rim * (chip + corner), y,
+                    depth * bevel + bow * Math.cos(angle) + Math.sin(angle) * Math.sin(Math.PI * u) * .16);
+            }
+            positions.needsUpdate = true;
+            geometry.computeVertexNormals();
+        }
+        function setPose(value, time) {
+            leaves.forEach((leaf, index) => {
+                // Recycle each leaf only while hidden inside the permanent stone stacks.
+                // This supports continuous forward and reverse turns without resetting the book.
+                const phase = ((value - index) % leaves.length + leaves.length) % leaves.length;
+                const raw = clamp(phase), openTurn = ease(raw);
+                // Fold a raised leaf into its nearest stack instead of hiding it mid-air.
+                const restingTurn = openTurn < .5 ? 0 : 1;
+                const turn = openTurn + (restingTurn - openTurn) * ease(closure);
+                leaf.mesh.visible = phase > .0001 && phase < .9999;
+                const side = restingTurn ? -1 : 1, wingAngle = -side * closure * Math.PI / 2;
+                const x = .025 * Math.cos(Math.PI * turn), z = .312 + Math.sin(Math.PI * turn) * .035;
+                leaf.hinge.rotation.y = -Math.PI * turn + wingAngle;
+                leaf.hinge.position.x = x * Math.cos(wingAngle) + z * Math.sin(wingAngle) + side * closure * .37;
+                leaf.hinge.position.z = -x * Math.sin(wingAngle) + z * Math.cos(wingAngle);
+                if (leaf.lastTurn !== turn) {
+                    sculptLeaf(leaf.mesh.geometry, leaf.original, turn, index);
+                    leaf.lastTurn = turn;
+                }
+            });
+            leftWing.rotation.y = closure * Math.PI / 2;
+            rightWing.rotation.y = -closure * Math.PI / 2;
+            leftWing.position.x = -closure * .37; rightWing.position.x = closure * .37;
+            spine.scale.x = 1 + closure * 2.4;
+            const bank = flightDirection * flightLift;
+            book.rotation.set(-.78 + closure * .4 - flightLift * .1 + tiltX,
+                .13 + closure * .72 + flightSpin + tiltY, -.075 + bank * .12);
+            // Rotate around the folded book's center, rather than swinging its spine off-frame.
+            flightCenter.set(0, 0, BOOK.coverWidth / 2 * Math.sin(closure * Math.PI / 2)).applyEuler(book.rotation);
+            const float = !paused && !reduced.matches ? Math.sin(time * .0004) * .012 : 0;
+            book.position.set(-flightCenter.x, flightLift * .08 + float - flightCenter.y, flightLift * 2.1 - flightCenter.z);
+            // Keep the ground behind the object while the book lifts toward the camera.
+            shadowRig.rotation.set(-.78 + closure * .4, .13 + closure * .72, -.075);
+            // A fixed frame avoids zooming the entire book with each leaf.
+            camera.position.z = (camera.userData.bookDistance || 6.3) + .95;
+        }
+        function draw(time) {
+            frame = 0;
+            if (!renderer || !visible || disposed || !available) return;
+            if (toggle.disabled !== reduced.matches) syncToggle();
+            const delta = Math.min((time - (previousTime || time)) / 1000, .05);
+            previousTime = time;
+            const travel = spring(journey, targetJourney, journeyVelocity, BOOK.travelResponse, .65, delta);
+            journey = reduced.matches ? targetJourney : Math.max(0, Math.min(rows.length - 1, travel.value));
+            journeyVelocity = reduced.matches ? 0 : travel.velocity;
+            if (Math.abs(targetJourney - journey) < .0001 && Math.abs(journeyVelocity) < .001) { journey = targetJourney; journeyVelocity = 0; }
+            positionBook();
+            if (snapLanding && !autoScroll && Math.abs(journey - snapLanding.index) < .02
+                && Math.abs(scrollY - snapLanding.top) < 2 && performance.now() - lastIntent > 250) {
+                snapLanding = null; lastIntent = 0;
+            }
+            if (!paused && !reduced.matches) {
+                if (closure < .01) {
+                    const turn = spring(progress, turnTarget, turnVelocity, BOOK.response, .7, delta);
+                    progress = turn.value; turnVelocity = turn.velocity;
+                    if (Math.abs(turnTarget - progress) < .0001 && Math.abs(turnVelocity) < .001) { progress = turnTarget; turnVelocity = 0; }
+                } else { turnVelocity = 0; turnTarget = progress; }
+                const pointerBlend = 1 - Math.exp(-delta / .35);
+                tiltX += (targetTiltX - tiltX) * pointerBlend;
+                tiltY += (targetTiltY - tiltY) * pointerBlend;
+            }
+            if (reflectionMix < 1 && !paused) {
+                reflectionMix = reduced.matches ? 1 : Math.min(1, reflectionMix + delta / .9);
+                paintReflection(reflectionFrom, reflectionTo, reflectionMix);
+            }
+            setPose(progress, time);
+            renderer.render(scene, camera);
+            if ((!paused || Math.abs(targetJourney - journey) > .0001) && !reduced.matches && !document.hidden) frame = requestAnimationFrame(draw);
+        }
+        function requestDraw() { if (!frame && visible && !disposed) frame = requestAnimationFrame(draw); }
+        function syncToggle() {
+            toggle.hidden = !available;
+            stage.querySelector('.stone-book-controls > span').textContent = !available || reduced.matches ? 'Your next chapter.' : 'Scroll a little to continue';
+            toggle.disabled = reduced.matches || !available;
+            toggle.textContent = reduced.matches ? 'Motion reduced' : paused ? 'Resume page turns' : 'Pause page turns';
+            toggle.setAttribute('aria-pressed', String(paused || reduced.matches));
+        }
+        story.querySelectorAll('[data-major]').forEach(link => link.addEventListener('click', () => { pendingPanelFocus = document.getElementById('public-major'); }));
+        toggle.addEventListener('click', () => { paused = !paused; syncToggle(); requestDraw(); });
+        reduced.addEventListener('change', () => { if (reduced.matches) { progress = turnTarget = turnVelocity = journeyVelocity = 0; } syncToggle(); requestAnimationFrame(measure); });
+        const sectionObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && (innerWidth <= 1000 || reduced.matches || !available)) revealSection(entry.target);
+            });
+        }, { threshold: .02, rootMargin: '0px 0px -5% 0px' });
+        sections.forEach(section => { section.classList.add('book-awaiting'); sectionObserver.observe(section); });
+        addEventListener('wheel', wheelIntent, { passive: false });
+        addEventListener('keydown', keyIntent);
+        addEventListener('pointerdown', pointerIntent, { passive: true });
+        addEventListener('hashchange', stopAutoScroll);
+        story.addEventListener('touchstart', touchStart, { passive: true });
+        story.addEventListener('touchmove', touchMove, { passive: true });
+        story.addEventListener('touchend', touchEnd, { passive: true });
+        story.addEventListener('touchcancel', touchEnd, { passive: true });
+        addEventListener('scroll', updateChapter, { passive: true });
+        addEventListener('resize', measure, { passive: true });
+        measure();
+        if (!T) { syncToggle(); return; }
+        try {
+            renderer = new T.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+            renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
+            renderer.setClearColor(0x000000, 0);
+            renderer.outputEncoding = T.sRGBEncoding;
+            renderer.toneMapping = T.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = .85;
+            scene = new T.Scene();
+            camera = new T.PerspectiveCamera(38, 1, .1, 40);
+            camera.position.set(0, .15, 9);
+            camera.lookAt(0, 0, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = T.PCFSoftShadowMap;
+            scene.add(new T.HemisphereLight(0xe8eee9, 0x384036, .55));
+            const sun = new T.DirectionalLight(0xfff1db, 1.65);
+            sun.position.set(-3.5, 4.5, 6); sun.castShadow = true;
+            sun.shadow.mapSize.set(1024, 1024);
+            Object.assign(sun.shadow.camera, {left:-4, right:4, top:4, bottom:-4, near:.5, far:18});
+            sun.shadow.bias = -.0007; sun.shadow.normalBias = .025; sun.shadow.radius = 3;
+            scene.add(sun);
+            const fill = new T.DirectionalLight(0xb5c8c4, .28); fill.position.set(4, -2, 2); scene.add(fill);
+
+            // Multiscale mineral grain, pores and calcite veins; no ruled-paper lines.
+            const surface = document.createElement('canvas'); surface.width = surface.height = 512;
+            const context = surface.getContext('2d'), pixels = context.createImageData(512, 512);
+            let randomState = 47921;
+            const random = () => ((randomState = Math.imul(randomState, 1664525) + 1013904223 | 0) >>> 0) / 4294967296;
+            const grids = [7, 23, 97].map(size => ({size, values:Float32Array.from({length:(size+1)*(size+1)}, random)}));
+            function noise(grid, x, y) {
+                const gx=x/512*grid.size, gy=y/512*grid.size, ix=Math.floor(gx), iy=Math.floor(gy);
+                let fx=gx-ix, fy=gy-iy; fx=fx*fx*(3-2*fx); fy=fy*fy*(3-2*fy);
+                const stride=grid.size+1, top=grid.values[iy*stride+ix]*(1-fx)+grid.values[iy*stride+ix+1]*fx;
+                const bottom=grid.values[(iy+1)*stride+ix]*(1-fx)+grid.values[(iy+1)*stride+ix+1]*fx;
+                return top*(1-fy)+bottom*fy;
+            }
+            for (let y=0;y<512;y++) for (let x=0;x<512;x++) {
+                const mineral=noise(grids[0],x,y)*.5+noise(grids[1],x,y)*.32+noise(grids[2],x,y)*.18;
+                const value=104+mineral*79+(random()-.5)*20, i=(y*512+x)*4;
+                pixels.data[i]=value; pixels.data[i+1]=value*.99; pixels.data[i+2]=value*.94; pixels.data[i+3]=255;
+            }
+            context.putImageData(pixels,0,0);
+            for(let i=0;i<14;i++) {
+                let x=random()*512, y=random()*512;
+                context.beginPath(); context.moveTo(x,y);
+                for(let step=0;step<11;step++) { x+=(random()-.3)*22; y+=9+random()*13; context.lineTo(x,y); }
+                context.strokeStyle=i%3?'rgba(224,223,203,.24)':'rgba(45,51,44,.2)'; context.lineWidth=.8+random()*2; context.stroke();
+            }
+            for(let i=0;i<2300;i++) {
+                const size=.4+random()*1.4;
+                context.fillStyle=i%4?'rgba(29,37,29,.18)':'rgba(233,234,219,.4)';
+                context.fillRect(random()*512,random()*512,size,size);
+            }
+            const texture = new T.CanvasTexture(surface); texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(),4);
+            // Decorative wavy inscriptions belong only to the broad page faces.
+            // Keep the covers and layered edges as unmarked mineral stone.
+            const pageSurface = document.createElement('canvas'); pageSurface.width = pageSurface.height = 512;
+            const inscription = pageSurface.getContext('2d'); inscription.drawImage(surface, 0, 0);
+            inscription.strokeStyle = 'rgba(49,66,43,.58)'; inscription.lineWidth = 2.3; inscription.lineCap = 'round';
+            for (let row = 0; row < 8; row++) {
+                const y = 115 + row * 35;
+                const widths = row % 3 === 2 ? [96, 82, 55] : [96, 110, 96];
+                let left = 72;
+                widths.forEach(width => {
+                    inscription.beginPath();
+                    for (let x = 0; x <= width; x++) {
+                        const wave = y + Math.sin(x * .19 + row * .4) * 3.5;
+                        if (!x) inscription.moveTo(left + x, wave); else inscription.lineTo(left + x, wave);
+                    }
+                    inscription.stroke(); left += width + 20;
+                });
+            }
+            const pageTexture = new T.CanvasTexture(pageSurface); pageTexture.anisotropy = texture.anisotropy;
+            const pageBase = document.createElement('canvas'); pageBase.width = pageBase.height = 512;
+            pageBase.getContext('2d').drawImage(pageSurface, 0, 0);
+            const engravingTexture = new T.CanvasTexture(pageBase); engravingTexture.anisotropy = texture.anisotropy;
+            // Stylized reflected light: mirror a faint impression of the actual active panel.
+            // The original HTML is the reading content; this soft image is only decorative.
+            const impressions = sections.map(section => {
+                const image = document.createElement('canvas'); image.width = image.height = 512;
+                const c = image.getContext('2d');
+                c.fillStyle = 'rgba(255,255,255,.42)'; c.fillRect(48, 54, 416, 404);
+                c.fillStyle = '#082f20'; c.font = '600 38px "DM Sans",sans-serif';
+                const heading = section.querySelector('h2').innerText.replace(/\s+/g, ' ').trim();
+                const words = heading.split(' '); let line = '', y = 108;
+                words.forEach(word => { if (c.measureText(line + ' ' + word).width > 350 && line) { c.fillText(line, 74, y); y += 43; line = ''; } line += (line ? ' ' : '') + word; });
+                c.fillText(line, 74, y);
+                c.font = '400 17px "DM Sans",sans-serif'; c.fillStyle = '#153c29';
+                const copy = section.querySelector('p')?.textContent.trim().split(/\s+/) || []; line = ''; y += 36;
+                copy.forEach(word => { if (c.measureText(line + ' ' + word).width > 350 && line) { if (y < 282) c.fillText(line, 74, y); y += 23; line = ''; } line += (line ? ' ' : '') + word; });
+                if (y < 282) c.fillText(line, 74, y);
+                [...section.querySelectorAll('h3,summary')].slice(0, 3).forEach((node, i) => {
+                    c.fillStyle = 'rgba(210,232,211,.65)'; c.fillRect(72, 304 + i * 40, 366, 32);
+                    c.fillStyle = '#143d2c'; c.font = '500 18px "DM Sans",sans-serif';
+                    c.fillText(node.textContent.trim().slice(0, 42), 82, 326 + i * 40, 346);
+                });
+                // Feather reflected light into the mineral surface instead of printing a hard rectangle.
+                c.globalCompositeOperation = 'destination-in';
+                const fade = c.createRadialGradient(256, 250, 85, 256, 250, 265);
+                fade.addColorStop(0, 'white'); fade.addColorStop(.68, 'rgba(255,255,255,.85)'); fade.addColorStop(1, 'transparent');
+                c.fillStyle = fade; c.fillRect(0, 0, 512, 512);
+                return image;
+            });
+            paintReflection = (from, to, mix) => {
+                const c = pageSurface.getContext('2d'), blend = mix * mix * (3 - 2 * mix);
+                c.clearRect(0, 0, 512, 512); c.drawImage(pageBase, 0, 0);
+                c.save(); c.translate(512, 0); c.scale(-1, 1); c.transform(1, .06, -.08, 1, 22, -12); c.filter = 'blur(.65px)';
+                c.globalAlpha = .32 * (1 - blend); c.drawImage(impressions[from], 0, 0);
+                c.globalAlpha = .32 * blend; c.drawImage(impressions[to], 0, 0); c.restore(); pageTexture.needsUpdate = true;
+            };
+            paintReflection(activeChapter, activeChapter, 1);
+            const stone = new T.MeshStandardMaterial({map:pageTexture,bumpMap:engravingTexture,bumpScale:.065,roughness:1,color:0xc5c5b7});
+            const edge = new T.MeshStandardMaterial({map:texture,bumpMap:texture,bumpScale:.06,roughness:1,color:0x898d80});
+            const cover = new T.MeshStandardMaterial({map:texture,bumpMap:texture,bumpScale:.11,roughness:.98,color:0x626f60});
+            const crease = new T.MeshStandardMaterial({color:0x333b32,roughness:1});
+            book = new T.Group(); scene.add(book); flightCenter = new T.Vector3();
+            leftWing = new T.Group(); rightWing = new T.Group(); book.add(leftWing, rightWing);
+            function slab(width,height,depth,material,x,z) {
+                const geometry=new T.BoxGeometry(width,height,depth,24,12,2);
+                // Slightly weathered corners keep the covers from looking machine-cut.
+                const position=geometry.attributes.position;
+                for(let i=0;i<position.count;i++) {
+                    const px=position.getX(i), py=position.getY(i), pz=position.getZ(i);
+                    const corner=Math.max(0,Math.abs(py)/(height/2)-.92);
+                    position.setX(i,px-Math.sign(px)*corner*.32);
+                    position.setZ(i,pz*(1-.25*Math.max(Math.abs(px)/(width/2),Math.abs(py)/(height/2))));
+                }
+                geometry.computeVertexNormals();
+                const mesh=new T.Mesh(geometry,material); mesh.position.set(x,0,z);
+                mesh.castShadow=true; mesh.receiveShadow=true; (x < 0 ? leftWing : rightWing).add(mesh); return mesh;
+            }
+            slab(BOOK.coverWidth,2.94,.18,cover,-BOOK.coverWidth/2,-.17);
+            slab(BOOK.coverWidth,2.94,.18,cover,BOOK.coverWidth/2,-.17);
+            spine=new T.Mesh(new T.CylinderGeometry(.15,.15,2.9,24),cover);
+            spine.position.z=-.16; spine.castShadow=spine.receiveShadow=true; book.add(spine);
+            const gutter=new T.Mesh(new T.CylinderGeometry(.022,.022,2.72,10),crease);
+            gutter.position.z=.27; book.add(gutter);
+            function leaf(side,level,index,moving) {
+                const geometry=new T.BoxGeometry(BOOK.pageWidth,2.72,.102,44,20,2); geometry.translate(BOOK.pageWidth/2,0,0);
+                const original=new Float32Array(geometry.attributes.position.array);
+                sculptLeaf(geometry,original,side<0?1:0,index);
+                const mesh=new T.Mesh(geometry,[edge,edge,edge,edge,stone,stone]);
+                mesh.castShadow=true; mesh.receiveShadow=true;
+                const hinge=new T.Group(); hinge.rotation.y=side<0?-Math.PI:0; hinge.position.x=side<0?-.025:.025; hinge.position.z=level;
+                hinge.add(mesh); (moving ? book : side < 0 ? leftWing : rightWing).add(hinge);
+                if(moving) leaves.push({hinge,mesh,original,lastTurn:null});
+            }
+            for(let i=0;i<4;i++) { leaf(-1,-.015+i*.105,i,false); leaf(1,-.015+i*.105,i+1,false); }
+            for(let i=0;i<BOOK.movingLeaves;i++) leaf(1,.312,i,true);
+            shadowRig=new T.Group(); scene.add(shadowRig);
+            const shadow=new T.Mesh(new T.PlaneGeometry(7.2,4.4),new T.ShadowMaterial({opacity:.08}));
+            shadow.position.z=-.48; shadow.receiveShadow=true; shadowRig.add(shadow);
+            story.addEventListener('pointermove', event => {
+                if(event.pointerType==='touch'||paused||reduced.matches)return;
+                targetTiltY=(event.clientX/innerWidth-.5)*.075;
+                targetTiltX=(event.clientY/innerHeight-.5)*.055;
+                requestDraw();
+            }, {passive:true});
+            story.addEventListener('pointerleave',()=>{targetTiltX=targetTiltY=0;requestDraw();});
+            document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;}else requestDraw();});
+            available = true; story.classList.add('stone-book-ready');
+            canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); available = false; story.classList.remove('stone-book-ready'); cancelAnimationFrame(frame); frame = 0; syncToggle(); positionBook(); });
+            canvas.addEventListener('webglcontextrestored', () => { available = true; story.classList.add('stone-book-ready'); syncToggle(); measure(); });
+            const observer = new IntersectionObserver(entries => {
+                visible = entries[0].isIntersecting;
+                if (visible) { previousTime = 0; requestDraw(); } else { cancelAnimationFrame(frame); frame = 0; }
+            }, {rootMargin: '120px'});
+            observer.observe(stage);
+            const resizeObserver = new ResizeObserver(measure);
+            [stage, story.querySelector('.stone-story-chapters'), document.getElementById('experience-runway')].filter(Boolean).forEach(element => resizeObserver.observe(element));
+            addEventListener('scroll', requestDraw, {passive: true});
+            addEventListener('resize', measure, {passive: true});
+            document.fonts?.ready.then(() => {
+                measure();
+                const initialSection = sections.find(section => '#' + section.id === location.hash);
+                if (initialSection) {
+                    initialSection.scrollIntoView({ behavior: 'instant', block: 'start' });
+                    updateChapter(); journey = targetJourney; journeyVelocity = 0; positionBook(); requestDraw();
+                }
+            });
+            addEventListener('pagehide', event => {
+                if (event.persisted) return;
+                disposed = true; stopAutoScroll(); flightAnimation?.cancel(); panelAnimations.forEach(animation => animation.cancel()); cancelAnimationFrame(frame); observer.disconnect(); sectionObserver.disconnect(); resizeObserver.disconnect();
+                removeEventListener('scroll', updateChapter); removeEventListener('resize', measure);
+                removeEventListener('wheel', wheelIntent); removeEventListener('keydown', keyIntent);
+                removeEventListener('pointerdown', pointerIntent); removeEventListener('hashchange', stopAutoScroll);
+                book.traverse(object => { if (object.geometry) object.geometry.dispose(); });
+                [stone, edge, cover, crease, shadow.material].forEach(material => material.dispose()); shadow.geometry.dispose(); engravingTexture.dispose(); pageTexture.dispose(); texture.dispose(); renderer.dispose();
+            });
+            addEventListener('pageshow', event => { if (event.persisted) { measure(); requestDraw(); } });
+            // Expose just the scene state for visual and reverse-scroll verification.
+            window.YarmoukStoneBook = { constants: BOOK, getProgress: () => progress, getTurns: () => leaves.map(l => l.hinge.rotation.y), getRenderer: () => renderer, getChapter: () => activeChapter, getMotion: () => ({ journey, targetJourney, closure, journeyVelocity, turnVelocity, turnTarget, cameraDistance: camera.position.z, depth: flightLift * 2.1, rootPosition: book.position.toArray(), flightLift, spin: flightSpin, autoScrolling: !!autoScroll, snapTarget: snapLanding ? snapLanding.index : null, rotation: book.rotation.toArray().slice(0, 3), x: rail.getBoundingClientRect().left }), getFlightWindows: () => flightWindows, getReflection: () => ({ from: reflectionFrom, to: reflectionTo, mix: reflectionMix, opacity: .32 }), getReflectionTexture: () => pageSurface.toDataURL() };
+            measure(); syncToggle();
+        } catch (_) { available = false; story.classList.remove('stone-book-ready'); if (renderer) renderer.dispose(); renderer = null; syncToggle(); }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initStoneBook, {once: true});
+    else initStoneBook();
 })();

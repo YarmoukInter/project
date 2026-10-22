@@ -5,10 +5,46 @@
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
+        "fullName": {
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'uni_sp'",
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+        },
+        "phone": {
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'uni_sp'",
+          ".validate": "newData.isString() && newData.val().length <= 30 && newData.val().matches(/^[+0-9(). -]*$/)"
+        },
         "mustChangePassword": {
           ".write": "auth != null && auth.uid === $uid && data.val() === true && newData.val() === false"
         }
       }
+    },
+    "students": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'student'",
+        "softSkills": {
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'student'",
+          ".validate": "newData.hasChildren() && newData.numChildren() <= 20",
+          "$skillIndex": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          }
+        },
+        "technicalSkills": {
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'student'",
+          ".validate": "newData.hasChildren() && newData.numChildren() <= 20",
+          "$skillIndex": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          }
+        }
+      }
+    },
+    "opportunities": {
+      ".read": "auth != null"
+    },
+    "companies": {
+      ".read": "auth != null"
+    },
+    "applications": {
+      ".indexOn": ["studentUid"]
     }
   }
 }

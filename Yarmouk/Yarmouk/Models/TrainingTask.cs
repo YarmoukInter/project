@@ -5,6 +5,7 @@ namespace Yarmouk.Models
     {
         public string Id { get; set; }
         public string StudentUid { get; set; }
+        public string OpportunityId { get; set; }
         public string SupervisorUid { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

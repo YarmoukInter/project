@@ -16,14 +16,16 @@
                     <p>An overview of your internship journey.</p>
                 </div>
 
-                <div class="heading-tools"><span class="preview-label">Sample data preview</span><div class="dashboard-account"><span class="avatar"><asp:Literal ID="StudentInitials" runat="server" Text="ST" /></span><span class="account-copy"><strong><asp:Literal ID="StudentName" runat="server" Text="Student" /></strong><small>Student</small></span></div></div>
+                <div class="heading-tools"><div class="dashboard-account"><span class="avatar"><asp:Literal ID="StudentInitials" runat="server" Text="ST" /></span><span class="account-copy"><strong><asp:Literal ID="StudentName" runat="server" Text="Student" /></strong><small>Student</small></span></div></div>
             </section>
+
+            <asp:Panel ID="DashboardNotice" runat="server" CssClass="deadline-alert" Visible="false" role="status"><div class="alert-text"><i class="bi bi-info-circle" aria-hidden="true"></i><asp:Literal ID="DashboardNoticeText" runat="server" /></div></asp:Panel>
 
             <section class="deadline-alert" aria-label="Deadline reminder">
 
                 <div class="alert-text">
                     <i class="bi bi-clipboard-check" aria-hidden="true"></i>
-                    <span>2 tasks due this week</span>
+                    <span><asp:Literal ID="DeadlinesMessage" runat="server" Text="—" /></span>
                 </div>
 
                 <a href="#upcomingTasks" class="text-link">
@@ -46,10 +48,10 @@
                         <div class="stat-number">
                             <asp:Literal ID="ApplicationsCount"
                                          runat="server"
-                                         Text="4" />
+                                         Text="—" />
                         </div>
 
-                        <p>2 pending · 1 confirmed · 1 rejected</p>
+                        <p><asp:Literal ID="ApplicationsSummary" runat="server" Text="Application status summary" /></p>
                     </div>
                 </article>
 
@@ -64,10 +66,10 @@
                         <div class="stat-number">
                             <asp:Literal ID="TasksCount"
                                          runat="server"
-                                         Text="12" />
+                                         Text="—" />
                         </div>
 
-                        <p>9 completed · 3 active</p>
+                        <p><asp:Literal ID="TasksSummary" runat="server" Text="Task status summary" /></p>
                     </div>
                 </article>
 
@@ -82,7 +84,7 @@
                         <div class="stat-number">
                             <asp:Literal ID="DeadlinesCount"
                                          runat="server"
-                                         Text="2" />
+                                         Text="—" />
                         </div>
 
                         <p>Due within the next 7 days</p>
@@ -100,7 +102,7 @@
                         <div class="stat-number">
                             <asp:Literal ID="EvaluationsCount"
                                          runat="server"
-                                         Text="8" />
+                                         Text="—" />
                         </div>
 
                         <p>Reviewed task submissions</p>
@@ -138,84 +140,21 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">Login page interface</span>
-                                        <span class="cell-subtitle">Web Development</span>
-                                    </td>
-
-                                    <td>
-                                        <time datetime="2026-10-22">22 Oct 2026</time>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge badge-warning">
-                                            <span class="status-dot"></span>
-                                            In progress
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>" class="text-link">
-                                            Open
-                                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">Weekly training report</span>
-                                        <span class="cell-subtitle">Training Reports</span>
-                                    </td>
-
-                                    <td>
-                                        <time datetime="2026-10-24">24 Oct 2026</time>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge badge-neutral">
-                                            <span class="status-dot"></span>
-                                            Not started
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>" class="text-link">
-                                            Open
-                                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">Database schema update</span>
-                                        <span class="cell-subtitle">Database Development</span>
-                                    </td>
-
-                                    <td>
-                                        <time datetime="2026-10-26">26 Oct 2026</time>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge badge-danger">
-                                            <span class="status-dot"></span>
-                                            Revision requested
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>" class="text-link">
-                                            Resubmit
-                                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                <asp:Repeater ID="UpcomingTasks" runat="server">
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td><span class="cell-title"><%#: Eval("Title") %></span><span class="cell-subtitle"><%#: Eval("Description") %></span></td>
+                                            <td><time datetime='<%# Eval("DeadlineIso") %>'><%#: Eval("Deadline") %></time></td>
+                                            <td><span class='badge <%# Eval("BadgeClass") %>'><span class="status-dot"></span><%#: Eval("Status") %></span></td>
+                                            <td><a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>" class="text-link">Open <i class="bi bi-arrow-right" aria-hidden="true"></i></a></td>
+                                        </tr>
+                                    </ItemTemplate>
+                                </asp:Repeater>
                             </tbody>
 
                         </table>
                     </div>
+                    <asp:Panel ID="NoUpcomingTasks" runat="server" Visible="false"><p class="muted">No tasks are due within the next seven days.</p></asp:Panel>
 
                 </section>
 
@@ -223,32 +162,28 @@
 
                     <div class="panel-heading">
                         <h2>Internship Progress</h2>
-                        <span class="training-status">Active training</span>
+                        <span class="training-status"><asp:Literal ID="InternshipStatus" runat="server" Text="Training status unavailable" /></span>
                     </div>
 
                     <div class="hours-summary">
 
-                        <div class="progress-ring"
+                        <div id="DashboardProgressRing" runat="server" class="progress-ring"
                              role="img"
-                             aria-label="50 percent of training hours approved">
-                            <div class="progress-ring-center">50%</div>
+                             aria-label="Internship progress">
+                            <div class="progress-ring-center"><asp:Literal ID="DashboardProgressPercent" runat="server" Text="—" /></div>
                         </div>
 
                         <div class="hours-text">
                             <h3>Approved training hours</h3>
 
                             <p class="hours-value">
-                                <asp:Literal ID="ApprovedHours"
-                                             runat="server"
-                                             Text="120" />
+                                <asp:Literal ID="ApprovedHours" runat="server" Text="—" />
                                 /
-                                <asp:Literal ID="RequiredHours"
-                                             runat="server"
-                                             Text="240" />
+                                <asp:Literal ID="RequiredHours" runat="server" Text="—" />
                                 hours
                             </p>
 
-                            <p class="muted">Illustrative training target</p>
+                            <p class="muted">Approved hours count toward your required training hours.</p>
                         </div>
 
                     </div>
@@ -257,18 +192,18 @@
 
                         <div class="progress-label">
                             <span>Completed tasks</span>
-                            <span>9 of 12</span>
+                            <span><asp:Literal ID="TaskCompletionLabel" runat="server" Text="—" /></span>
                         </div>
 
                         <div class="progress-bar-row">
-                            <progress class="task-progress-bar"
-                                      value="9"
-                                      max="12"
+                            <progress id="DashboardTaskProgress" runat="server" class="task-progress-bar"
+                                      value="0"
+                                      max="1"
                                       aria-label="Completed tasks">
-                                75%
+                                0%
                             </progress>
 
-                            <span class="progress-percentage">75%</span>
+                            <span class="progress-percentage"><asp:Literal ID="DashboardTaskProgressPercent" runat="server" Text="0" />%</span>
                         </div>
 
                     </div>
@@ -310,39 +245,20 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">Orange Jordan</span>
-                                    </td>
-
-                                    <td>Software Development Intern</td>
-
-                                    <td>
-                                        <span class="badge badge-success">
-                                            <span class="status-dot"></span>
-                                            Confirmed
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">ProgressSoft</span>
-                                    </td>
-
-                                    <td>Web Development Intern</td>
-
-                                    <td>
-                                        <span class="badge badge-warning">
-                                            <span class="status-dot"></span>
-                                            Pending
-                                        </span>
-                                    </td>
-                                </tr>
+                                <asp:Repeater ID="RecentApplications" runat="server">
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td><span class="cell-title"><%#: Eval("Company") %></span></td>
+                                            <td><%#: Eval("Opportunity") %></td>
+                                            <td><span class='badge <%# Eval("BadgeClass") %>'><span class="status-dot"></span><%#: Eval("Status") %></span></td>
+                                        </tr>
+                                    </ItemTemplate>
+                                </asp:Repeater>
                             </tbody>
 
                         </table>
                     </div>
+                    <asp:Panel ID="NoRecentApplications" runat="server" Visible="false"><p class="muted">You have not submitted any applications yet.</p></asp:Panel>
 
                 </section>
 
@@ -372,39 +288,20 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">Weekly Report 02</span>
-                                        <span class="cell-subtitle">Reviewed · 19 Oct</span>
-                                    </td>
-
-                                    <td>Clear structure and well documented activities.</td>
-
-                                    <td>
-                                        <span class="badge badge-success">
-                                            Meets expectations
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="cell-title">Database Schema</span>
-                                        <span class="cell-subtitle">Reviewed · 18 Oct</span>
-                                    </td>
-
-                                    <td>Update the relationships and submit again.</td>
-
-                                    <td>
-                                        <span class="badge badge-warning">
-                                            Revision requested
-                                        </span>
-                                    </td>
-                                </tr>
+                                <asp:Repeater ID="RecentReviews" runat="server">
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td><span class="cell-title"><%#: Eval("Task") %></span><span class="cell-subtitle"><%#: Eval("Date") %></span></td>
+                                            <td><%#: Eval("Feedback") %></td>
+                                            <td><span class='badge <%# Eval("BadgeClass") %>'><%#: Eval("Status") %></span></td>
+                                        </tr>
+                                    </ItemTemplate>
+                                </asp:Repeater>
                             </tbody>
 
                         </table>
                     </div>
+                    <asp:Panel ID="NoRecentReviews" runat="server" Visible="false"><p class="muted">No reviewed task submissions yet.</p></asp:Panel>
 
                 </section>
 
@@ -417,7 +314,7 @@
 
                     <div>
                         <span class="placement-label">Current placement:</span>
-                        <span class="placement-value">Orange Jordan</span>
+                        <span class="placement-value"><asp:Literal ID="PlacementCompany" runat="server" Text="No confirmed placement" /></span>
                     </div>
                 </div>
 
@@ -426,7 +323,7 @@
 
                     <div>
                         <span class="placement-label">Company supervisor:</span>
-                        <span class="placement-value">Eng. Sara Ahmad</span>
+                        <span class="placement-value"><asp:Literal ID="CompanySupervisor" runat="server" Text="—" /></span>
                     </div>
                 </div>
 
@@ -435,7 +332,7 @@
 
                     <div>
                         <span class="placement-label">Academic supervisor:</span>
-                        <span class="placement-value">Dr. Ahmad Omar</span>
+                        <span class="placement-value"><asp:Literal ID="AcademicSupervisor" runat="server" Text="—" /></span>
                     </div>
                 </div>
 
@@ -443,7 +340,7 @@
 
             <footer class="footer">
                 <span>UIMS · Yarmouk University</span>
-                <span>Sample data for mockup</span>
+                <span>Student training overview</span>
             </footer>
 
         </div>
