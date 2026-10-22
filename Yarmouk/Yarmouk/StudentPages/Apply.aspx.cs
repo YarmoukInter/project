@@ -26,10 +26,14 @@ namespace Yarmouk.StudentPages
                     var user = auth.User ?? await new StudentService().GetUserAsync(auth.Uid, auth.IdToken);
                     var student = await new StudentService().GetStudentAsync(auth.Uid, auth.IdToken);
                     if (user == null || student == null) { SetMessage("Your student profile could not be loaded. Please contact the internship coordinator.", true); return; }
+                    if (!string.IsNullOrWhiteSpace(student.AcceptedApplicationId))
+                    { SetMessage("You have already confirmed an internship. Other opportunities are unavailable.", true); return; }
                     if (!OpportunityService.IsAvailableForStudent(opportunity, student))
                     { SetMessage("This opportunity is closed, full, or not available for your major.", true); return; }
                     var company = string.IsNullOrWhiteSpace(opportunity.CompanyId) ? null :
                         await new FirebaseHelper().GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, auth.IdToken);
+                    if (company == null || !company.IsApproved)
+                    { SetMessage("The company for this opportunity is unavailable.", true); return; }
                     OpportunityTitle.Text = HttpUtility.HtmlEncode(opportunity.Title ?? "Internship");
                     var applications = await new ApplicationService().GetForStudentAsync(auth.Uid, auth.IdToken);
                     if (applications.Any(a => a.OpportunityId == opportunity.Id))
@@ -83,11 +87,17 @@ namespace Yarmouk.StudentPages
                     return;
                 }
                 if (student == null || user == null) { SetMessage("Your student profile could not be verified. Please sign in again.", true); return; }
+                if (!string.IsNullOrWhiteSpace(student.AcceptedApplicationId))
+                { SetMessage("You have already confirmed an internship. You cannot apply for another opportunity.", true); return; }
+                var companyRecord = string.IsNullOrWhiteSpace(opportunity.CompanyId) ? null :
+                    await new FirebaseHelper().GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, auth.IdToken);
+                if (companyRecord == null || !companyRecord.IsApproved)
+                { SetMessage("The company for this opportunity is unavailable.", true); return; }
                 var questions = (opportunity.ApplicationQuestions ?? new List<string>()).Where(q => !string.IsNullOrWhiteSpace(q)).Select(q => q.Trim()).ToList();
                 Dictionary<string, string> answers;
                 try { answers = JsonConvert.DeserializeObject<Dictionary<string, string>>(AnswersJson.Value ?? "") ?? new Dictionary<string, string>(); }
                 catch { SetMessage("Please review your answers and try again.", true); return; }
-                var validatedAnswers = new Dictionary<string, string>();
+                var validatedAnswers = new List<string>();
                 for (int i = 0; i < questions.Count; i++)
                 {
                     string answer;
@@ -95,7 +105,7 @@ namespace Yarmouk.StudentPages
                     { SetMessage("Please answer all company questions before submitting.", true); return; }
                     answer = answer.Trim();
                     if (answer.Length > 3000) { SetMessage("Each answer must be 3,000 characters or fewer.", true); return; }
-                    validatedAnswers[i.ToString()] = answer;
+                    validatedAnswers.Add(answer);
                 }
                 try
                 {
@@ -109,8 +119,10 @@ namespace Yarmouk.StudentPages
                     {
                         StudentUid = auth.Uid,
                         OpportunityId = opportunity.Id,
+                        CompanyId = opportunity.CompanyId,
                         Status = "pending",
-                        Answers = validatedAnswers
+                        Answers = validatedAnswers,
+                        ApplicationQuestions = questions
                     }, auth.Uid, auth.IdToken);
                     SetMessage("Your application was submitted. <a href=\"" + ResolveUrl("~/StudentPages/MyApplications.aspx") + "\">View My Applications</a>", false);
                     SubmitApplication.Enabled = false;

@@ -1,13 +1,14 @@
 <%@ Page Title="Applications Review" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ApplicationsReview.aspx.cs" Inherits="Yarmouk.CompanyPages.ApplicationsReview" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>' rel="stylesheet" />
-    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=2' defer="defer"></script>
+    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=3' rel="stylesheet" />
+    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=3' defer="defer"></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-    <section class="co-page co-applications" aria-labelledby="applicationsTitle" data-api-url='<%= ResolveUrl("~/CompanyPages/ApplicationsReview.aspx") %>'>
+    <section class="co-page co-applications" aria-labelledby="applicationsTitle" data-api-url='<%= ResolveUrl("~/CompanyPages/ApplicationsReview") %>'>
         <header class="co-page-heading">
             <div><p class="co-eyebrow">COMPANY WORKSPACE</p><h1 id="applicationsTitle">Applications review</h1><p class="co-subtitle">Review student applications and make a decision for each opportunity.</p></div>
         </header>
+        <p class="co-demo-note co-review-feedback" id="applicationFeedback" role="status" aria-live="polite">Loading applications from Firebase…</p>
 
         <div class="co-review-stats" id="applicationStats" aria-label="Application summary"></div>
 
@@ -29,8 +30,6 @@
                 <div class="co-detail-empty"><span class="co-detail-mark" aria-hidden="true">Y</span><h2>Select an application</h2><p>Choose a student from the list to review their details.</p></div>
             </aside>
         </section>
-        <p class="co-demo-note" id="applicationFeedback" role="status">Loading applications from Firebase…</p>
-
         <div class="co-modal-backdrop" id="rejectionModal" hidden="hidden">
             <section class="co-modal co-rejection-modal" role="dialog" aria-modal="true" aria-labelledby="rejectionModalTitle">
                 <header class="co-modal-heading"><div><p class="co-eyebrow">APPLICATION DECISION</p><h2 id="rejectionModalTitle">Reject application</h2></div><button class="co-icon-button" type="button" data-close-rejection aria-label="Close">×</button></header>

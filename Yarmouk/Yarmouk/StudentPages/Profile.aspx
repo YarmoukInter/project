@@ -1,7 +1,7 @@
 <%@ Page Title="Student profile" Language="C#" MasterPageFile="~/StudentPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="Profile.aspx.cs" Inherits="Yarmouk.StudentPages.Profile" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/StudentPages/Profile.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/StudentPages/Profile.js") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/StudentPages/Profile.css?v=cv-upload-1") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/Profile.js?v=cv-upload-1") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="profile-cover" aria-labelledby="profile-title">
@@ -32,10 +32,18 @@
     <div class="profile-fields">
       <div class="profile-field"><label for="txtFullName">Full name</label><asp:TextBox ID="txtFullName" runat="server" ClientIDMode="Static" MaxLength="120" CssClass="form-control" /></div>
       <div class="profile-field"><label for="txtPhone">Phone number</label><asp:TextBox ID="txtPhone" runat="server" ClientIDMode="Static" MaxLength="30" TextMode="Phone" CssClass="form-control" /></div>
-      <div class="profile-field"><label for="txtCvLink">CV link <span>(optional)</span></label><asp:TextBox ID="txtCvLink" runat="server" ClientIDMode="Static" MaxLength="500" TextMode="Url" CssClass="form-control" /></div>
+      <div class="profile-field"><label for="txtCvLink">External CV link <span>(optional)</span></label><asp:TextBox ID="txtCvLink" runat="server" ClientIDMode="Static" MaxLength="500" TextMode="Url" CssClass="form-control" /></div>
       <div class="profile-field"><label for="txtPortfolioLink">Portfolio link <span>(optional)</span></label><asp:TextBox ID="txtPortfolioLink" runat="server" ClientIDMode="Static" MaxLength="500" TextMode="Url" CssClass="form-control" /></div>
       <div class="profile-field profile-field--readonly"><label>Email address</label><asp:Literal ID="litEmail" runat="server" /></div>
     </div>
+    <section class="profile-cv-upload" aria-labelledby="cv-upload-title">
+      <div><p class="eyebrow">Your document</p><h3 id="cv-upload-title">Upload your CV</h3><p>PDF only, up to 2 MB. A new upload replaces your previous file.</p></div>
+      <div class="profile-cv-upload__actions">
+        <asp:FileUpload ID="cvUpload" runat="server" ClientIDMode="Static" accept=".pdf,application/pdf" aria-label="Choose a CV PDF" />
+        <asp:Button ID="btnUploadCv" runat="server" Text="Upload CV" CssClass="btn btn-success" OnClick="UploadCv_Click" CausesValidation="false" />
+      </div>
+      <p class="profile-cv-upload__saved"><asp:Literal ID="litCvStatus" runat="server" Text="No CV uploaded yet." /> <asp:HyperLink ID="lnkSavedCv" runat="server" Visible="false" /></p>
+    </section>
   </section>
 </div>
 
@@ -69,7 +77,8 @@
       <div class="profile-field skill-group" data-skill-group="soft"><label for="txtSoftSkill">Soft skills</label><div class="skill-list" data-skill-list></div><div class="skill-entry"><input id="txtSoftSkill" class="form-control" type="text" maxlength="40" placeholder="Add a soft skill" data-skill-input /><button type="button" class="btn btn-outline-success" data-skill-add>Add</button></div><p class="field-error" data-skill-error role="alert"></p><asp:HiddenField ID="hidSoftSkills" runat="server" ClientIDMode="Static" /></div>
       <div class="profile-field skill-group" data-skill-group="technical"><label for="txtTechnicalSkill">Technical skills</label><div class="skill-list" data-skill-list></div><div class="skill-entry"><input id="txtTechnicalSkill" class="form-control" type="text" maxlength="40" placeholder="Add a technical skill" data-skill-input /><button type="button" class="btn btn-outline-success" data-skill-add>Add</button></div><p class="field-error" data-skill-error role="alert"></p><asp:HiddenField ID="hidTechnicalSkills" runat="server" ClientIDMode="Static" /></div>
     </div>
-    <p class="profile-note">Add up to 20 skills in each list. Your changes are saved with your student profile.</p>
+    <p class="profile-note">Add up to 20 skills in each list. Save your skills to update your student record.</p>
+    <div class="profile-actions profile-skills-actions"><asp:Button ID="btnSaveSkills" runat="server" Text="Save skills" CssClass="btn btn-success" OnClick="SaveSkills_Click" CausesValidation="false" /><span>Skills are saved to your student record.</span></div>
   </section>
 </div>
 

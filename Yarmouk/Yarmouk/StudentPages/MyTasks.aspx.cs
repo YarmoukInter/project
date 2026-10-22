@@ -139,6 +139,10 @@ namespace Yarmouk.StudentPages
 
             try
             {
+                var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
+                if (string.IsNullOrEmpty(activeOpportunityId)
+                    && !string.Equals(Request.QueryString["poll"], "1", StringComparison.Ordinal))
+                    PageMessage.Text = "<div class=\"tasks-alert\" role=\"status\">No tasks are available until an internship offer is confirmed by both the company and the student.</div>";
                 var tasksRequest = GetFirebaseObjectAsync(DatabasePaths.Tasks, auth);
                 var submissionsRequest = GetFirebaseObjectAsync(DatabasePaths.TaskSubmissions, auth);
                 await Task.WhenAll(tasksRequest, submissionsRequest);
@@ -173,7 +177,9 @@ namespace Yarmouk.StudentPages
                     foreach (var item in taskData.Properties())
                     {
                         var task = item.Value.ToObject<TrainingTask>();
-                        if (task == null || !string.Equals(task.StudentUid, auth.Uid, StringComparison.Ordinal)) continue;
+                        if (task == null || !string.Equals(task.StudentUid, auth.Uid, StringComparison.Ordinal)
+                            || string.IsNullOrEmpty(activeOpportunityId)
+                            || !string.Equals(task.OpportunityId, activeOpportunityId, StringComparison.Ordinal)) continue;
                         var taskId = string.IsNullOrWhiteSpace(task.Id) ? item.Name : task.Id;
                         string taskPdfBase64;
                         string taskPdfExternalUrl;
@@ -195,12 +201,15 @@ namespace Yarmouk.StudentPages
                             description = task.Description ?? "No task details were provided.",
                             taskPdfUrl = taskPdfUrl,
                             taskPdfFileName = taskPdfFileName,
+                            createdAtUnixMs = taskRecord == null ? 0L : ((long?)taskRecord["createdAtUnixMs"] ?? 0L),
                             dueAtUnixMs = task.DueAtUnixMs,
                             status = status,
                             statusLabel = GetStatusLabel(status),
 
 
-                            submittedAtUnixMs = submission == null ? 0L : ((long?)submission["submittedAtUnixMs"] ?? 0L),
+                            submittedAtUnixMs = submission == null
+                                ? (taskRecord == null ? 0L : ((long?)taskRecord["submittedAtUnixMs"] ?? 0L))
+                                : ((long?)submission["submittedAtUnixMs"] ?? 0L),
                             submissionId = submission == null ? "" : (string)submission["id"],
                             submissionUrl = submission == null ? (taskRecord == null ? "" : (string)taskRecord["submissionUrl"]) : (string)submission["submissionUrl"],
                             notes = submission == null ? (taskRecord == null ? "" : (string)taskRecord["submissionNotes"]) : (string)submission["notes"],
@@ -220,12 +229,20 @@ namespace Yarmouk.StudentPages
             }
         }
 
+        private async Task<bool> CanAccessTaskAsync(JObject task, AuthSession auth)
+        {
+            if (task == null || auth == null || (string)task["studentUid"] != auth.Uid) return false;
+            var opportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
+            return !string.IsNullOrEmpty(opportunityId)
+                && string.Equals((string)task["opportunityId"], opportunityId, StringComparison.Ordinal);
+        }
+
         private static JToken FindTaskPdfProperty(JObject task, params string[] names)
         {
             if (task == null) return null;
             foreach (var name in names)
             {
-                var property = task.Properties().FirstOrDefault(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
+                var property = task.Properties().FirstOrDefault(item => string.Equals(item.Name.Trim('"'), name, StringComparison.OrdinalIgnoreCase));
                 if (property != null && property.Value != null && property.Value.Type != JTokenType.Null)
                     return property.Value;
             }
@@ -303,7 +320,7 @@ namespace Yarmouk.StudentPages
                 var entry = tasks == null ? null : tasks.Properties().FirstOrDefault(item =>
                     item.Name == taskId || string.Equals((string)item.Value["id"], taskId, StringComparison.Ordinal));
                 var task = entry == null ? null : entry.Value as JObject;
-                if (task == null || (string)task["studentUid"] != auth.Uid)
+                if (!await CanAccessTaskAsync(task, auth))
                 {
                     CompleteNotFoundResponse();
                     return;
@@ -415,7 +432,7 @@ namespace Yarmouk.StudentPages
                 var tasks = await GetFirebaseObjectAsync(DatabasePaths.Tasks, auth);
                 var entry = tasks == null ? null : tasks.Properties().FirstOrDefault(item => item.Name == taskId || (string)item.Value["id"] == taskId);
                 var task = entry == null ? null : entry.Value as JObject;
-                if (task == null || (string)task["studentUid"] != auth.Uid) return;
+                if (!await CanAccessTaskAsync(task, auth)) return;
                 var currentStatus = ((string)task["status"] ?? "").Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant();
                 var submissions = await GetFirebaseObjectAsync(DatabasePaths.TaskSubmissions, auth);
                 var hasValidSubmission = submissions != null && submissions.Properties()
@@ -456,7 +473,7 @@ namespace Yarmouk.StudentPages
                 var tasks = await GetFirebaseObjectAsync(DatabasePaths.Tasks, auth);
                 var entry = tasks == null ? null : tasks.Properties().FirstOrDefault(item => item.Name == taskId || (string)item.Value["id"] == taskId);
                 var task = entry == null ? null : entry.Value as JObject;
-                if (task == null || (string)task["studentUid"] != auth.Uid)
+                if (!await CanAccessTaskAsync(task, auth))
                 {
                     ShowSubmissionError("This task is not assigned to your account.");
                     await LoadTasksAsync();
@@ -536,7 +553,7 @@ namespace Yarmouk.StudentPages
                 });
                 var taskRecord = taskEntry == null ? null : taskEntry.Value as JObject;
                 var task = taskRecord == null ? null : taskRecord.ToObject<TrainingTask>();
-                if (task == null || task.StudentUid != auth.Uid)
+                if (!await CanAccessTaskAsync(taskRecord, auth))
                 {
                     ShowSubmissionError("This task is not assigned to your account.");
                     await LoadTasksAsync();

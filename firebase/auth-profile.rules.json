@@ -17,6 +17,34 @@
           ".write": "auth != null && auth.uid === $uid && data.val() === true && newData.val() === false"
         }
       }
+    },
+    "students": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'student'",
+        "softSkills": {
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'student'",
+          ".validate": "newData.hasChildren() && newData.numChildren() <= 20",
+          "$skillIndex": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          }
+        },
+        "technicalSkills": {
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'student'",
+          ".validate": "newData.hasChildren() && newData.numChildren() <= 20",
+          "$skillIndex": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          }
+        }
+      }
+    },
+    "opportunities": {
+      ".read": "auth != null"
+    },
+    "companies": {
+      ".read": "auth != null"
+    },
+    "applications": {
+      ".indexOn": ["studentUid"]
     }
   }
 }

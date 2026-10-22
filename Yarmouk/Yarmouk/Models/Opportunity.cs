@@ -9,7 +9,9 @@ namespace Yarmouk.Models
         public string Description { get; set; }
         public List<string> EligibleMajorIds { get; set; }
         public int AvailablePositions { get; set; }
+        public int FilledPositions { get; set; }
         public bool IsActive { get; set; }
+        public string Status { get; set; }
         public string Deadline { get; set; }
         public List<string> ApplicationQuestions { get; set; }
         public string Requirements { get; set; }

@@ -86,7 +86,7 @@
       var taskPdfUrl = safeTaskPdfUrl(task.taskPdfUrl);
       var taskPdfAction = taskPdfUrl ? '<a class="task-pdf-card-link" href="' + escapeHtml(taskPdfUrl) + '" target="_blank" rel="noopener">' + 'Task' + '</a>' : '';
       return '<article class="task-card' + (canDrag ? ' task-card--draggable' : '') + '"' + (canDrag ? ' draggable="true"' : '') + ' data-task-id="' + escapeHtml(id) + '">' +
-        '<div class="task-card-top"><span class="task-card-id">' + escapeHtml(id) + '</span>' + statusMarkup(task) + '</div>' +
+        '<div class="task-card-top"><span class="task-card-id">INTERNSHIP TASK</span>' + statusMarkup(task) + '</div>' +
         '<h3>' + escapeHtml(title) + '</h3>' +
         '<p class="task-card-description">' + escapeHtml(task.description || 'No task details were provided.') + '</p>' +
         '<div class="task-card-meta"><span>Due <strong>' + escapeHtml(dateFromUnix(task.dueAtUnixMs)) + '</strong></span>' +
@@ -101,14 +101,20 @@
 
   function openTask(task) {
     lastFocusedElement = document.activeElement;
-    document.getElementById('modal-task-id').textContent = 'TASK · ' + (task.id || '');
+    document.getElementById('modal-task-id').textContent = 'INTERNSHIP TASK';
     document.getElementById('modal-title').textContent = task.title || 'Untitled task';
     var modalStatus = document.getElementById('modal-status');
     modalStatus.className = 'task-status ' + statusClass(task);
     modalStatus.textContent = statusLabel(task);
     document.getElementById('modal-deadline').textContent = dateFromUnix(task.dueAtUnixMs);
     document.getElementById('modal-submitted').textContent = task.submittedAtUnixMs ? dateFromUnix(task.submittedAtUnixMs) : 'Not submitted';
+    document.getElementById('modal-created').textContent = dateFromUnix(task.createdAtUnixMs);
+    document.getElementById('modal-file-name').textContent = task.taskPdfUrl ? (task.taskPdfFileName || 'Task requirements') : 'No file attached';
     document.getElementById('modal-description').textContent = task.description || 'No task details were provided.';
+    document.getElementById('modal-submission-notes').textContent = task.notes || 'No notes submitted.';
+    var solutionLink = document.getElementById('modal-submission-link');
+    var solutionUrl = safeTaskPdfUrl(task.submissionUrl);
+    solutionLink.innerHTML = solutionUrl ? '<a href="' + escapeHtml(solutionUrl) + '" target="_blank" rel="noopener noreferrer">Open submitted link ↗</a>' : 'No link submitted.';
     var taskPdfUrl = safeTaskPdfUrl(task.taskPdfUrl);
     if (taskPdfUrl && taskReferencePdf && taskReferencePdfLink) {
       taskReferencePdfLink.href = taskPdfUrl;
@@ -139,14 +145,12 @@
 
     var feedback = document.getElementById('review-feedback');
     var feedbackText = document.getElementById('review-feedback-text');
-    feedbackText.textContent = task.reviewNotes || '';
-    feedback.hidden = !task.reviewNotes;
+    feedbackText.textContent = task.reviewNotes || 'No supervisor feedback yet.';
+    feedback.hidden = false;
 
     if (task.submittedAtUnixMs) {
       var previousMarkup = 'Latest submission: ' + escapeHtml(dateFromUnix(task.submittedAtUnixMs));
-      if (task.notes) previousMarkup += ' · Note: ' + escapeHtml(task.notes);
-      var submittedUrl = safeTaskPdfUrl(task.submissionUrl);
-      if (submittedUrl) previousMarkup += ' · <a href="' + escapeHtml(submittedUrl) + '" target="_blank" rel="noopener">Open GitHub solution</a>';
+      var submittedUrl = solutionUrl;
       if (task.submissionId && !submittedUrl) previousMarkup += ' · <a href="' + escapeHtml(window.location.pathname + '?download=' + encodeURIComponent(task.submissionId)) + '">Download submitted PDF</a>';
       previousSubmission.innerHTML = previousMarkup;
       previousSubmission.hidden = false;

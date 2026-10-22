@@ -192,6 +192,7 @@ namespace Yarmouk.CompanyPages
         public string Status { get; set; }
         public string CvUrl { get; set; }
         public System.Collections.Generic.List<string> Answers { get; set; }
+        public System.Collections.Generic.List<string> Questions { get; set; }
         public string RejectionReason { get; set; }
         public string DecisionNote { get; set; }
     }
@@ -286,16 +287,20 @@ namespace Yarmouk.CompanyPages
                 JObject student; students.TryGetValue(studentUid, out student);
                 JObject major; majors.TryGetValue(Text(student, "majorId") ?? string.Empty, out major);
                 var answers = new System.Collections.Generic.List<string>();
-                var questions = Strings(opportunity["applicationQuestions"]);
+                var questions = Strings(app["applicationQuestions"]);
+                if (questions.Count == 0) questions = Strings(opportunity["applicationQuestions"]);
                 var answerMap = app["answers"] as JObject;
-                for (int i = 0; i < questions.Count; i++) answers.Add(answerMap == null ? string.Empty : Text(answerMap, i.ToString()) ?? string.Empty);
+                var answerList = app["answers"] as JArray;
+                for (int i = 0; i < questions.Count; i++)
+                    answers.Add(answerList != null && i < answerList.Count
+                        ? answerList[i].ToString() : answerMap == null ? string.Empty : Text(answerMap, i.ToString()) ?? string.Empty);
                 string status = Normalize(Text(app, "status"));
                 status = status == "offered" || status == "accepted" || status == "offerreceived" ? "accepted" : status == "rejected" ? "rejected" : status == "inreview" || status == "underreview" ? "in-review" : "new";
                 result.Add(new CompanyApplicationItem {
                     Id = Text(app, "id") ?? entry.Key,
                     Name = First(Text(user, "fullName"), "Student"),
-                    Number = First(Text(student, "studentNumber"), Text(student, "studentId"), "—"),
-                    Major = First(Text(major, "name"), Text(student, "majorId"), "—"),
+                    Number = First(Text(student, "studentNumber"), Text(student, "studentId"), Text(user, "studentId"), "—"),
+                    Major = First(Text(major, "name"), Text(student, "majorId"), Text(user, "majorId"), "—"),
                     Email = First(Text(user, "email"), ""),
                     AppliedAtUnixMs = Number(app, "appliedAtUnixMs"),
                     OpportunityId = opportunityId,
@@ -303,6 +308,7 @@ namespace Yarmouk.CompanyPages
                     Status = status,
                     CvUrl = First(Text(user, "cvLink"), Text(student, "cvUrl"), ""),
                     Answers = answers,
+                    Questions = questions,
                     RejectionReason = Text(app, "rejectionReason") ?? string.Empty,
                     DecisionNote = status == "accepted" ? "Offer sent; waiting for student confirmation." : string.Empty
                 });

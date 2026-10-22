@@ -14,6 +14,7 @@ namespace Yarmouk.StudentPages
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Request.QueryString["offerAccepted"] == "1") SetApplicationsMessage("Your internship offer was confirmed.", false);
+            if (Request.QueryString["submitted"] == "1") SetApplicationsMessage("Application submitted successfully.", false);
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
                 var auth = Session[AuthGuard.SessionKey] as AuthSession;

@@ -17,3 +17,14 @@
 .task-column .task-card-id,.task-column .task-open-button{overflow-wrap:anywhere}
 @media(max-width:1100px){.task-board{grid-template-columns:repeat(2,minmax(0,1fr));overflow-x:visible}.task-column .task-card{height:340px;min-height:340px}}
 @media(max-width:560px){.task-board{grid-template-columns:minmax(0,1fr)}.task-column .task-card{height:330px;min-height:330px}}
+.task-record{margin:0 0 26px;padding:22px;border:1px solid #e3ece6;border-radius:18px;background:#fbfdfb}
+.task-record h3,.task-submission-record h3{margin:0 0 16px;color:#183a2e;font-size:1.05rem}
+.task-record-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px;margin:0}
+.task-record-grid div{min-width:0;padding:0 0 12px;border-bottom:1px solid #e9efeb}
+.task-record-grid dt{margin-bottom:5px;color:#6b8175;font-size:.82rem;font-weight:700}
+.task-record-grid dd{margin:0;color:#1d3e31;font-size:.95rem;font-weight:650;overflow-wrap:anywhere}
+.task-submission-record{margin-top:20px;padding:20px 22px;border-radius:16px;background:#f5f8f6}
+.task-submission-record p{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;margin:10px 0 0;color:#425c4f;overflow-wrap:anywhere}
+.task-submission-record p strong{color:#254a38}
+.task-submission-record a{color:#08734f;font-weight:750}
+@media(max-width:560px){.task-record-grid{grid-template-columns:1fr}.task-submission-record p{grid-template-columns:1fr;gap:3px}}

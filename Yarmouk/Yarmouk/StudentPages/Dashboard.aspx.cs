@@ -28,6 +28,7 @@ namespace Yarmouk.StudentPages
 
             try
             {
+                var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
                 var appsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Applications, auth.IdToken);
                 var tasksTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Tasks, auth.IdToken);
                 var submissionsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TaskSubmissions, auth.IdToken);
@@ -38,8 +39,12 @@ namespace Yarmouk.StudentPages
                 await Task.WhenAll(appsTask, tasksTask, submissionsTask, studentTask, opportunitiesTask, companiesTask, placementsTask);
 
                 var apps = (await appsTask ?? new Dictionary<string, JObject>()).Where(x => Text(x.Value, "studentUid") == auth.Uid).ToList();
-                var tasks = (await tasksTask ?? new Dictionary<string, JObject>()).Where(x => Text(x.Value, "studentUid") == auth.Uid).ToList();
-                var submissions = (await submissionsTask ?? new Dictionary<string, JObject>()).Where(x => Text(x.Value, "studentUid") == auth.Uid)
+                var tasks = (await tasksTask ?? new Dictionary<string, JObject>()).Where(x =>
+                    Text(x.Value, "studentUid") == auth.Uid && !string.IsNullOrEmpty(activeOpportunityId)
+                    && Text(x.Value, "opportunityId") == activeOpportunityId).ToList();
+                var visibleTaskIds = new HashSet<string>(tasks.Select(x => Text(x.Value, "id", x.Key)), StringComparer.Ordinal);
+                var submissions = (await submissionsTask ?? new Dictionary<string, JObject>()).Where(x => Text(x.Value, "studentUid") == auth.Uid
+                    && visibleTaskIds.Contains(Text(x.Value, "taskId")))
                     .GroupBy(x => Text(x.Value, "taskId")).Where(x => x.Key != "")
                     .ToDictionary(x => x.Key, x => x.OrderByDescending(y => Number(y.Value, "submittedAtUnixMs")).First().Value);
                 var student = await studentTask;

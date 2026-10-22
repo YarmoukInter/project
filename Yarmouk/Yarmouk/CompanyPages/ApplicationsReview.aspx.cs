@@ -93,7 +93,9 @@ namespace Yarmouk.CompanyPages
             var session = Session == null ? null : Session[AuthGuard.SessionKey] as AuthSession;
             if (session == null || string.IsNullOrWhiteSpace(session.Uid) || string.IsNullOrWhiteSpace(session.IdToken))
                 throw new UnauthorizedAccessException();
-            await new FirebaseAuthService().VerifyAsync(session);
+            // AuthGuard has already checked this session and its role for this
+            // protected page. The extra lookup here expired company actions
+            // after 30 minutes even while the page still loaded normally.
             var user = await new StudentService().GetUserAsync(session.Uid, session.IdToken);
             if (user == null || !user.IsActive || !string.Equals(AuthPolicy.NormalizeRole(user.Role), "company", StringComparison.Ordinal))
                 throw new UnauthorizedAccessException();

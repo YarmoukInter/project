@@ -140,6 +140,14 @@ namespace Yarmouk.StudentPages
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtCvLink;
 
+        protected global::System.Web.UI.WebControls.FileUpload cvUpload;
+
+        protected global::System.Web.UI.WebControls.Button btnUploadCv;
+
+        protected global::System.Web.UI.WebControls.Literal litCvStatus;
+
+        protected global::System.Web.UI.WebControls.HyperLink lnkSavedCv;
+
         /// <summary>
         /// txtPortfolioLink control.
         /// </summary>
@@ -310,5 +318,6 @@ namespace Yarmouk.StudentPages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSave;
+        protected global::System.Web.UI.WebControls.Button btnSaveSkills;
     }
 }

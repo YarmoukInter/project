@@ -43,20 +43,15 @@ namespace Yarmouk.Services
         public static bool IsAvailableForStudent(Opportunity opportunity, Student student)
         {
             if (opportunity == null || student == null || !opportunity.IsActive) return false;
+            string status = (opportunity.Status ?? string.Empty).Trim().ToLowerInvariant();
+            if (status == "closed" || status == "expired" || status == "draft" || status == "disabled" || status == "inactive" || status == "unavailable" || status == "full") return false;
             if (!IsBeforeDeadline(opportunity.Deadline)) return false;
 
             var eligibleMajors = opportunity.EligibleMajorIds ?? new List<string>();
             if (eligibleMajors.Count > 0 && !eligibleMajors.Any(majorId =>
                 string.Equals(majorId, student.MajorId, StringComparison.OrdinalIgnoreCase))) return false;
 
-            int filledPositions = 0;
-            var filledPositionsProperty = typeof(Opportunity).GetProperty("FilledPositions");
-            if (filledPositionsProperty != null)
-            {
-                var value = filledPositionsProperty.GetValue(opportunity, null);
-                if (value != null) int.TryParse(value.ToString(), out filledPositions);
-            }
-            if (opportunity.AvailablePositions > 0 && filledPositions >= opportunity.AvailablePositions) return false;
+            if (opportunity.AvailablePositions <= 0 || opportunity.FilledPositions >= opportunity.AvailablePositions) return false;
 
             return true;
         }

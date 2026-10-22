@@ -12,5 +12,8 @@ namespace Yarmouk.Models
         public string Phone { get; set; }
         public string CvLink { get; set; }
         public string PortfolioLink { get; set; }
+        public string StudentId { get; set; }
+        public string MajorId { get; set; }
+        public string AcademicSupervisorId { get; set; }
     }
 }

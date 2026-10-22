@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
@@ -12,15 +13,106 @@ namespace Yarmouk.StudentPages
 {
     public partial class Profile : AuthPage
     {
+        private const int MaxCvBytes = 2 * 1024 * 1024;
 
         private readonly StudentService studentService = new StudentService();
+
+        public sealed class CvDocument
+        {
+            public string FileName { get; set; }
+            public string DataBase64 { get; set; }
+            public long UploadedAtUnixMs { get; set; }
+        }
 
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Page.Form != null) Page.Form.Enctype = "multipart/form-data";
+            if (string.Equals(Request.QueryString["downloadCv"], "1", StringComparison.Ordinal))
+            {
+                RegisterAsyncTask(new PageAsyncTask(DownloadCvAsync));
+                return;
+            }
             if (!IsPostBack)
             {
+                if (Request.QueryString["cvUploaded"] == "1")
+                {
+                    litMessage.Text = "Your CV was uploaded and saved.";
+                    pnlMessage.Visible = true;
+                }
                 RegisterAsyncTask(new PageAsyncTask(LoadProfileAsync));
+            }
+        }
+
+        protected void UploadCv_Click(object sender, EventArgs e)
+        {
+            RegisterAsyncTask(new PageAsyncTask(UploadCvAsync));
+        }
+
+        private async Task UploadCvAsync()
+        {
+            var session = Session[AuthGuard.SessionKey] as AuthSession;
+            if (session == null) { Go("~/PublicPages/Login.aspx"); return; }
+            if (!cvUpload.HasFile || cvUpload.PostedFile == null)
+            { ShowError("Choose a PDF file to upload."); return; }
+            var file = cvUpload.PostedFile;
+            if (file.ContentLength <= 0 || file.ContentLength > MaxCvBytes
+                || !string.Equals(Path.GetExtension(cvUpload.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            { ShowError("Choose a PDF file up to 2 MB."); return; }
+
+            try
+            {
+                byte[] bytes;
+                using (var stream = new MemoryStream())
+                {
+                    file.InputStream.CopyTo(stream);
+                    bytes = stream.ToArray();
+                }
+                if (bytes.Length == 0 || bytes.Length > MaxCvBytes || bytes.Length < 5
+                    || bytes[0] != '%' || bytes[1] != 'P' || bytes[2] != 'D' || bytes[3] != 'F' || bytes[4] != '-')
+                { ShowError("The selected file is not a valid PDF up to 2 MB."); return; }
+
+                await new FirebaseHelper().SaveAsync(DatabasePaths.StudentCvFiles + "/" + session.Uid,
+                    new CvDocument
+                    {
+                        FileName = Path.GetFileName(cvUpload.FileName),
+                        DataBase64 = Convert.ToBase64String(bytes),
+                        UploadedAtUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                    }, session.IdToken);
+                Response.Redirect(ResolveUrl("~/StudentPages/Profile.aspx?cvUploaded=1"), false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning("Could not upload student CV: " + ex.GetType().Name);
+                ShowError("Could not save the CV to Firebase. Please try again.");
+            }
+        }
+
+        private async Task DownloadCvAsync()
+        {
+            var session = Session[AuthGuard.SessionKey] as AuthSession;
+            if (session == null) { Go("~/PublicPages/Login.aspx"); return; }
+            try
+            {
+                var document = await new FirebaseHelper().GetAsync<CvDocument>(
+                    DatabasePaths.StudentCvFiles + "/" + session.Uid, session.IdToken);
+                if (document == null || string.IsNullOrWhiteSpace(document.DataBase64))
+                { Response.StatusCode = 404; Response.SuppressContent = true; return; }
+                var bytes = Convert.FromBase64String(document.DataBase64);
+                Response.Clear();
+                Response.ContentType = "application/pdf";
+                Response.AddHeader("Content-Disposition", "attachment; filename=\"student-cv.pdf\"");
+                Response.BinaryWrite(bytes);
+                Response.Flush();
+                Response.SuppressContent = true;
+                Context.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning("Could not download student CV: " + ex.GetType().Name);
+                Response.StatusCode = 404;
+                Response.SuppressContent = true;
             }
         }
 
@@ -38,8 +130,11 @@ namespace Yarmouk.StudentPages
             try
             {
 
-                User user = await studentService.GetUserAsync(session.Uid, session.IdToken);
-                Student student = await studentService.GetStudentAsync(session.Uid, session.IdToken);
+                Task<User> userRequest = studentService.GetUserAsync(session.Uid, session.IdToken);
+                Task<Student> studentRequest = studentService.GetStudentAsync(session.Uid, session.IdToken);
+                await Task.WhenAll(userRequest, studentRequest);
+                User user = await userRequest;
+                Student student = await studentRequest;
 
                 if (user == null || student == null)
                 {
@@ -47,10 +142,29 @@ namespace Yarmouk.StudentPages
                     return;
                 }
 
-                Major major = await studentService.GetMajorAsync(student.MajorId, session.IdToken);
+                // Use the academic record first, and fill missing identity/assignment
+                // fields from the user's account record when available.
+                if (string.IsNullOrWhiteSpace(student.StudentId))
+                    student.StudentId = FirstValue(student.StudentNumber, user.StudentId);
+                if (string.IsNullOrWhiteSpace(student.MajorId))
+                    student.MajorId = user.MajorId;
+                if (string.IsNullOrWhiteSpace(student.AcademicSupervisorId))
+                    student.AcademicSupervisorId = user.AcademicSupervisorId;
+
+                Major major = null;
+                if (!string.IsNullOrWhiteSpace(student.MajorId))
+                    major = await studentService.GetMajorAsync(student.MajorId.Trim(), session.IdToken);
 
 
                 ShowProfile(user, student, major);
+                try
+                {
+                    var cv = await new FirebaseHelper().GetAsync<CvDocument>(
+                        DatabasePaths.StudentCvFiles + "/" + session.Uid, session.IdToken);
+                    ShowSavedCv(cv);
+                }
+                catch (Exception ex)
+                { System.Diagnostics.Trace.TraceWarning("Could not load student CV metadata: " + ex.GetType().Name); }
             }
             catch (Exception)
             {
@@ -63,6 +177,44 @@ namespace Yarmouk.StudentPages
         {
             RegisterAsyncTask(new PageAsyncTask(SaveProfileAsync));
         }
+
+        protected void SaveSkills_Click(object sender, EventArgs e)
+        {
+            RegisterAsyncTask(new PageAsyncTask(SaveSkillsAsync));
+        }
+
+        private async Task SaveSkillsAsync()
+        {
+            AuthSession session = Session[AuthGuard.SessionKey] as AuthSession;
+            if (session == null)
+            {
+                Go("~/PublicPages/Login.aspx");
+                return;
+            }
+
+            List<string> softSkills;
+            List<string> technicalSkills;
+            if (!TryReadSkills(hidSoftSkills.Value, out softSkills) ||
+                !TryReadSkills(hidTechnicalSkills.Value, out technicalSkills))
+            {
+                ShowError("Each skill list can have up to 20 skills, with 40 characters per skill.");
+                return;
+            }
+
+            try
+            {
+                await studentService.UpdateSkillsAsync(session.Uid, softSkills, technicalSkills, session.IdToken);
+                litMessage.Text = "Your skills have been saved to your student record.";
+                pnlMessage.Visible = true;
+                pnlError.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning("Could not save student skills: " + ex.GetType().Name);
+                ShowError("Could not save your skills. Check Firebase student write rules and try again.");
+            }
+        }
+
         private async Task SaveProfileAsync()
         {
             AuthSession session = Session[AuthGuard.SessionKey] as AuthSession;
@@ -182,6 +334,15 @@ namespace Yarmouk.StudentPages
             hidTechnicalSkills.Value = JsonConvert.SerializeObject(student.TechnicalSkills ?? new List<string>());
         }
 
+        private void ShowSavedCv(CvDocument cv)
+        {
+            if (cv == null || string.IsNullOrWhiteSpace(cv.DataBase64)) return;
+            litCvStatus.Text = "Saved CV:";
+            lnkSavedCv.Text = HttpUtility.HtmlEncode(string.IsNullOrWhiteSpace(cv.FileName) ? "Download PDF" : cv.FileName);
+            lnkSavedCv.NavigateUrl = ResolveUrl("~/StudentPages/Profile.aspx?downloadCv=1");
+            lnkSavedCv.Visible = true;
+        }
+
         // 4. دوال مساعدة (Validation, Links, Helpers)
         private static bool TryReadSkills(string json, out List<string> skills)
         {
@@ -239,6 +400,13 @@ namespace Yarmouk.StudentPages
         {
             if (string.IsNullOrWhiteSpace(value)) return "—";
             return HttpUtility.HtmlEncode(value);
+        }
+
+        private static string FirstValue(params string[] values)
+        {
+            foreach (string value in values)
+                if (!string.IsNullOrWhiteSpace(value)) return value;
+            return string.Empty;
         }
 
         private void ShowError(string message)

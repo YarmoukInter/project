@@ -88,6 +88,11 @@
     color: #fff;
 }
 
+.co-button:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+
 .co-review-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -511,6 +516,17 @@
     margin: .8rem 0 0;
     color: #85938d;
     font-size: .76rem;
+}
+
+.co-review-feedback {
+    margin: 0 0 1rem;
+    padding: .75rem 1rem;
+    border: 1px solid #dce9df;
+    border-radius: 10px;
+    background: #f2f8f4;
+    color: #245b40;
+    font-size: .84rem;
+    font-weight: 600;
 }
 
 .co-modal-backdrop[hidden] {

@@ -1,7 +1,7 @@
 <%@ Page Title="My Tasks" Language="C#" MasterPageFile="~/StudentPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="MyTasks.aspx.cs" Inherits="Yarmouk.StudentPages.MyTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css?v=task-details-1") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js?v=task-details-2") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="my-tasks-page" aria-labelledby="tasks-heading">
@@ -35,17 +35,29 @@
         <div><span>Deadline</span><strong id="modal-deadline"></strong></div>
         <div><span>Submitted</span><strong id="modal-submitted"></strong></div>
       </div>
+      <section class="task-record" aria-labelledby="task-record-title">
+        <h3 id="task-record-title">Task information</h3>
+        <dl class="task-record-grid">
+          <div><dt>Created</dt><dd id="modal-created"></dd></div>
+          <div><dt>Task file name</dt><dd id="modal-file-name"></dd></div>
+        </dl>
+      </section>
       <div class="task-description"><span>Task details</span><p id="modal-description"></p></div>
       <div id="task-reference-pdf" class="task-reference-pdf" hidden><strong>Task requirements PDF</strong><a id="task-reference-pdf-link" href="#" target="_blank" rel="noopener">Open PDF</a></div>
+      <section class="task-submission-record" aria-labelledby="task-submission-title">
+        <h3 id="task-submission-title">Submission information</h3>
+        <p><strong>Notes</strong><span id="modal-submission-notes"></span></p>
+        <p><strong>Solution link</strong><span id="modal-submission-link"></span></p>
+      </section>
       <div id="previous-submission" class="previous-submission" hidden></div>
       <div id="review-feedback" class="review-feedback" hidden><strong>Supervisor feedback</strong><p id="review-feedback-text"></p></div>
-      <button id="StartTaskButton" name="StartTaskAction" value="1" type="submit" class="submit-task-button start-task-button">Start task</button>
+      <button id="StartTaskButton" name="StartTaskAction" value="1" type="submit" formnovalidate class="submit-task-button start-task-button">Start task</button>
       <div id="submission-panel" class="submission-panel">
         <h3 id="submission-heading">Submit your work</h3>
         <p id="submission-help"></p>
         <asp:HiddenField ID="SelectedTaskId" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="TargetTaskStatus" runat="server" ClientIDMode="Static" />
-        <button id="MoveTaskButton" name="MoveTaskAction" value="1" type="submit" class="task-move-postback" style="position:absolute;left:-10000px;width:1px;height:1px;">Move task</button>
+        <button id="MoveTaskButton" name="MoveTaskAction" value="1" type="submit" formnovalidate class="task-move-postback" style="position:absolute;left:-10000px;width:1px;height:1px;">Move task</button>
         <label class="notes-label" for="GitHubSolutionUrl">GitHub solution URL <span>(required)</span></label>
         <asp:TextBox ID="GitHubSolutionUrl" runat="server" ClientIDMode="Static" TextMode="Url" CssClass="submission-url" placeholder="https://github.com/username/repository" MaxLength="2048" required="required" />
         <p class="submission-field-help">Paste the GitHub link to your solution.</p>

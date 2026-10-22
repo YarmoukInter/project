@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using Yarmouk.Helpers;
 using Yarmouk.Models;
@@ -33,7 +34,17 @@ namespace Yarmouk.Services
                 portfolioLink = profile.PortfolioLink
             }, idToken);
 
-            await firebase.UpdateAsync(DatabasePaths.Students + "/" + uid, new
+            await UpdateSkillsAsync(uid, softSkills, technicalSkills, idToken);
+        }
+
+        public Task UpdateSkillsAsync(string verifiedUid, List<string> softSkills,
+            List<string> technicalSkills, string idToken)
+        {
+            if (string.IsNullOrWhiteSpace(verifiedUid))
+                throw new System.ArgumentException("Student UID is required.");
+            if (softSkills == null || technicalSkills == null)
+                throw new System.ArgumentNullException("Skill lists are required.");
+            return firebase.UpdateAsync(DatabasePaths.Students + "/" + verifiedUid, new
             {
                 softSkills = softSkills,
                 technicalSkills = technicalSkills
@@ -47,6 +58,21 @@ namespace Yarmouk.Services
             return firebase.UpdateAsync(DatabasePaths.Students + "/" + verifiedUid,
                 new { acceptedApplicationId = applicationId }, idToken);
 
+        }
+
+        // Tasks belong only to the internship offer confirmed by this student.
+        public async Task<string> GetActiveAcceptedOpportunityIdAsync(string verifiedUid, string idToken)
+        {
+            var student = await GetStudentAsync(verifiedUid, idToken);
+            if (student == null || string.IsNullOrWhiteSpace(student.AcceptedApplicationId)) return null;
+            var application = await new ApplicationService().GetByIdAsync(student.AcceptedApplicationId, idToken);
+            if (application == null || !string.Equals(application.StudentUid, verifiedUid, StringComparison.Ordinal)
+                || (!string.Equals(application.Status, "accepted", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(application.Status, "offered", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(application.Status, "offerreceived", StringComparison.OrdinalIgnoreCase))
+                || string.IsNullOrWhiteSpace(application.OpportunityId)) return null;
+            var opportunity = await firebase.GetAsync<Opportunity>(DatabasePaths.Opportunities + "/" + application.OpportunityId, idToken);
+            return opportunity != null && opportunity.IsActive ? application.OpportunityId : null;
         }
     }
 }

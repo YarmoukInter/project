@@ -269,6 +269,9 @@ namespace Yarmouk.CompanyPages
                 var additions = new JObject();
                 foreach (var uid in targetUids)
                 {
+                    var opportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(uid, auth.IdToken);
+                    if (string.IsNullOrWhiteSpace(opportunityId))
+                    { ShowError("Every selected trainee must have an accepted, active internship opportunity before receiving tasks."); return; }
                     var safeUid = new string(uid.Where(char.IsLetterOrDigit).ToArray());
                     var suffix = safeUid.Length > 6 ? safeUid.Substring(safeUid.Length - 6) : safeUid;
                     var recordId = number + "-" + suffix + "-" + Guid.NewGuid().ToString("N").Substring(0, 6);
@@ -282,6 +285,7 @@ namespace Yarmouk.CompanyPages
                         ["dueAtUnixMs"] = dueAt,
                         ["status"] = "todo",
                         ["studentUid"] = uid,
+                        ["opportunityId"] = opportunityId,
                         ["studentName"] = GetStudentName(uid, students, users),
                         ["supervisorUid"] = auth.Uid,
                         ["createdAtUnixMs"] = now
