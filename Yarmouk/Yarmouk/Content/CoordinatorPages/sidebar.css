@@ -76,3 +76,25 @@ body { margin: 0; background: #f5f8f6; }
 [data-theme="dark"] .yu-dashboard-main { color: #e3eee6; }
 @media (max-width:1080px) { .yu-dashboard-main { padding: 0 0 80px; } }
 @media (max-width:480px) { .yu-dashboard-main > .container { margin-inline: 16px; } }
+
+/* Coordinator navigation: quiet depth, clear selection, and a distinct exit. */
+.yu-sidebar { border-color:var(--ys-line); box-shadow:0 8px 30px rgb(24 62 40 / .06),0 1px 3px rgb(24 62 40 / .03); }
+.yu-sidebar-header { border-bottom:1px solid var(--ys-line); margin-bottom:14px; }
+.yu-sidebar-section { font-size:10px; font-weight:650; letter-spacing:.12em; text-transform:uppercase; }
+.yu-sidebar-link, .yu-sidebar-bottom > a, .yu-sidebar-bottom > button { transition:background-color 160ms ease,color 160ms ease,box-shadow 160ms ease; }
+.yu-sidebar-link { min-height:46px; border-radius:10px; }
+.yu-sidebar-link[aria-current="page"] { background:linear-gradient(135deg,#087849,#005c32); box-shadow:0 3px 9px rgb(0 104 55 / .16); }
+.yu-sidebar-link[aria-current="page"] svg { stroke-width:1.9; }
+.yu-sidebar-profile { background:var(--ys-hover) !important; border-color:transparent !important; border-radius:10px !important; }
+.yu-sidebar-bottom > .yu-sidebar-logout { color:#a33936; margin-top:2px; }
+.yu-sidebar-bottom > .yu-sidebar-logout:hover { background:#fbefed; color:#872b28; }
+.yu-sidebar-bottom > .yu-sidebar-logout:focus-visible { outline-color:#a33936; }
+.yu-sidebar :is(a,button):active { opacity:1; background:var(--ys-hover); }
+.yu-sidebar-link[aria-current="page"]:active { background:#005c32; }
+.yu-sidebar-bottom > .yu-sidebar-logout:active { background:#f6dfdc; }
+.yu-sidebar-bottom .yu-sidebar-pin { color:var(--ys-muted); }
+[data-theme="dark"] .yu-sidebar-bottom > .yu-sidebar-logout { color:#f0a6a0; }
+[data-theme="dark"] .yu-sidebar-bottom > .yu-sidebar-logout:hover,
+[data-theme="dark"] .yu-sidebar-bottom > .yu-sidebar-logout:active { background:#3e2928; color:#ffd4d0; }
+@media (max-height:740px) { .yu-sidebar-header { margin-bottom:6px; } .yu-sidebar-link { min-height:44px; } }
+@media (max-width:1080px) { .is-enhanced .yu-sidebar-bottom .yu-sidebar-pin { display:none; } }
