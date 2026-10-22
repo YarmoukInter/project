@@ -1,1 +1,336 @@
-/* Styles for CompanyPages/Account.aspx only */
+.company-account {
+    --yu-green: #075638;
+    --yu-deep: #073b2b;
+    --yu-gold: #c49b4c;
+    --yu-ink: #1b3028;
+    --yu-muted: #708078;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 38px 34px 64px;
+    color: var(--yu-ink)
+}
+
+.account-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+    padding: 32px 36px;
+    border-radius: 20px;
+    background: linear-gradient(115deg,#063e2d 0%,#08724d 100%);
+    color: #fff;
+    box-shadow: 0 16px 38px #073b2b22;
+    position: relative;
+    overflow: hidden
+}
+
+    .account-heading:after {
+        content: "";
+        position: absolute;
+        right: 130px;
+        top: -115px;
+        width: 300px;
+        height: 300px;
+        border: 1px solid #ffffff22;
+        border-radius: 50%;
+        box-shadow: 0 0 0 30px #ffffff0c,0 0 0 62px #ffffff08
+    }
+
+    .account-heading h1 {
+        margin: 5px 0 8px;
+        color: #fff;
+        font-size: clamp(26px,3vw,36px);
+        letter-spacing: -.04em
+    }
+
+    .account-heading p:not(.eyebrow) {
+        margin: 0;
+        color: #d5e9df;
+        font-size: 15px
+    }
+
+.eyebrow {
+    margin: 0;
+    color: var(--yu-gold);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .14em
+}
+
+.account-mark {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    flex: 0 0 72px;
+    border: 1px solid #ffffff52;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 800;
+    font-size: 22px;
+    background: #ffffff12
+}
+
+    .account-mark span {
+        margin-top: -23px;
+        color: #e4c982;
+        font-size: 10px;
+        letter-spacing: .16em
+    }
+
+.account-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1.15fr) minmax(300px,.85fr);
+    gap: 22px;
+    align-items: start
+}
+
+.account-single-grid {
+    grid-template-columns: minmax(0,1fr);
+    max-width: 900px;
+    margin: 0 auto
+}
+
+.account-card {
+    min-width: 0;
+    padding: 28px;
+    border: 1px solid #e1eae5;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 28px #163c2b0b
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 26px
+}
+
+    .card-title h2 {
+        margin: 5px 0 0;
+        color: #152c23;
+        font-size: 22px;
+        letter-spacing: -.03em
+    }
+
+.live-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    border: 1px solid #d8e8df;
+    border-radius: 999px;
+    color: #12633f;
+    font-size: 12px;
+    font-weight: 700;
+    background: #f4faf6
+}
+
+    .live-pill i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #19945c;
+        box-shadow: 0 0 0 4px #19945c1b
+    }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px
+}
+
+.company-form-grid {
+    grid-template-columns: 1fr
+}
+
+.field {
+    display: grid;
+    gap: 8px
+}
+
+.field-wide {
+    grid-column: 1/-1
+}
+
+.field label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #30463d
+}
+
+.field input {
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 13px;
+    border: 1px solid #d8e2dc;
+    border-radius: 10px;
+    background: #fff;
+    color: #18362a;
+    font: inherit;
+    outline: none;
+    transition: border-color .18s,box-shadow .18s
+}
+
+    .field input:focus {
+        border-color: #118053;
+        box-shadow: 0 0 0 3px #08724d18
+    }
+
+.field-wide > span {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 11px 13px;
+    border: 1px solid #e5ece8;
+    border-radius: 10px;
+    background: #f7faf8;
+    color: #54675e;
+    overflow-wrap: anywhere
+}
+
+.not-recorded {
+    color: #88958e;
+    font-style: italic
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 23px
+}
+
+.primary-button {
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 20px;
+    background: #08724d;
+    color: white;
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+    box-shadow: 0 5px 13px #08724d24;
+    transition: transform .15s,background .15s
+}
+
+    .primary-button:hover {
+        background: #075b3e;
+        transform: translateY(-1px)
+    }
+
+.company-details {
+    display: grid;
+    gap: 0;
+    margin: 0
+}
+
+    .company-details > div {
+        display: grid;
+        grid-template-columns: 118px minmax(0,1fr);
+        gap: 14px;
+        padding: 17px 0;
+        border-bottom: 1px solid #edf1ee
+    }
+
+        .company-details > div:first-child {
+            padding-top: 0
+        }
+
+        .company-details > div:last-child {
+            border-bottom: 0
+        }
+
+    .company-details dt {
+        font-size: 12px;
+        font-weight: 700;
+        color: #7b8982
+    }
+
+    .company-details dd {
+        margin: 0;
+        color: #203d30;
+        font-weight: 650;
+        overflow-wrap: anywhere
+    }
+
+.read-only-note {
+    margin: 13px 0 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #f5f8f6;
+    color: #78877f;
+    font-size: 12px;
+    line-height: 1.6
+}
+
+.account-notice, .account-error {
+    margin: 0 0 18px;
+    padding: 13px 16px;
+    border-radius: 11px;
+    font-size: 14px
+}
+
+.account-notice {
+    border: 1px solid #bfe4cc;
+    background: #f2fbf4;
+    color: #17663d
+}
+
+.account-error {
+    border: 1px solid #f0c5c0;
+    background: #fff6f5;
+    color: #a83c32
+}
+
+@media(max-width:820px) {
+    .company-account {
+        padding: 24px 18px 48px
+    }
+
+    .account-grid {
+        grid-template-columns: 1fr
+    }
+
+    .account-heading {
+        padding: 27px 24px
+    }
+}
+
+@media(max-width:520px) {
+    .company-account {
+        padding: 18px 12px 36px
+    }
+
+    .account-heading {
+        padding: 23px 18px;
+        border-radius: 15px
+    }
+
+    .account-mark {
+        width: 56px;
+        height: 56px;
+        flex-basis: 56px;
+        border-radius: 16px
+    }
+
+    .account-card {
+        padding: 22px 18px
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr
+    }
+
+    .field-wide {
+        grid-column: auto
+    }
+
+    .company-details > div {
+        grid-template-columns: 100px minmax(0,1fr)
+    }
+}
