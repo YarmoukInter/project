@@ -1,5 +1,6 @@
 <%@ Page Title="AboutUs" Language="C#" MasterPageFile="~/PublicPages/Section.Master" AutoEventWireup="true" CodeBehind="AboutUs.aspx.cs" Inherits="Yarmouk.PublicPages.AboutUs" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
+<!-- About Us design: university sculpture and animated campus experience. -->
 <link href="<%= ResolveUrl("~/Content/PublicPages/AboutUs.css?v=sculpture-20261022") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/PublicPages/AboutUs.js?v=sculpture-20261022") %>" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />

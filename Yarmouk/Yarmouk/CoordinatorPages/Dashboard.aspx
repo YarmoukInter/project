@@ -1,5 +1,6 @@
 <%@ Page Async="true" Title="Dashboard" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="Yarmouk.CoordinatorPages.Dashboard" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
+<!-- Admin dashboard design: college overview, pending actions and workspace links. -->
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=dashboard-assets-3' defer></script>
 <link href='<%= ResolveUrl("~/Content/CoordinatorPages/Dashboard.css") %>?v=college-workspace-9' rel="stylesheet" />
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/Dashboard.js") %>?v=college-workspace-10' defer></script>
