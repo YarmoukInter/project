@@ -7,6 +7,11 @@ namespace Yarmouk.Models
         public string StudentName { get; set; }
         public string Initials { get; set; }
         public string StudentNumber { get; set; }
+        public string StudentEmail { get; set; }
+        public string StudentPhone { get; set; }
+        public string StudentMajor { get; set; }
+        public string StudentAcademicStatus { get; set; }
+        public string StudentGpa { get; set; }
         public string CompanyName { get; set; }
         public string PlacementStatus { get; set; }
         public string StartDate { get; set; }
