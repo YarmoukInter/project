@@ -1,7 +1,7 @@
 <%@ Page Title="Explore Opportunities" Language="C#" MasterPageFile="~/StudentPages/Section.Master" AutoEventWireup="true" Async="true" CodeBehind="Opportunities.aspx.cs" Inherits="Yarmouk.StudentPages.Opportunities" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
     <link href="<%= ResolveUrl("~/Content/StudentPages/Opportunities.css") %>" rel="stylesheet" />
-    <script src="<%= ResolveUrl("~/Scripts/StudentPages/Opportunities.js") %>" defer></script>
+    <script src="<%= ResolveUrl("~/Scripts/StudentPages/Opportunities.js") %>" defer="defer"></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="opportunities-page">
@@ -46,6 +46,6 @@
         </div>
 
         <p class="page-feedback" id="opportunityFeedback" role="status"></p>
-        <script id="opportunities-data" type="application/json"><asp:Literal ID="OpportunityData" runat="server" /></script>
+        <script id="opportunities-data" type="application/json"><asp:Literal ID="OpportunityData" runat="server" Mode="PassThrough" /></script>
     </section>
 </asp:Content>
