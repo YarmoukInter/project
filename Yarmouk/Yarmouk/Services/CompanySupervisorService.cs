@@ -31,6 +31,7 @@ namespace Yarmouk.Services
         public string StudentName { get; set; }
         public string StudentNumber { get; set; }
         public string MajorId { get; set; }
+        public string AcademicSupervisorUid { get; set; }
         public string CompanyName { get; set; }
         public string PlacementStatus { get; set; }
         public string StartDate { get; set; }
@@ -187,68 +188,114 @@ namespace Yarmouk.Services
                 }, token).ConfigureAwait(false);
         }
 
-        public async Task<List<CompanyEvaluationRow>> GetEvaluationQueueAsync(string uid, string token)
+        public async Task<string> GetCompanyIdForSupervisorAsync(string uid, string token)
         {
             RequireIdentity(uid, token);
-            var profile = await GetProfileAsync(uid, token).ConfigureAwait(false);
-            var companyIds = new HashSet<string>(new[] { profile.CompanyId }.Where(x => !string.IsNullOrWhiteSpace(x)), StringComparer.Ordinal);
-            var placements = new Dictionary<string, JObject>(StringComparer.Ordinal);
-            var supervisorPlacements = await firebase.GetByChildAsync<Dictionary<string, JObject>>(
-                DatabasePaths.Placements, "companySupervisorUid", uid, token).ConfigureAwait(false);
-            AddRecords(placements, supervisorPlacements);
-            foreach (var companyId in companyIds)
+            var user = await firebase.GetAsync<JObject>(DatabasePaths.Users + "/" + uid, token).ConfigureAwait(false);
+            string companyId = Read(user, "companyId");
+            if (!string.IsNullOrWhiteSpace(companyId))
             {
-                var companyPlacements = await firebase.GetByChildAsync<Dictionary<string, JObject>>(
-                    DatabasePaths.Placements, "companyId", companyId, token).ConfigureAwait(false);
-                AddRecords(placements, companyPlacements);
+                var company = await firebase.GetAsync<JObject>(DatabasePaths.Companies + "/" + companyId, token).ConfigureAwait(false);
+                bool linked = Same(Read(company, "supervisorUid"), uid)
+                    || Same(Read(user, "companyId"), companyId)
+                    || (company?["supervisorUids"] is JObject companySupervisorSet
+                        && companySupervisorSet[uid] != null && companySupervisorSet[uid].Value<bool>());
+                if (company != null && linked) return companyId;
             }
-            var evaluationResults = new Dictionary<string, JObject>(StringComparer.Ordinal);
-            var supervisorEvaluations = await firebase.GetByChildAsync<Dictionary<string, JObject>>(
-                DatabasePaths.Evaluations, "companySupervisorUid", uid, token).ConfigureAwait(false);
-            AddRecords(evaluationResults, supervisorEvaluations);
+
+            var companies = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.Companies, token).ConfigureAwait(false);
+            var match = (companies ?? new Dictionary<string, JObject>()).FirstOrDefault(x => x.Value != null
+                && (Same(Read(x.Value, "supervisorUid"), uid)
+                    || (x.Value["supervisorUids"] is JObject candidateSupervisorSet
+                        && candidateSupervisorSet[uid] != null && candidateSupervisorSet[uid].Value<bool>())));
+            companyId = string.IsNullOrWhiteSpace(match.Key) ? string.Empty : Read(match.Value, "id", match.Key);
+            if (string.IsNullOrWhiteSpace(companyId))
+                throw new UnauthorizedAccessException("The signed-in company supervisor is not linked to a company.");
+            return companyId;
+        }
+
+        public async Task<List<CompanyEvaluationRow>> GetEvaluationQueueAsync(string uid, string companyId, string token)
+        {
+            RequireIdentity(uid, token);
+            if (string.IsNullOrWhiteSpace(companyId))
+                throw new UnauthorizedAccessException("A verified company ID is required.");
+
+            var allStudents = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.Students, token).ConfigureAwait(false);
+
+            var assignedStudents = (allStudents ?? new Dictionary<string, JObject>())
+                .Where(x => x.Value != null
+                    && Same(Read(x.Value, "companyId"), companyId)
+                    && !string.IsNullOrWhiteSpace(First(Read(x.Value, "studentId"), Read(x.Value, "studentNumber"))))
+                .ToList();
+
+            var placements = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.Placements, token).ConfigureAwait(false) ?? new Dictionary<string, JObject>();
+            var evaluationResults = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.Evaluations, token).ConfigureAwait(false) ?? new Dictionary<string, JObject>();
+            var company = await firebase.GetAsync<JObject>(
+                DatabasePaths.Companies + "/" + companyId, token).ConfigureAwait(false);
 
             var result = new List<CompanyEvaluationRow>();
-            foreach (var item in placements)
+            foreach (var studentItem in assignedStudents)
             {
-                var placement = item.Value;
-                if (placement == null) continue;
-                var companyId = Read(placement, "companyId");
-                if (!companyIds.Contains(companyId) && !Same(Read(placement, "companySupervisorUid"), uid)) continue;
-                var studentUid = Read(placement, "studentUid");
+                var student = studentItem.Value;
+                var studentUid = Read(student, "uid", studentItem.Key);
                 if (string.IsNullOrWhiteSpace(studentUid)) continue;
-                var studentNumber = await firebase.GetAsync<string>(DatabasePaths.Students + "/" + studentUid + "/studentId", token).ConfigureAwait(false);
-                var majorId = await firebase.GetAsync<string>(DatabasePaths.Students + "/" + studentUid + "/majorId", token).ConfigureAwait(false);
-                var studentName = await firebase.GetAsync<string>(DatabasePaths.Users + "/" + studentUid + "/fullName", token).ConfigureAwait(false);
-                var company = string.IsNullOrWhiteSpace(companyId) ? null
-                    : await firebase.GetAsync<JObject>(DatabasePaths.Companies + "/" + companyId, token).ConfigureAwait(false);
+                string studentId = First(Read(student, "studentId"), Read(student, "studentNumber"));
+
+                var placementItem = placements
+                    .Where(x => x.Value != null
+                        && (string.IsNullOrWhiteSpace(Read(x.Value, "companyId"))
+                            || Same(Read(x.Value, "companyId"), companyId))
+                        && (Same(Read(x.Value, "studentUid"), studentItem.Key)
+                            || Same(Read(x.Value, "studentUid"), studentUid)
+                            || (!string.IsNullOrWhiteSpace(studentId)
+                                && Same(First(Read(x.Value, "studentId"), Read(x.Value, "studentNumber")), studentId))))
+                    .OrderByDescending(x => Same(Read(x.Value, "studentUid"), studentItem.Key))
+                    .ThenByDescending(x => Same(Read(x.Value, "studentUid"), studentUid))
+                    .FirstOrDefault();
+                var placement = placementItem.Value;
+                var placementId = string.IsNullOrWhiteSpace(placementItem.Key) ? string.Empty : Read(placement, "id", placementItem.Key);
+
+                // خذ الـ uid الصحيح من الـ placement (بيحل مشكلة uid الغلط عند w15CYl2A…)
+                if (placement != null && !string.IsNullOrWhiteSpace(Read(placement, "studentUid")))
+                    studentUid = Read(placement, "studentUid");
+
+                var studentNumber = First(Read(student, "studentNumber"), Read(student, "studentId"));
+                var majorId = Read(student, "majorId");
+                var studentName = First(Read(student, "englishName"), Read(student, "fullName"));
+                if (string.IsNullOrWhiteSpace(studentName))
+                {
+                    var user = await firebase.GetAsync<JObject>(DatabasePaths.Users + "/" + studentUid, token).ConfigureAwait(false);
+                    studentName = First(Read(user, "fullName"), Read(user, "englishName"));
+                }
+
                 JObject record = null;
                 string evaluationId = string.Empty;
-                string placementId = Read(placement, "id", item.Key);
                 foreach (var evaluationItem in evaluationResults)
                 {
                     var candidate = evaluationItem.Value;
-                    if (candidate != null && Same(Read(candidate, "placementId"), placementId)
+                    if (!string.IsNullOrWhiteSpace(placementId) && candidate != null
+                        && Same(Read(candidate, "placementId"), placementId)
                         && Same(Read(candidate, "studentUid"), studentUid))
                     { record = candidate; evaluationId = evaluationItem.Key; break; }
                 }
-                if (record == null)
-                {
-                    var matchingEvaluations = await firebase.GetByChildAsync<Dictionary<string, JObject>>(
-                        DatabasePaths.Evaluations, "placementId", placementId, token).ConfigureAwait(false);
-                    if (matchingEvaluations != null)
-                    {
-                        var found = matchingEvaluations.FirstOrDefault(x => Same(Read(x.Value, "studentUid"), studentUid)
-                            && (string.IsNullOrWhiteSpace(Read(x.Value, "companySupervisorUid")) || Same(Read(x.Value, "companySupervisorUid"), uid)));
-                        if (!string.IsNullOrWhiteSpace(found.Key)) { evaluationId = found.Key; record = found.Value; }
-                    }
-                }
+
                 bool submitted = ReadBool(record, "companySubmitted");
                 bool locked = submitted || ReadBool(record, "coordinatorApproved");
                 var criteria = new Dictionary<string, string>(StringComparer.Ordinal);
                 var savedCriteria = record == null ? null : record["companyCriteria"] as JObject;
                 if (savedCriteria != null)
                     foreach (var criterion in savedCriteria.Properties())
-                        if (Levels.Contains(criterion.Value.ToString(), StringComparer.Ordinal)) criteria[criterion.Name] = criterion.Value.ToString();
+                    {
+                        int number;
+                        string value = criterion.Value.ToString();
+                        if (Levels.Contains(value, StringComparer.Ordinal)
+                            || (int.TryParse(criterion.Name, out number) && (number == 11 || number == 12 || number == 13) && value == "N/A"))
+                            criteria[criterion.Name] = value;
+                    }
 
                 result.Add(new CompanyEvaluationRow
                 {
@@ -257,8 +304,10 @@ namespace Yarmouk.Services
                     StudentName = studentName,
                     StudentNumber = studentNumber,
                     MajorId = majorId,
-                    CompanyName = Read(company, "name"),
-                    PlacementStatus = Read(placement, "status"),
+                    AcademicSupervisorUid = First(Read(student, "academicSupervisorId"),
+                        Read(placement, "academicSupervisorUid"), Read(placement, "academicSupervisorId")),
+                    CompanyName = First(Read(company, "name"), Read(student, "companyName")),
+                    PlacementStatus = placement == null ? "Placement not linked" : Read(placement, "status"),
                     StartDate = Read(placement, "startDate"),
                     EndDate = Read(placement, "endDate"),
                     EvaluationId = evaluationId,
@@ -272,7 +321,7 @@ namespace Yarmouk.Services
             return result.OrderBy(x => x.StudentName).ToList();
         }
 
-        public async Task SaveCompanyEvaluationAsync(string uid, string token, string placementId,
+        public async Task SaveCompanyEvaluationAsync(string uid, string companyId, string token, string placementId,
             int? score, string feedback, IDictionary<string, string> criteria, bool submit)
         {
             RequireIdentity(uid, token);
@@ -284,15 +333,21 @@ namespace Yarmouk.Services
             if (feedback.Length > 4000) throw new ArgumentException("Observations must be 4,000 characters or fewer.");
             criteria = criteria ?? new Dictionary<string, string>();
             foreach (var pair in criteria)
-                if (!int.TryParse(pair.Key, out var number) || number < 1 || number > 19 || !Levels.Contains(pair.Value, StringComparer.Ordinal))
+            {
+                if (!int.TryParse(pair.Key, out var number) || number < 1 || number > 18
+                    || (!Levels.Contains(pair.Value, StringComparer.Ordinal)
+                        && !((number == 11 || number == 12 || number == 13) && pair.Value == "N/A")))
                     throw new ArgumentException("One or more criterion ratings are invalid.");
+            }
 
-            var rows = await GetEvaluationQueueAsync(uid, token).ConfigureAwait(false);
+            var rows = await GetEvaluationQueueAsync(uid, companyId, token).ConfigureAwait(false);
             var selected = rows.FirstOrDefault(x => Same(x.PlacementId, placementId));
             if (selected == null) throw new UnauthorizedAccessException("This placement is not assigned to your company.");
             if (selected.Locked) throw new InvalidOperationException("This evaluation has already been submitted or approved and is locked.");
-            if (submit && (criteria.Count != 19 || !score.HasValue))
-                throw new ArgumentException("Complete the 19 rated criteria and overall grade before submission.");
+            if (submit && (criteria.Count != 18 || !score.HasValue))
+                throw new ArgumentException("Complete all 18 criteria and the overall grade before submission.");
+            if (submit && string.IsNullOrWhiteSpace(selected.AcademicSupervisorUid))
+                throw new ArgumentException("This student has no academic supervisor UID in students/{studentUid}/academicSupervisorId.");
 
             string id = selected.EvaluationId;
             if (string.IsNullOrWhiteSpace(id)) id = "EVAL_" + placementId;
@@ -303,6 +358,7 @@ namespace Yarmouk.Services
             {
                 { "id", id }, { "placementId", placementId }, { "studentUid", selected.StudentUid },
                 { "companySupervisorUid", uid }, { "companyFeedback", feedback },
+                { "companyId", companyId }, { "academicSupervisorUid", selected.AcademicSupervisorUid },
                 { "companyCriteria", criteria }, { "companySubmitted", submit }, { "companyUpdatedAtUnixMs", now }
             };
             if (score.HasValue) values["companyScore"] = score.Value;
@@ -310,23 +366,26 @@ namespace Yarmouk.Services
             await firebase.UpdateAsync(DatabasePaths.Evaluations + "/" + id, values, token).ConfigureAwait(false);
         }
 
-        public async Task<List<CompanyReportRow>> GetReportsAsync(string uid, string token, string placementId)
+        public async Task<List<CompanyReportRow>> GetReportsAsync(string uid, string companyId, string token, string placementId)
         {
             RequireIdentity(uid, token);
-            var placement = (await GetEvaluationQueueAsync(uid, token).ConfigureAwait(false))
+            var placement = (await GetEvaluationQueueAsync(uid, companyId, token).ConfigureAwait(false))
                 .FirstOrDefault(x => Same(x.PlacementId, placementId));
             if (placement == null) throw new UnauthorizedAccessException("This placement is not assigned to your company.");
 
-            var taskResults = await firebase.GetByChildAsync<Dictionary<string, JObject>>(
-                DatabasePaths.Tasks, "studentUid", placement.StudentUid, token).ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(placement.PlacementId))
+                return new List<CompanyReportRow>();
+
+            var taskResults = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.Tasks, token).ConfigureAwait(false);
             var tasks = taskResults ?? new Dictionary<string, JObject>();
             var allowedTasks = tasks.Where(x => x.Value != null
                     && Same(Read(x.Value, "studentUid"), placement.StudentUid)
                     && (string.IsNullOrWhiteSpace(Read(x.Value, "supervisorUid"))
                         || Same(Read(x.Value, "supervisorUid"), uid)))
                 .ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
-            var submissions = await firebase.GetByChildAsync<Dictionary<string, JObject>>(
-                DatabasePaths.TaskSubmissions, "studentUid", placement.StudentUid, token).ConfigureAwait(false);
+            var submissions = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.TaskSubmissions, token).ConfigureAwait(false);
             if (submissions == null) return new List<CompanyReportRow>();
 
             return submissions.Where(x => x.Value != null && Same(Read(x.Value, "studentUid"), placement.StudentUid)
@@ -350,7 +409,7 @@ namespace Yarmouk.Services
                 }).OrderByDescending(x => x.SubmittedAtUnixMs).ToList();
         }
 
-        public async Task SaveReportReviewAsync(string uid, string token, string placementId,
+        public async Task SaveReportReviewAsync(string uid, string companyId, string token, string placementId,
             string submissionId, string status, string feedback)
         {
             RequireIdentity(uid, token);
@@ -360,7 +419,7 @@ namespace Yarmouk.Services
             if (feedback.Length > 2000) throw new ArgumentException("Feedback must be 2,000 characters or fewer.");
             if (status == "RevisionRequested" && feedback.Length == 0)
                 throw new ArgumentException("Add feedback describing the requested revision.");
-            var report = (await GetReportsAsync(uid, token, placementId).ConfigureAwait(false))
+            var report = (await GetReportsAsync(uid, companyId, token, placementId).ConfigureAwait(false))
                 .FirstOrDefault(x => Same(x.SubmissionId, submissionId));
             if (report == null) throw new UnauthorizedAccessException("This submission is not assigned to your company.");
             if (string.Equals(report.Status, "Approved", StringComparison.OrdinalIgnoreCase)
