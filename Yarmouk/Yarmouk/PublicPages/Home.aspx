@@ -22,7 +22,7 @@
       <a class="yu-nav-brand" href="Home.aspx" data-replay="true" aria-label="Yarmouk University home"><img src='<%= ResolveUrl("~/assets/yarmouk-logo-on-light.svg") %>' width="140" height="51" alt="Yarmouk University"></a>
       <button class="yu-nav-toggle" type="button" aria-expanded="false" aria-controls="yu-public-links" aria-label="Open navigation" hidden><span></span><span></span></button>
       <nav class="yu-nav-links" id="yu-public-links" aria-label="Main navigation">
-        <a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' aria-current="page" data-replay="true">Home</a><a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'  >About Us</a><a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'  >Contact Us</a>
+        <a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' aria-current="page" data-replay="true">Home</a><a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'  >About Us</a><a href='<%= ResolveUrl("~/PublicPages/Team.aspx") %>'>Team</a><a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'  >Contact Us</a>
 
       </nav>
       <a class="yu-nav-login" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>' >Log in <span aria-hidden="true">↗</span></a>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -711,6 +711,19 @@
     <Compile Include="Services\FirebaseAuthService.cs" />
     <Compile Include="Services\PasswordSetupService.cs" />
     <Content Include="Content\Images\yarmouk-college-logo.png" />
+    <Content Include="Content\Images\Team\wessam_khraisat-transparent.png" />
+    <Content Include="Content\Images\Team\Amneh Al-hazaimeh-transparent.png" />
+    <Content Include="Content\Images\Team\ghaith-amourah-transparent.png" />
+    <Content Include="Content\Images\Team\Sief Alkhatatbeh-transparent.png" />
+    <Content Include="Content\Images\Team\Dana Alkhateeb-transparent.png" />
+    <Content Include="Content\Images\Team\Haya Ahmed-transparent.png" />
+    <Content Include="Content\Images\Team\Amani Alazzam-transparent.png" />
+    <Content Include="Content\Images\Team\Amani Alazzam.jpg" />
+    <Content Include="Content\Images\Team\Amneh Al-hazaimeh.jpg" />
+    <Content Include="Content\Images\Team\Dana Alkhateeb.jpg" />
+    <Content Include="Content\Images\Team\Haya Ahmed.jpg" />
+    <Content Include="Content\Images\Team\saif khatatbeh.jpg" />
+    <Content Include="Content\Images\Team\yu-text1ORG.png" />
     <Content Include="Content\CoordinatorPages\notifications.css" />
     <Content Include="Scripts\CoordinatorPages\notifications.js" />
   </ItemGroup>
