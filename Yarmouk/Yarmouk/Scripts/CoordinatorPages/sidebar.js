@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const menus = {
-    coordinator: [['dashboard','Coordinator Dashboard','grid'],['students','Manage Students','people'],['companies','Manage Companies','building'],['supervisors','Manage Academic Supervisors','badge'],['assignments','Assign Academic Supervisors','diagram'],['progress','Monitor Placements & Progress','chart'],['completion','Final Completion Review','check'],['messages','Contact Messages','mail']]
+    coordinator: [['dashboard','Coordinator Dashboard','grid'],['students','Manage Students','people'],['companies','Manage Companies','building'],['supervisors','Manage Academic Supervisors','badge'],['progress','Monitor Placements & Progress','chart'],['completion','Final Completion Review','check'],['messages','Contact Messages','mail']]
   };
   function initialize() {
     document.querySelectorAll('[data-dashboard-sidebar]').forEach(root => {
@@ -42,8 +42,6 @@
       root.querySelector('[data-sidebar-profile]').href = route('account');
       if (activePage === 'account') root.querySelector('[data-sidebar-profile]').setAttribute('aria-current','page');
       root.querySelector('[data-sidebar-role]').textContent = 'Coordinator';
-      // There is no shared sign-out endpoint in this project yet. Do not simulate a sign-out.
-      root.querySelector('[data-sidebar-logout]').hidden = true;
       root.querySelector('[data-sidebar-home]').href = new URL('PublicPages/Home.aspx',base).href;
       root.classList.add('is-enhanced'); menu.hidden = false;
       function render() {

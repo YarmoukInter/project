@@ -17,7 +17,26 @@ using Yarmouk.Services;
 
 namespace Yarmouk.CoordinatorPages
 {
-public partial class SectionMaster : MasterPage { protected void Page_Load(object sender, EventArgs e) { } }
+    public partial class SectionMaster : MasterPage
+    {
+        protected string SidebarCsrf { get { return (string)Session["SidebarCsrf"]; } }
+        protected override void OnInit(EventArgs e)
+        {
+            if (Session["SidebarCsrf"] == null) Session["SidebarCsrf"] = Guid.NewGuid().ToString("N");
+            base.OnInit(e);
+        }
+        protected void SidebarLogout_Click(object sender, EventArgs e)
+        {
+            if (Request.Form["sidebarCsrf"] != SidebarCsrf) throw new HttpException(403, "Please reload the page and try again.");
+            Session.Clear();
+            Session.Abandon();
+            Context.Items["CoordinatorSignedOut"] = true;
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
+            Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"), false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
+    }
 
     public abstract class CoordinatorPage : Page
     {
@@ -42,6 +61,7 @@ public partial class SectionMaster : MasterPage { protected void Page_Load(objec
         }
         private async Task LoadPageAsync()
         {
+            if (Context.Items["CoordinatorSignedOut"] != null) return;
             object data = null;
             string error = null, notice = Session["CoordinatorNotice"] as string;
             Session.Remove("CoordinatorNotice");
