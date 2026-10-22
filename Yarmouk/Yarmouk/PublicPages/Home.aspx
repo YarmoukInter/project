@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=stone-scroll-assist-20" />
-  <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=stone-scroll-assist-20' defer></script>
+  <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=emblem-reveal-21" />
+  <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=emblem-reveal-21' defer></script>
 </head>
 <body data-scene="discover" data-home-root='<%= ResolveUrl("~/") %>'>
   <form id="form1" runat="server">
@@ -40,9 +40,19 @@
     <div class="sticky-stage">
       <div class="scene-caption"><span>Yarmouk University</span><span>Practical training · Irbid</span></div>
 
-      <div class="static-introduction"><svg viewBox="0 0 500 550" role="img" aria-label="Pointed gate inspired by the supplied university emblem"><path stroke-width="10" d="M250 26C231 70 176 76 122 111C77 140 57 191 57 247V425C57 463 48 485 28 501M472 501C452 485 443 463 443 425V247C443 191 423 140 378 111C324 76 269 70 250 26"/><path stroke-width="4" d="M250 46C226 81 181 88 128 122C87 149 71 195 71 248V425C71 455 64 480 53 490M447 490C436 480 429 455 429 425V248C429 195 413 149 372 122C319 88 274 81 250 46"/></svg><p>Your future. In the making.</p></div>
+      <div class="static-introduction">
+        <svg viewBox="0 0 500 550" role="img" aria-label="Completed Yarmouk University emblem">
+          <path class="crest-field" stroke-width="10" d="M250 26C231 70 176 76 122 111C77 140 57 191 57 247V425C57 463 48 485 28 501H472C452 485 443 463 443 425V247C443 191 423 140 378 111C324 76 269 70 250 26Z"/>
+          <path stroke-width="4" d="M250 46C226 81 181 88 128 122C87 149 71 195 71 248V425C71 455 64 480 53 490M447 490C436 480 429 455 429 425V248C429 195 413 149 372 122C319 88 274 81 250 46"/>
+          <path class="crest-motif" fill-rule="evenodd" d="M185 106L228 230H235L240 198H261L267 230H274L315 106L266 365L250 478L234 365ZM214 254L250 448L286 254Z"/>
+          <g class="crest-orbits" stroke-width="4.5"><ellipse cx="250" cy="337" rx="58" ry="109" transform="rotate(-43 250 337)"/><ellipse cx="250" cy="337" rx="58" ry="109" transform="rotate(43 250 337)"/></g>
+          <g class="crest-wheat"><path d="M250 430V303" stroke-width="2.2"/><path d="M250 313C240 300 247 285 250 279C256 289 258 302 250 313ZM249 336C235 332 232 319 234 310C244 313 250 325 249 336ZM251 336C265 332 268 319 266 310C256 313 250 325 251 336ZM249 368C232 365 230 350 232 340C244 345 251 357 249 368ZM251 368C268 365 270 350 268 340C256 345 249 357 251 368ZM249 399C232 397 231 383 233 374C245 378 250 388 249 399ZM251 399C268 397 269 383 267 374C255 378 250 388 251 399Z"/></g>
+        </svg>
+        <p>Yarmouk University <span lang="ar" dir="rtl">جامعة اليرموك</span></p>
+      </div>
       <div class="chapter-container">
         <article class="chapter-card is-active" id="chapter-discover" data-chapter-index="0" aria-labelledby="discover-heading"><svg class="record-illustration" viewBox="0 0 120 120" aria-hidden="true"><path d="M25 18h70v86H25zM39 37h42M39 49h30M39 66h42M39 78h35"/></svg>
+          <div class="hero-university"><img src='<%= ResolveUrl("~/assets/yarmouk-mark.svg") %>' width="43" height="50" alt=""><span><span class="hero-university-ar" lang="ar" dir="rtl">جامعة اليرموك</span><span class="hero-university-en">Yarmouk University</span></span></div>
           <h1 class="chapter-title" id="discover-heading" tabindex="-1">Your future.<br>In the making.</h1>
           <p class="chapter-desc">Turn what you know into what you can do.<br class="desktop-break"> Your practical training journey starts at Yarmouk.</p><p class="record-transcript a11y-sr-only">Browse public opportunity summaries. Log in to view full details and apply for a role suited to your major.</p>
           <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Explore internships <span aria-hidden="true">↗</span></a><button type="button" class="text-btn" data-open-dialog="opportunities-dialog">View open opportunities</button></div>
