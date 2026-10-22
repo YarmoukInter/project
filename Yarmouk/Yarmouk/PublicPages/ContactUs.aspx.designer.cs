@@ -23,6 +23,12 @@ namespace Yarmouk.PublicPages
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
+        protected global::System.Web.UI.WebControls.TextBox ContactName;
+        protected global::System.Web.UI.WebControls.TextBox ContactEmail;
+        protected global::System.Web.UI.WebControls.TextBox ContactSubject;
+        protected global::System.Web.UI.WebControls.TextBox ContactMessage;
+        protected global::System.Web.UI.WebControls.Literal ContactStatus;
+
         /// <summary>
         /// SendButton control.
         /// </summary>

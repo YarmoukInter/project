@@ -132,15 +132,16 @@
             return stylesheet.sheet.cssRules[index];
         });
         function draw() {
-            const length = name => form.querySelector(`[name="${name}"]`).value.trim().length;
+            const length = name => form.querySelector(`[data-contact-field="${name}"]`).value.trim().length;
             const values = [length("name") / 26, length("email") / 32, length("subject") / 45,
             length("message") / 55, (length("message") - 55) / 55, (length("message") - 110) / 55];
             rules.forEach((rule, index) => rule.style.strokeDashoffset = String(1 - Math.max(0, Math.min(1, values[index]))));
         }
         function focusField(event) {
-            if (!strokes.includes(event.target.name) && event.target.name !== "message") return;
+            const field = event.target.dataset.contactField;
+            if (!strokes.includes(field) && field !== "message") return;
             art.dataset.state = "ready";
-            art.dataset.field = event.target.name;
+            art.dataset.field = field;
             caption.textContent = "A note for your internship coordinator.";
             caption.classList.remove("is-saved");
             draw();
@@ -150,7 +151,7 @@
         form.addEventListener("input", draw);
         form.addEventListener("contact:saved", () => {
             art.dataset.state = reduced.matches ? "saved" : "posting";
-            caption.textContent = "Saved in this browser session.";
+            caption.textContent = "Your message was sent to the coordinator.";
             caption.classList.add("is-saved");
         });
         art.addEventListener("animationend", event => {
@@ -162,6 +163,9 @@
         });
         if (reduced.matches) art.dataset.state = "ready";
         draw();
+        if (document.getElementById("contact-status")?.dataset.sent === "true") {
+            form.dispatchEvent(new Event("contact:saved"));
+        }
         return true;
     }
 

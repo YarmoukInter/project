@@ -93,9 +93,9 @@
                     </section>
                     <div class="co-side-column">
                         <section class="co-panel co-review" aria-labelledby="co-review-title">
-                            <div class="co-panel-heading"><h2 id="co-review-title">${icon('chart')}Internship review queue</h2><span class="co-count">${counts ? total : "—"} items</span></div>
+                            <div class="co-panel-heading"><h2 id="co-review-title">Pending actions</h2><span class="co-count">${counts ? total + ' pending' : 'Unavailable'}</span></div>
                             <div class="co-review-list">
-                                ${overview.reviews.map(item => `<a class="co-review-link" href="${item.route}"><span class="co-review-label"><span>${item.title}</span><strong>${item.value} pending</strong></span><span class="co-track" aria-hidden="true"><span style="--co-progress:${total ? item.value / total * 100 : 0}%"></span></span></a>`).join('')}
+                                ${overview.reviews.map(item => `<a class="co-review-link" href="${item.route}"><strong class="co-review-count">${counts ? item.value : '—'}</strong><span class="co-review-label"><span>${item.title}</span><small>${!counts ? 'Unable to load' : item.value ? 'Needs review' : 'Up to date'}</small></span><span class="co-review-action">${counts && item.value ? 'Review' : 'View'} ${icon('arrow')}</span></a>`).join('')}
                             </div>
                         </section>
                         <aside class="co-note" aria-labelledby="co-note-title">
