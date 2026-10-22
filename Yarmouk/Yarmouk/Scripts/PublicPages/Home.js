@@ -1776,3 +1776,5 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initStoneBook, {once: true});
     else initStoneBook();
 })();
+
+/* H */
