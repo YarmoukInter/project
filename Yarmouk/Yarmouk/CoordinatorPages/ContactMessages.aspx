@@ -2,7 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=backend-1' defer></script>
 <link href='<%= ResolveUrl("~/Content/CoordinatorPages/ContactMessages.css") %>?v=backend-1' rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ContactMessages.js") %>?v=backend-1' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ContactMessages.js") %>?v=notifications-1' defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>

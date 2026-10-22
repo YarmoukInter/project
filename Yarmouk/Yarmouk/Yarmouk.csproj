@@ -711,5 +711,7 @@
     <Compile Include="Services\FirebaseAuthService.cs" />
     <Compile Include="Services\PasswordSetupService.cs" />
     <Content Include="Content\Images\yarmouk-college-logo.png" />
+    <Content Include="Content\CoordinatorPages\notifications.css" />
+    <Content Include="Scripts\CoordinatorPages\notifications.js" />
   </ItemGroup>
 </Project>
