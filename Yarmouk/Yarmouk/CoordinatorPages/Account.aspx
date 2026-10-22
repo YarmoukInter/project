@@ -1,9 +1,21 @@
-<%@ Page Title="Account" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="Account.aspx.cs" Inherits="Yarmouk.CoordinatorPages.Account" %>
+<%@ Page Title="Coordinator Profile" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="Account.aspx.cs" Inherits="Yarmouk.CoordinatorPages.Account" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/CoordinatorPages/Account.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CoordinatorPages/Account.js") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/CoordinatorPages/Account.css?v=20261021-4") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/CoordinatorPages/Account.js?v=20261021-4") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<h1>Account</h1>
-<p>Page layout placeholder. Add controls and events here.</p>
+<div class="co-account-page" data-account-page dir="ltr">
+<header class="ap-heading"><div><p class="ap-eyebrow">ACCOUNT SETTINGS</p><h1>Coordinator Profile</h1><p class="ap-intro">Review your account information, contact details, and coordinator access.</p></div><span class="ap-preview-tag ap-live-tag">● Signed-in account</span></header>
+<section class="ap-profile-card" aria-labelledby="profile-name">
+<div class="ap-cover" aria-hidden="true"><span>YU</span></div>
+<div class="ap-identity"><div class="ap-avatar" aria-hidden="true">YU</div><div class="ap-identity-copy"><div class="ap-name-line"><h2 id="profile-name"><asp:Literal ID="profileSummaryName" runat="server" /></h2><span class="ap-status"><i></i><asp:Literal ID="profileSummaryStatus" runat="server" /></span></div><p><asp:Literal ID="profileSummaryTitle" runat="server" /> · Faculty of Information Technology and Computer Science</p></div><button class="ap-edit-button" type="button" disabled title="Profile changes are managed by the system administrator">Read-only profile</button></div>
+<div class="ap-meta"><div><span class="ap-meta-icon">ID</span><span><small>Account ID</small><strong><asp:Literal ID="profileAccountId" runat="server" /></strong></span></div><div><span class="ap-meta-icon">@</span><span><small>University email</small><strong dir="ltr"><asp:Literal ID="profileSummaryEmail" runat="server" /></strong></span></div><div><span class="ap-meta-icon">⌖</span><span><small>Unit</small><strong>Field Training</strong></span></div></div>
+</section>
+<div class="ap-content-grid">
+<section class="ap-panel" aria-labelledby="details-title"><div class="ap-panel-heading"><div><p class="ap-section-kicker">ACCOUNT INFORMATION</p><h2 id="details-title">Personal and professional details</h2></div><span class="ap-lock-label">▣ View only</span></div>
+<dl class="ap-detail-grid"><div class="ap-detail"><dt>Full name</dt><dd><asp:Literal ID="profileFullName" runat="server" /></dd></div><div class="ap-detail"><dt>Email address</dt><dd dir="ltr"><asp:Literal ID="profileEmail" runat="server" /></dd></div><div class="ap-detail"><dt>Job title</dt><dd><asp:Literal ID="profileJobTitle" runat="server" /></dd></div><div class="ap-detail"><dt>Faculty</dt><dd>Information Technology and Computer Science</dd></div><div class="ap-detail"><dt>System role</dt><dd><span class="ap-role"><asp:Literal ID="profileRole" runat="server" /></span></dd></div><div class="ap-detail"><dt>Account status</dt><dd><span class="ap-status"><i></i><asp:Literal ID="profileStatus" runat="server" /></span></dd></div></dl></section>
+<aside class="ap-side-column"><section class="ap-panel"><div class="ap-panel-heading"><div><p class="ap-section-kicker">ACCESS AND PERMISSIONS</p><h2>Coordinator permissions</h2></div><span class="ap-access-icon">✓</span></div><p class="ap-muted">The coordinator role supports field training workflows within the faculty.</p><ul class="ap-permissions"><li>✓ Monitor placements and progress</li><li>✓ Review final completion</li><li>✓ View training information</li></ul></section>
+<section class="ap-panel ap-security"><div class="ap-security-copy"><span class="ap-security-icon">⌑</span><div><h2>Account security</h2><p>Manage password and sign-in settings</p></div></div><button class="ap-security-button" type="button" disabled title="Coordinator password management is not configured">Manage security <span>→</span></button><p class="ap-disabled-hint">Contact the system administrator to update sign-in or password settings.</p></section></aside></div>
+<p class="ap-footnote">ⓘ Profile details are read-only. Contact the system administrator to request an account update.</p>
+</div>
 </asp:Content>

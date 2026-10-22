@@ -244,3 +244,7 @@
     .about-role-card.is-visible { animation:none!important; }
     .about-story-copy:hover,.about-role-card:hover,.about-weight:hover { transform:none!important; }
 }
+
+/* About emblem logo fit */
+.about-logo-frame{width:148px;height:58px;padding:4px;border-radius:16px;background:#0b5735}
+.about-logo-frame img{width:136px;height:48px}
