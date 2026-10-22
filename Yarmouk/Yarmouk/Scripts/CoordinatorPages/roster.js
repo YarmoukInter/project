@@ -28,6 +28,16 @@ window.CoordinatorBackend = {
 
             const state = window.CoordinatorBackend.state();
             let records = state.data?.records || [];
+            const clientFields = config.fields.filter(field => field.clientOnly);
+            const clientStorageKey = `coordinatorRoster:${config.page}:display`;
+            let clientValues = {};
+            if (clientFields.length) {
+                try { clientValues = JSON.parse(sessionStorage.getItem(clientStorageKey) || '{}') || {}; } catch (_) { }
+                records.forEach(record => {
+                    const saved = clientValues[record.id] || clientValues[record.email] || {};
+                    clientFields.forEach(field => { record[field.key] = saved[field.key] || ''; });
+                });
+            }
             const submit = window.CoordinatorBackend.submit;
             if (state.data?.supervisors) {
                 const options = [{value:'',label:'Unassigned'}, ...state.data.supervisors];
@@ -47,7 +57,7 @@ window.CoordinatorBackend = {
 
             function cell(column, record) {
                 const value = record[column.key];
-                if (column.type === 'identity') return `<strong class="yr-person-name">${escape(value)}</strong><span class="yr-person-email">${escape(record.email)}${record.isActive ? '' : ' · Inactive'}</span>`;
+                if (column.type === 'identity') return `<strong class="yr-person-name">${escape(value)}</strong><span class="yr-person-email">${escape(record[column.detailKey || 'email'] || '—')}${record.isActive ? '' : ' · Inactive'}</span>`;
                 if (column.type === 'gpa') return `<span class="yr-number">${(value == null || value === '' ? '—' : Number(value).toFixed(2))}</span>`;
                 if (column.type === 'count') return `<span class="yr-number">${escape(value)}</span><span class="yr-cell-note">students</span>`;
                 if (column.type === 'status') {
@@ -70,13 +80,15 @@ window.CoordinatorBackend = {
                 root.querySelector('[data-editor-save]').textContent = record ? 'Save changes' : `Register ${config.singular}`;
                 fields.innerHTML = config.fields.filter(field => !field.createOnly || !record).map(field => {
                     const id = `editor-${field.key}`;
-                    const value = (record ? record[field.key] : field.default) ?? '';
+                    let value = (record ? record[field.key] : field.default) ?? '';
+                    if (field.type === 'date') value = String(value).replace(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, (_, day, month, year) => `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
                     const readonly = record && field.key === 'email' ? ' readonly title="Update sign-in emails in Firebase Authentication"' : '';
                     if (field.options && value && !field.options.some(o => o.value === value)) field.options = [...field.options, {value,label:value}];
                     let input;
                     if (field.options) input = `<select id="${id}" data-field="${field.key}"${field.required ? ' required' : ''}>${field.options.map(option => `<option value="${escape(option.value)}"${option.value === value ? ' selected' : ''}${option.disabled ? ' disabled' : ''}>${escape(option.label)}</option>`).join('')}</select>`;
-                    else input = `<input id="${id}" data-field="${field.key}" type="${field.type || 'text'}" value="${escape(value)}"${field.required ? ' required' : ''}${field.type === 'number' ? ` min="${field.min ?? 0}"${field.max != null ? ` max="${field.max}"` : ''} step="${field.step || 1}"` : field.type === 'password' ? '' : ' maxlength="254"'} ${readonly} autocomplete="${field.type === 'password' ? 'new-password' : 'off'}"${field.type === 'password' ? ' minlength="8" maxlength="128"' : ''} />`;
-                    return `<div class="yr-editor-field${field.wide ? ' yr-field-wide' : ''}"><label for="${id}">${escape(field.label)}${field.required ? ' <span aria-hidden="true">*</span>' : ''}</label>${input}</div>`;
+                    else input = `<input id="${id}" data-field="${field.key}" type="${field.type || 'text'}" value="${escape(value)}"${field.required ? ' required' : ''}${field.description ? ` aria-describedby="${id}-description"` : ''}${field.type === 'number' ? ` min="${field.min ?? 0}"${field.max != null ? ` max="${field.max}"` : ''} step="${field.step || 1}"` : field.type === 'password' ? '' : ' maxlength="254"'} ${readonly} autocomplete="${field.type === 'password' ? 'new-password' : 'off'}"${field.type === 'password' ? ' minlength="8" maxlength="128"' : ''} />`;
+                    if (!field.options) input = input.replace(' />', `${field.inputMode ? ` inputmode="${escape(field.inputMode)}"` : ''}${field.pattern ? ` pattern="${escape(field.pattern)}"` : ''}${field.type === 'date' && field.max ? ` max="${escape(field.max)}"` : ''} />`);
+                    return `<div class="yr-editor-field${field.wide ? ' yr-field-wide' : ''}"><label for="${id}">${escape(field.label)}${field.required ? ' <span aria-hidden="true">*</span>' : ''}</label>${input}${field.description ? `<small class="yr-field-note" id="${id}-description">${escape(field.description)}</small>` : ''}</div>`;
                 }).join('');
                 const departmentInput = fields.querySelector('[data-field="department"]');
                 const collegeInput = fields.querySelector('[data-field="college"]');
@@ -100,7 +112,15 @@ window.CoordinatorBackend = {
                     if (!input.reportValidity()) return;
                 }
                 const next = {id:editingId};
-                inputs.forEach(input => { next[input.dataset.field] = input.value.trim(); });
+                inputs.forEach(input => {
+                    if (!clientFields.some(field => field.key === input.dataset.field)) next[input.dataset.field] = input.value.trim();
+                });
+                if (clientFields.length) {
+                    const display = {};
+                    clientFields.forEach(field => { display[field.key] = fields.querySelector(`[data-field="${field.key}"]`).value.trim(); });
+                    clientValues[editingId || next.email] = display;
+                    try { sessionStorage.setItem(clientStorageKey, JSON.stringify(clientValues)); } catch (_) { }
+                }
                 // Passwords are submitted once to ASP.NET and never kept in the roster data.
                 const password = inputs.find(input => input.dataset.field === 'temporaryPassword');
                 if (password) next.temporaryPassword = password.value;
@@ -146,8 +166,13 @@ window.CoordinatorBackend = {
             feedback.textContent = state.error || state.notice || '';
             if (!state.data) {
                 root.querySelector('[data-roster-add]').disabled = true;
-                tbody.innerHTML = '<tr><td colspan="6">Unable to load records. Check the error below and reload.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="${config.columns.length + 1}">Unable to load records. Check the error below and reload.</td></tr>`;
             } else render();
+            if (state.error) {
+                feedback.setAttribute('role', 'alert');
+                feedback.tabIndex = -1;
+                feedback.focus();
+            }
         }
     };
 })();

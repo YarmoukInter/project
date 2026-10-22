@@ -68,7 +68,7 @@ namespace Yarmouk.CoordinatorPages
                 Major major = null;
                 if (student != null && !string.IsNullOrEmpty(student.MajorId)) majors.TryGetValue(student.MajorId, out major);
                 var company = companies.Values.FirstOrDefault(c => c != null && c.SupervisorUid == pair.Key);
-                rows.Add(new DirectoryEntry {
+                var row = new DirectoryEntry {
                     Id = pair.Key, Name = role == "company" ? (company == null ? user.FullName : company.Name) : user.FullName,
                     Email = user.Email, IsActive = user.IsActive,
                     Department = major == null ? user.Department : major.Name,
@@ -80,7 +80,14 @@ namespace Yarmouk.CoordinatorPages
                     Industry = company == null ? "" : company.Industry,
                     Location = company == null ? "" : company.Location,
                     ContactName = role == "company" ? user.FullName : ""
-                });
+                };
+                if (role == "student" && student != null)
+                {
+                    student.StudentNumber = string.IsNullOrWhiteSpace(student.StudentNumber) ? student.StudentId : student.StudentNumber;
+                    student.CompletedCredits = student.CompletedCredits > 0 ? student.CompletedCredits : student.CompletedCreditHours;
+                    JsonConvert.PopulateObject(JsonConvert.SerializeObject(student, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }), row);
+                }
+                rows.Add(row);
             }
             return new {
                 records = rows.OrderBy(r => r.Name).ToList(),
@@ -118,6 +125,7 @@ namespace Yarmouk.CoordinatorPages
             if (creating && (string.IsNullOrEmpty(entry.TemporaryPassword) || entry.TemporaryPassword.Length < 8 || entry.TemporaryPassword.Length > 128))
                 throw new ArgumentException("Enter a temporary password between 8 and 128 characters.");
             var changes = new Dictionary<string, object>();
+            var studentDetails = role == "student" && entry.ProfileFields != null ? JObject.FromObject(entry.ProfileFields).ToObject<Student>() : null;
             string majorId = null;
             if (role != "company")
             {
@@ -127,8 +135,8 @@ namespace Yarmouk.CoordinatorPages
             if (role == "student")
             {
                 decimal gpa;
-                if (!decimal.TryParse(entry.Gpa, NumberStyles.Number, CultureInfo.InvariantCulture, out gpa) || gpa < 0 || gpa > 4)
-                    throw new ArgumentException("GPA must be between 0 and 4.");
+                if (!decimal.TryParse(entry.Gpa, NumberStyles.Number, CultureInfo.InvariantCulture, out gpa) || gpa < 0 || gpa > 100)
+                    throw new ArgumentException("GPA must be between 0 and 100.");
                 entry.Gpa = gpa.ToString("0.00", CultureInfo.InvariantCulture);
                 var majors = await ReadAsync<Major>(DatabasePaths.Majors, session) ?? new Dictionary<string, Major>();
                 majorId = majors.Where(m => m.Value != null && m.Value.Name == entry.Department && m.Value.Faculty == entry.College).Select(m => m.Key).FirstOrDefault();
@@ -174,6 +182,14 @@ namespace Yarmouk.CoordinatorPages
                 changes[path + "uid"] = uid;
                 changes[path + "majorId"] = majorId;
                 changes[path + "gpa"] = entry.Gpa;
+                if (studentDetails != null)
+                {
+                    var fields = JObject.FromObject(studentDetails, JsonSerializer.Create(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+                    foreach (string field in new[] { "englishName", "studentNumber", "nationalId", "gender", "nationality", "birthPlace", "birthDate", "academicStatus", "completedCredits", "expectedGraduation" })
+                        if (entry.ProfileFields.ContainsKey(field)) changes[path + field] = fields[field];
+                    if (entry.ProfileFields.ContainsKey("studentNumber")) changes[path + "studentId"] = studentDetails.StudentNumber;
+                    if (entry.ProfileFields.ContainsKey("completedCredits")) changes[path + "completedCreditHours"] = studentDetails.CompletedCredits;
+                }
                 changes[path + "academicSupervisorId"] = entry.Supervisor ?? "";
                 changes[path + "academicSupervisorName"] = supervisorUser == null ? "" : supervisorUser.FullName;
                 foreach (var placement in existingPlacements.Where(p => p.Value != null && p.Value.StudentUid == uid
@@ -324,5 +340,6 @@ namespace Yarmouk.CoordinatorPages
         public string Industry { get; set; }
         public string Location { get; set; }
         public string ContactName { get; set; }
+        [JsonExtensionData] public IDictionary<string, JToken> ProfileFields { get; set; }
     }
 }

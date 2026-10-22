@@ -102,13 +102,14 @@
 .co-workspace-link > svg { color: var(--co-green); width: 15px; }
 .co-workspace-link:hover strong, .co-review-link:hover .co-review-label > span { color: var(--co-green); text-decoration: underline; text-underline-offset: 3px; }
 .co-side-column { display: grid; gap: var(--co-space-5); min-width: 0; }
-.co-review-list { display: grid; gap: var(--co-space-4); padding-block: var(--co-space-4) var(--co-space-1); }
-.co-review-link { display: block; }
-.co-review-label { display: flex; justify-content: space-between; align-items: center; gap: var(--co-space-2); font-size: var(--co-caption); }
-.co-review-label strong { font-weight: 500; color: var(--co-muted); white-space: nowrap; }
-.co-track { display: block; height: 4px; margin-top: var(--co-space-2); overflow: hidden; border-radius: 4px; background: var(--co-track); }
-.co-track > span { display: block; height: 100%; width: var(--co-progress); background: var(--co-green); border-radius: inherit; }
-.co-review-link:nth-child(2) .co-track > span { background: var(--co-gold); }
+.co-review-list { display: grid; padding-top: var(--co-space-2); }
+.co-review-link { display: flex; align-items: center; gap: var(--co-space-3); min-height: 64px; padding-block: var(--co-space-3); }
+.co-review-link + .co-review-link { border-top: 1px solid var(--co-line); }
+.co-review-count { min-width: 32px; color: var(--co-green); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.co-review-label { display: grid; gap: 2px; flex: 1; font-size: var(--co-small); }
+.co-review-label small { color: var(--co-muted); font-size: var(--co-caption); }
+.co-review-action { display: inline-flex; align-items: center; gap: var(--co-space-1); color: var(--co-green); font-size: var(--co-small); white-space: nowrap; }
+.co-review-action svg { width: 14px; height: 14px; }
 .co-note { padding: var(--co-space-5); border: 1px solid var(--co-line); border-left: 3px solid var(--co-gold); border-radius: var(--co-radius); background: var(--co-tint); }
 .co-note h2 { display: flex; align-items: center; gap: var(--co-space-2); margin: 0; font-size: var(--co-text); line-height: 1.5; font-weight: 500; }
 .co-note h2 svg { color: var(--co-green); }
