@@ -2,25 +2,73 @@
 (function () {
   'use strict';
 
-  window.confirmTaskApproval = function () {
-    return window.confirm('Accept this submission and mark the task Completed?');
-  };
+  var reviewModal = document.getElementById('task-review-modal');
+  var reviewDialog = reviewModal && reviewModal.querySelector('.task-review-dialog');
+  var reviewScore = document.getElementById('task-review-score');
+  var reviewFeedback = document.getElementById('task-review-feedback');
+  var reviewDeadline = document.getElementById('task-review-deadline');
+  var reviewApprove = document.getElementById('task-review-approve');
+  var reviewRevision = document.getElementById('task-review-revision');
+  var reviewFocus = null;
 
-  window.validateRevision = function (button) {
-    var row = button.closest('tr');
-    if (!row) return false;
-    var notes = row.querySelector('textarea');
-    var deadline = row.querySelector('input[type="date"]');
-    if (!notes || !deadline) return false;
+  function closeReviewModal() {
+    if (!reviewModal) return;
+    reviewModal.hidden = true;
+    document.body.classList.remove('task-review-open');
+    if (reviewFocus) reviewFocus.focus();
+  }
 
-    var validNotes = notes.value.trim().length >= 2;
-    var validDeadline = !!deadline.value && new Date(deadline.value + 'T23:59:59').getTime() > Date.now();
-    notes.setCustomValidity(validNotes ? '' : 'Enter the requested changes (at least 2 characters).');
-    deadline.setCustomValidity(validDeadline ? '' : 'Choose a future deadline.');
-    if (!validNotes) { notes.reportValidity(); return false; }
-    if (!validDeadline) { deadline.reportValidity(); return false; }
-    return window.confirm('Return this task to the student with the new deadline?');
-  };
+  document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('[data-review-id]');
+    if (!trigger || !reviewModal) return;
+    reviewFocus = trigger;
+    var id = trigger.dataset.reviewId;
+    var solution = trigger.dataset.reviewSolution || '';
+    document.getElementById('task-review-title').textContent = trigger.dataset.reviewTitle || 'Review task';
+    document.getElementById('task-review-status').textContent = trigger.dataset.reviewStatusLabel || '';
+    document.getElementById('task-review-notes').textContent = trigger.dataset.reviewNotes || 'No notes were submitted.';
+    var link = document.getElementById('task-review-link');
+    link.hidden = !/^https:\/\/(www\.)?(github\.com|gist\.github\.com)\//i.test(solution);
+    link.href = link.hidden ? '#' : solution;
+    document.getElementById('task-review-no-link').hidden = !link.hidden;
+    reviewScore.value = trigger.dataset.reviewGrade || '';
+    reviewFeedback.value = '';
+    reviewDeadline.value = '';
+    reviewApprove.value = 'complete|' + id;
+    reviewRevision.value = 'revision|' + id;
+    document.getElementById('task-review-actions').hidden = trigger.dataset.reviewStatus !== 'done';
+    reviewModal.hidden = false;
+    document.body.classList.add('task-review-open');
+    reviewDialog.focus();
+  });
+
+  if (reviewModal) reviewModal.addEventListener('click', function (event) {
+    if (event.target === reviewModal || event.target.closest('#close-task-review')) closeReviewModal();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && reviewModal && !reviewModal.hidden) closeReviewModal();
+  });
+  if (reviewApprove) reviewApprove.addEventListener('click', function (event) {
+    var score = reviewScore.value.trim();
+    if (score === '' || !/^\d+$/.test(score) || Number(score) < 0 || Number(score) > 10) {
+      event.preventDefault();
+      reviewScore.setCustomValidity('Enter a whole-number evaluation from 0 to 10.');
+      reviewScore.reportValidity();
+    }
+  });
+  if (reviewScore) reviewScore.addEventListener('input', function () { reviewScore.setCustomValidity(''); });
+  if (reviewRevision) reviewRevision.addEventListener('click', function (event) {
+    var validNotes = reviewFeedback.value.trim().length >= 2;
+    var validDeadline = !!reviewDeadline.value && new Date(reviewDeadline.value + 'T23:59:59').getTime() > Date.now();
+    reviewFeedback.setCustomValidity(validNotes ? '' : 'Enter revision notes with at least 2 characters.');
+    reviewDeadline.setCustomValidity(validDeadline ? '' : 'Choose a future deadline.');
+    if (!validNotes || !validDeadline) {
+      event.preventDefault();
+      (validNotes ? reviewDeadline : reviewFeedback).reportValidity();
+    }
+  });
+  if (reviewFeedback) reviewFeedback.addEventListener('input', function () { reviewFeedback.setCustomValidity(''); });
+  if (reviewDeadline) reviewDeadline.addEventListener('input', function () { reviewDeadline.setCustomValidity(''); });
 
   var addModal = document.getElementById('add-task-modal');
   var openAddTask = document.getElementById('open-add-task');

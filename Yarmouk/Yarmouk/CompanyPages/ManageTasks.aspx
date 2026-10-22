@@ -1,7 +1,7 @@
 <%@ Page Title="Manage Tasks" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ManageTasks.aspx.cs" Inherits="Yarmouk.CompanyPages.ManageTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="../Content/CompanyPages/ManageTasks.css" rel="stylesheet" />
-<script src="../Scripts/CompanyPages/ManageTasks.js" defer></script>
+<link href="../Content/CompanyPages/ManageTasks.css?v=review-modal-1" rel="stylesheet" />
+<script src="../Scripts/CompanyPages/ManageTasks.js?v=review-modal-1" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <main class="manage-tasks-page">
@@ -51,6 +51,27 @@
         <button class="cancel-add-task" id="cancel-add-task" type="button">Cancel</button>
         <button class="save-add-task" type="submit" name="addTaskAction" value="1" onclick="return validateNewTask()">Add task</button>
       </div>
+    </div>
+  </section>
+</div>
+<div id="task-review-modal" class="task-review-modal" hidden>
+  <section class="task-review-dialog" role="dialog" aria-modal="true" aria-labelledby="task-review-title" tabindex="-1">
+    <button id="close-task-review" class="close-task-review" type="button" aria-label="Close review">×</button>
+    <p class="eyebrow">Submission review</p>
+    <h2 id="task-review-title">Review task</h2>
+    <p id="task-review-status" class="task-review-status"></p>
+    <div class="task-review-info"><strong>Student solution</strong><a id="task-review-link" target="_blank" rel="noopener noreferrer" hidden>Open GitHub solution ↗</a><span id="task-review-no-link">No GitHub link saved</span></div>
+    <div class="task-review-info"><strong>Student notes</strong><p id="task-review-notes"></p></div>
+    <div id="task-review-actions" class="task-review-actions">
+      <label for="task-review-score">Task evaluation <span>(out of 10)</span></label>
+      <input id="task-review-score" name="taskScore" type="number" min="0" max="10" step="1" inputmode="numeric" placeholder="0–10" />
+      <button id="task-review-approve" class="approve-button" type="submit" name="taskAction" value="" formnovalidate>Approve and complete</button>
+      <div class="task-review-divider"><span>or request changes</span></div>
+      <label for="task-review-feedback">What should the student change?</label>
+      <textarea id="task-review-feedback" name="reviewFeedback" maxlength="2000" rows="3" placeholder="Write clear revision notes"></textarea>
+      <label for="task-review-deadline">New deadline</label>
+      <input id="task-review-deadline" name="reviewDeadline" type="date" />
+      <button id="task-review-revision" class="revision-button" type="submit" name="taskAction" value="" formnovalidate>Request changes</button>
     </div>
   </section>
 </div>

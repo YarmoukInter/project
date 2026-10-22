@@ -28,6 +28,8 @@ namespace Yarmouk.CompanyPages
             public string Status;
             public string StatusLabel;
             public string SolutionUrl;
+            public string SubmissionNotes;
+            public int? Grade;
             public long DueAt;
             public long CreatedAt;
         }
@@ -178,23 +180,28 @@ namespace Yarmouk.CompanyPages
 
                 if (action == "complete")
                 {
-                    await PatchFirebaseObjectAsync(DatabasePaths.Tasks + "/" + taskId, new JObject
+                    int grade;
+                    if (!int.TryParse(Request.Form["taskScore"], NumberStyles.None, CultureInfo.InvariantCulture, out grade)
+                        || grade < 0 || grade > 10)
+                    { ShowError("Enter a task evaluation from 0 to 10 before approving."); return; }
+                    await PatchFirebaseObjectAsync(DatabasePaths.Tasks + "/" + entry.Name, new JObject
                     {
                         ["status"] = "completed", ["completedAtUnixMs"] = now, ["reviewedByUid"] = auth.Uid,
+                        ["grade"] = grade,
                         ["instructorFeedback"] = JValue.CreateNull()
                     }, auth);
                     if (latest != null)
                         await PatchFirebaseObjectAsync(DatabasePaths.TaskSubmissions + "/" + latest.Name, new JObject
                         {
                             ["status"] = "completed", ["reviewStatus"] = "completed", ["reviewedByUid"] = auth.Uid,
-                            ["reviewedAtUnixMs"] = now, ["instructorFeedback"] = JValue.CreateNull()
+                            ["reviewedAtUnixMs"] = now, ["grade"] = grade, ["instructorFeedback"] = JValue.CreateNull()
                         }, auth);
                     ShowSuccess("Task approved. It is now marked Completed for the student.");
                     return;
                 }
 
-                var feedback = (Request.Form["feedback_" + taskId] ?? string.Empty).Trim();
-                var deadlineText = (Request.Form["deadline_" + taskId] ?? string.Empty).Trim();
+                var feedback = (Request.Form["reviewFeedback"] ?? string.Empty).Trim();
+                var deadlineText = (Request.Form["reviewDeadline"] ?? string.Empty).Trim();
                 DateTime newDeadline;
                 if (feedback.Length < 2 || feedback.Length > 2000)
                 { ShowError("Enter revision feedback between 2 and 2,000 characters."); return; }
@@ -207,7 +214,7 @@ namespace Yarmouk.CompanyPages
                 var history = task["deadlineHistory"] as JArray ?? new JArray();
                 if (oldDueAt > 0)
                     history.Add(new JObject { ["dueAtUnixMs"] = oldDueAt, ["recordedAtUnixMs"] = now, ["changedByUid"] = auth.Uid });
-                await PatchFirebaseObjectAsync(DatabasePaths.Tasks + "/" + taskId, new JObject
+                await PatchFirebaseObjectAsync(DatabasePaths.Tasks + "/" + entry.Name, new JObject
                 {
                     ["status"] = "todo", ["dueAtUnixMs"] = newDueAt, ["deadlineHistory"] = history,
                     ["instructorFeedback"] = feedback, ["revisionRequestedAtUnixMs"] = now, ["reviewedByUid"] = auth.Uid
@@ -402,11 +409,17 @@ namespace Yarmouk.CompanyPages
                 var latest = FindLatestSubmission(submissions, taskId, studentUid);
                 var status = ResolveStatus(task, latest);
                 var url = latest == null ? Value(task, "submissionUrl") : Value(latest.Value as JObject, "submissionUrl");
+                var submitted = latest == null ? task : latest.Value as JObject;
+                int grade;
+                var gradeText = FirstNonEmpty(Value(task, "grade"), Value(submitted, "grade"), Value(task, "score"), Value(submitted, "score"));
                 rows.Add(new TaskRow
                 {
                     Id = taskId, Number = FirstNonEmpty(Value(task, "taskNumber"), taskId),
                     Title = FirstNonEmpty(Value(task, "title"), "Untitled task"), Status = status,
                     StatusLabel = LabelForStatus(status), SolutionUrl = IsGitHubSolutionUrl(url) ? url : string.Empty,
+                    SubmissionNotes = FirstNonEmpty(Value(submitted, "notes"), Value(submitted, "submissionNotes"), Value(task, "submissionNotes")),
+                    Grade = int.TryParse(gradeText, NumberStyles.None, CultureInfo.InvariantCulture, out grade)
+                        && grade >= 0 && grade <= 10 ? (int?)grade : null,
                     DueAt = TokenLong(task, "dueAtUnixMs"), CreatedAt = TokenLong(task, "createdAtUnixMs")
                 });
             }
@@ -416,25 +429,23 @@ namespace Yarmouk.CompanyPages
         private static string RenderTaskTable(List<TaskRow> rows)
         {
             if (rows.Count == 0) return "<p class=\"empty-state\">This student has no tasks yet.</p>";
-            var html = new StringBuilder("<div class=\"table-scroll\"><table class=\"tasks-table\"><thead><tr><th>Task</th><th>Deadline</th><th>Status</th><th>Student solution</th><th>Review decision</th></tr></thead><tbody>");
+            var html = new StringBuilder("<div class=\"table-scroll\"><table class=\"tasks-table\"><thead><tr><th>Task</th><th>Deadline</th><th>Status</th><th>Evaluation / 10</th><th>Review decision</th></tr></thead><tbody>");
             foreach (var row in rows)
             {
                 var id = HttpUtility.HtmlAttributeEncode(row.Id);
                 html.Append("<tr><td><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></td>");
                 html.Append("<td>").Append(row.DueAt > 0 ? HttpUtility.HtmlEncode(FormatDate(row.DueAt)) : "—").Append("</td>");
-                html.Append("<td><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></td><td>");
-                if ((row.Status == "done" || row.Status == "completed") && !string.IsNullOrWhiteSpace(row.SolutionUrl))
-                    html.Append("<a class=\"solution-link\" href=\"").Append(HttpUtility.HtmlAttributeEncode(row.SolutionUrl)).Append("\" target=\"_blank\" rel=\"noopener noreferrer\">Open GitHub solution</a>");
-                else if (row.Status == "done" || row.Status == "completed") html.Append("<span class=\"muted\">No GitHub link saved</span>");
-                else html.Append("<span class=\"muted\">Not submitted</span>");
-                html.Append("</td><td>");
-                if (row.Status == "done")
-                {
-                    html.Append("<div class=\"review-actions\"><button class=\"approve-button\" type=\"submit\" name=\"taskAction\" value=\"complete|").Append(id).Append("\" onclick=\"return confirmTaskApproval()\">Accept and complete</button>");
-                    html.Append("<div class=\"revision-form\"><label for=\"feedback_").Append(id).Append("\">Revision notes</label><textarea id=\"feedback_").Append(id).Append("\" name=\"feedback_").Append(id).Append("\" maxlength=\"2000\" rows=\"2\" placeholder=\"Explain what needs to change\"></textarea>");
-                    html.Append("<label for=\"deadline_").Append(id).Append("\">New deadline</label><input type=\"date\" id=\"deadline_").Append(id).Append("\" name=\"deadline_").Append(id).Append("\" />");
-                    html.Append("<button class=\"revision-button\" type=\"submit\" name=\"taskAction\" value=\"revision|").Append(id).Append("\" onclick=\"return validateRevision(this)\">Request changes</button></div></div>");
-                }
+                html.Append("<td><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></td>");
+                html.Append("<td><span class=\"task-grade\">").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : "—").Append(" <small>/ 10</small></span></td><td>");
+                if (row.Status == "done" || row.Status == "completed")
+                    html.Append("<button type=\"button\" class=\"review-open-button\" data-review-id=\"").Append(id)
+                        .Append("\" data-review-title=\"").Append(HttpUtility.HtmlAttributeEncode(row.Title))
+                        .Append("\" data-review-status=\"").Append(HttpUtility.HtmlAttributeEncode(row.Status))
+                        .Append("\" data-review-status-label=\"").Append(HttpUtility.HtmlAttributeEncode(row.StatusLabel))
+                        .Append("\" data-review-solution=\"").Append(HttpUtility.HtmlAttributeEncode(row.SolutionUrl))
+                        .Append("\" data-review-notes=\"").Append(HttpUtility.HtmlAttributeEncode(row.SubmissionNotes))
+                        .Append("\" data-review-grade=\"").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : string.Empty)
+                        .Append("\">").Append(row.Status == "done" ? "Review submission" : "View review").Append("</button>");
                 else html.Append("<span class=\"muted\">Available after submission</span>");
                 html.Append("</td></tr>");
             }
@@ -457,7 +468,11 @@ namespace Yarmouk.CompanyPages
         private static string ResolveStatus(JObject task, JProperty latestSubmission)
         {
             var taskStatus = NormalizeStatus(Value(task, "status"));
-            if (taskStatus != "todo" || latestSubmission == null) return taskStatus;
+            if (taskStatus != "todo") return taskStatus;
+            if (latestSubmission == null)
+                return TokenLong(task, "submittedAtUnixMs") > 0
+                    && IsGitHubSolutionUrl(Value(task, "submissionUrl"))
+                    && string.IsNullOrWhiteSpace(Value(task, "instructorFeedback")) ? "done" : taskStatus;
             var rawSubmissionStatus = FirstNonEmpty(Value(latestSubmission.Value as JObject, "reviewStatus"), Value(latestSubmission.Value as JObject, "status"))
                 .Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant();
             if (rawSubmissionStatus == "completed" || rawSubmissionStatus == "complete" || rawSubmissionStatus == "approved") return "completed";
