@@ -110,7 +110,7 @@
                 <aside class="co-note" aria-labelledby="co-note-title">
                             <h2 id="co-note-title">${icon('check')}Keep every placement on track</h2>
                             <p>Assign an academic supervisor to each trainee and review placement progress before approving final completion.</p>
-                            <a href="AssignAcademicSupervisors.aspx">Review assignments ${icon('arrow')}</a>
+                            <a href="ManageStudents.aspx">Review assignments ${icon('arrow')}</a>
                 </aside>
             </section>`;
         main.querySelector('[data-dashboard-error]').textContent = state.error || '';

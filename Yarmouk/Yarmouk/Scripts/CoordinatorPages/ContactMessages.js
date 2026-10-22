@@ -20,6 +20,7 @@
         // Consume the deep link once so a later "Mark unread" stays unread.
         const cleanUrl = new URL(location.href);
         cleanUrl.searchParams.delete('message');
+        root.closest('form').action = cleanUrl.href;
         history.replaceState(null, '', cleanUrl.href);
     }
     let selectedId = notificationId || saved.id || null, deletingId = null;
