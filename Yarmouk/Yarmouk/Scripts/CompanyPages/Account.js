@@ -1,1 +1,1 @@
-// JavaScript for CompanyPages/Account.aspx only.
+// JavaScript for AcademicPages/Account.aspx only.
