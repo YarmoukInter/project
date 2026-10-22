@@ -14,7 +14,15 @@
     let saved = {};
     try { saved = JSON.parse(sessionStorage.getItem('coordinatorInboxView') || '{}'); } catch (_) { }
     let view = ['inbox','unread','archived'].includes(saved.view) ? saved.view : 'inbox';
-    let selectedId = saved.id || null, deletingId = null;
+    const notificationId = new URLSearchParams(location.search).get('message');
+    if (notificationId) {
+        view = 'inbox';
+        // Consume the deep link once so a later "Mark unread" stays unread.
+        const cleanUrl = new URL(location.href);
+        cleanUrl.searchParams.delete('message');
+        history.replaceState(null, '', cleanUrl.href);
+    }
+    let selectedId = notificationId || saved.id || null, deletingId = null;
     function persist(action, id, value) {
         sessionStorage.setItem('coordinatorInboxView', JSON.stringify({view,id}));
         window.CoordinatorBackend.submit(action, {id,value});
@@ -127,11 +135,29 @@
         if (compact.matches && reader.contains(document.activeElement) && !root.classList.contains('is-reading')) (list.querySelector('button') || root.querySelector('[data-view]')).focus({preventScroll:true});
     });
     feedback.textContent = state.error || state.notice || '';
+    document.addEventListener('coordinator:messages', event => {
+        messages = event.detail;
+        read.clear();
+        archived.clear();
+        messages.forEach(message => {
+            if (message.isRead) read.add(message.id);
+            if (message.isArchived) archived.add(message.id);
+        });
+        if (selectedId && !messages.some(message => message.id === selectedId)) {
+            selectedId = null;
+            root.classList.remove('is-reading');
+        }
+        render();
+    });
     if (!state.data) {
         list.innerHTML = '<p class="cm-list-empty">Unable to load messages. Check the error below and reload.</p>';
         root.querySelector('[data-unread-summary]').textContent = 'Unavailable';
         reader.innerHTML = '';
     } else {
+        if (notificationId && messages.some(message => message.id === notificationId && !message.isRead)) {
+            persist('read', notificationId, true);
+            return;
+        }
         render();
         if (selectedId && messages.some(message => message.id === selectedId)) root.classList.add('is-reading');
     }

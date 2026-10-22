@@ -5,11 +5,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>UIMS</title>
-<link runat="server" href="~/Content/bootstrap.min.css" rel="stylesheet" />
-<link runat="server" href="~/Content/CoordinatorPages/shared.css" rel="stylesheet" />
+<link runat="server" href="~/Content/bootstrap.min.css?v=dashboard-assets-3" rel="stylesheet" />
+<link runat="server" href="~/Content/CoordinatorPages/shared.css?v=dashboard-assets-3" rel="stylesheet" />
 
-<link runat="server" href="~/Content/CoordinatorPages/sidebar.css?v=admin-sidebar-2" rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/sidebar.js") %>?v=admin-sidebar-2' defer></script>
+<link runat="server" href="~/Content/CoordinatorPages/sidebar.css?v=dashboard-assets-3" rel="stylesheet" />
+<link runat="server" href="~/Content/CoordinatorPages/notifications.css?v=1" rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/sidebar.js") %>?v=dashboard-assets-3' defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
 </head>
 <body>
@@ -43,5 +44,7 @@
 </div>
 </div>
 </form>
+<script type="application/json" id="co-notification-config"><%= NotificationConfigJson %></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/notifications.js") %>?v=1' defer></script>
 </body>
 </html>

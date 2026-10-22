@@ -19,9 +19,25 @@ namespace Yarmouk.CoordinatorPages
 {
     public partial class SectionMaster : MasterPage
     {
+        protected string NotificationConfigJson
+        {
+            get
+            {
+                var session = Session[AuthGuard.SessionKey] as AuthSession;
+                var user = session == null ? null : session.User;
+                if (user == null || !user.IsActive || AuthPolicy.NormalizeRole(user.Role) != "coordinator") return "null";
+                return JsonConvert.SerializeObject(new {
+                    databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"],
+                    idToken = session.IdToken,
+                    inboxUrl = ResolveUrl("~/CoordinatorPages/ContactMessages.aspx")
+                }, new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
+            }
+        }
         protected string SidebarCsrf { get { return (string)Session["SidebarCsrf"]; } }
         protected override void OnInit(EventArgs e)
         {
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
             if (Session["SidebarCsrf"] == null) Session["SidebarCsrf"] = Guid.NewGuid().ToString("N");
             base.OnInit(e);
         }
