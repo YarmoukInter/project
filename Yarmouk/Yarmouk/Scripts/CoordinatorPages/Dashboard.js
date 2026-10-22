@@ -1,5 +1,3 @@
-// Coordinator dashboard presentation only. Replace these sample counts when wiring the backend.
-// No Firebase calls, authentication changes, or browser persistence are used here.
 (() => {
     'use strict';
 
@@ -17,14 +15,16 @@
         chevron: '<path d="m9 5 7 7-7 7"/>'
     };
     const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]}</svg>`;
-    const sample = {
+    const state = window.CoordinatorBackend.state();
+    const counts = state.data;
+    const overview = {
         statistics: [
-            { label: 'Total users', value: 148, description: 'University account directory', icon: 'people', route: 'ManageStudents.aspx' },
-            { label: 'Students', value: 120, description: 'Registered student trainees', icon: 'student', route: 'ManageStudents.aspx' },
-            { label: 'Partner companies', value: 16, description: 'Training hosts and employers', icon: 'building', route: 'ManageCompanies.aspx' },
-            { label: 'Academic supervisors', value: 12, description: 'Faculty guidance and oversight', icon: 'supervisor', route: 'ManageAcademicSupervisors.aspx' },
-            { label: 'Internship opportunities', value: 24, description: 'Available training positions', icon: 'briefcase', route: 'MonitorPlacements.aspx' },
-            { label: 'Active internships', value: 86, description: 'Students currently in training', icon: 'check', route: 'MonitorPlacements.aspx' }
+            { label: 'Active users', value: counts?.totalUsers ?? "—", description: 'University account directory', icon: 'people', route: 'ManageStudents.aspx' },
+            { label: 'Active students', value: counts?.students ?? "—", description: 'Registered student trainees', icon: 'student', route: 'ManageStudents.aspx' },
+            { label: 'Partner companies', value: counts?.companies ?? "—", description: 'Training hosts and employers', icon: 'building', route: 'ManageCompanies.aspx' },
+            { label: 'Academic supervisors', value: counts?.supervisors ?? "—", description: 'Faculty guidance and oversight', icon: 'supervisor', route: 'ManageAcademicSupervisors.aspx' },
+            { label: 'Internship opportunities', value: counts?.opportunities ?? "—", description: 'Available training positions', icon: 'briefcase', route: 'MonitorPlacements.aspx' },
+            { label: 'Active internships', value: counts?.activeInternships ?? "—", description: 'Students currently in training', icon: 'check', route: 'MonitorPlacements.aspx' }
         ],
         workspace: [
             { title: 'Students', description: 'Student accounts and academic records', route: 'ManageStudents.aspx' },
@@ -33,12 +33,13 @@
             { title: 'Student internships', description: 'Placements, training progress and completion', route: 'MonitorPlacements.aspx' }
         ],
         reviews: [
-            { title: 'Training hours to review', value: 8, route: 'MonitorPlacements.aspx' },
-            { title: 'Supervisor assignments', value: 5, route: 'AssignAcademicSupervisors.aspx' },
-            { title: 'Final completion reviews', value: 3, route: 'FinalCompletionReview.aspx' }
+            { title: 'Training hours to review', value: counts?.pendingHours ?? 0, route: 'MonitorPlacements.aspx' },
+            { title: 'Supervisor assignments', value: counts?.pendingAssignments ?? 0, route: 'AssignAcademicSupervisors.aspx' },
+            { title: 'Final completion reviews', value: counts?.pendingCompletion ?? 0, route: 'FinalCompletionReview.aspx' }
         ]
     };
 
+    const total = overview.reviews.reduce((sum,item) => sum + item.value, 0);
     function mount() {
         const form = document.querySelector('form');
         const main = form && form.querySelector('main');
@@ -66,16 +67,16 @@
         main.id = 'main';
         main.tabIndex = -1;
         main.innerHTML = `
-            <section class="co-overview" aria-labelledby="co-title">
+            <section class="co-overview" aria-labelledby="co-title"><p role="status" data-dashboard-error></p>
                 <div class="co-title-row">
-                    <div class="co-title-group"><h1 id="co-title">College overview</h1><span class="co-preview">Sample data</span></div>
+                    <div class="co-title-group"><h1 id="co-title">College overview</h1></div>
                     <div class="co-actions">
                         <a class="co-button co-button-secondary" href="ManageAcademicSupervisors.aspx">${icon('people')}<span>Add supervisor</span></a>
                         <a class="co-button co-button-primary" href="ManageStudents.aspx">${icon('plus')}<span>Add student</span></a>
                     </div>
                 </div>
-                <div class="co-statistics" aria-label="Internship overview, sample counts">
-                    ${sample.statistics.map(stat => `<a class="co-stat" href="${stat.route}">
+                <div class="co-statistics" aria-label="Internship overview">
+                    ${overview.statistics.map(stat => `<a class="co-stat" href="${stat.route}">
                         <span class="co-stat-icon">${icon(stat.icon)}</span>
                         <span class="co-stat-value">${stat.value}</span>
                         <span class="co-stat-label">${stat.label}</span>
@@ -87,14 +88,14 @@
                         <div class="co-panel-heading"><h2 id="co-workspace-title">Your college workspace</h2></div>
                         <p class="co-panel-intro">Manage the people and progress behind every internship.</p>
                         <nav aria-label="Coordinator workspace">
-                            ${sample.workspace.map(item => `<a class="co-workspace-link" href="${item.route}"><span><strong>${item.title}</strong><span>${item.description}</span></span>${icon('arrow')}</a>`).join('')}
+                            ${overview.workspace.map(item => `<a class="co-workspace-link" href="${item.route}"><span><strong>${item.title}</strong><span>${item.description}</span></span>${icon('arrow')}</a>`).join('')}
                         </nav>
                     </section>
                     <div class="co-side-column">
                         <section class="co-panel co-review" aria-labelledby="co-review-title">
-                            <div class="co-panel-heading"><h2 id="co-review-title">${icon('chart')}Internship review queue</h2><span class="co-count">16 items</span></div>
+                            <div class="co-panel-heading"><h2 id="co-review-title">${icon('chart')}Internship review queue</h2><span class="co-count">${counts ? total : "—"} items</span></div>
                             <div class="co-review-list">
-                                ${sample.reviews.map(item => `<a class="co-review-link" href="${item.route}"><span class="co-review-label"><span>${item.title}</span><strong>${item.value} pending</strong></span><span class="co-track" aria-hidden="true"><span style="--co-progress:${item.value / 16 * 100}%"></span></span></a>`).join('')}
+                                ${overview.reviews.map(item => `<a class="co-review-link" href="${item.route}"><span class="co-review-label"><span>${item.title}</span><strong>${item.value} pending</strong></span><span class="co-track" aria-hidden="true"><span style="--co-progress:${total ? item.value / total * 100 : 0}%"></span></span></a>`).join('')}
                             </div>
                         </section>
                         <aside class="co-note" aria-labelledby="co-note-title">
@@ -105,6 +106,7 @@
                     </div>
                 </div>
             </section>`;
+        main.querySelector('[data-dashboard-error]').textContent = state.error || '';
         if (footer) footer.innerHTML = '<span>Yarmouk University</span><span>Faculty of Information Technology and Computer Science</span>';
     }
 
