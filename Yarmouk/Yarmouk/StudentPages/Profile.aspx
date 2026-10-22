@@ -1,7 +1,7 @@
 <%@ Page Title="Student profile" Language="C#" MasterPageFile="~/StudentPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="Profile.aspx.cs" Inherits="Yarmouk.StudentPages.Profile" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/StudentPages/Profile.css?v=cv-upload-1") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/StudentPages/Profile.js?v=cv-upload-1") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/StudentPages/Profile.css?v=skills-save-1") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/Profile.js?v=skills-save-1") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="profile-cover" aria-labelledby="profile-title">
@@ -25,6 +25,7 @@
   <button type="button" role="tab" id="tab-academic" aria-controls="panel-academic" aria-selected="false" tabindex="-1">Academic record</button>
   <button type="button" role="tab" id="tab-skills" aria-controls="panel-skills" aria-selected="false" tabindex="-1">Skills</button>
 </div>
+<asp:HiddenField ID="hidActiveProfileTab" runat="server" ClientIDMode="Static" Value="personal" />
 
 <div class="profile-panel" id="panel-personal" role="tabpanel" aria-labelledby="tab-personal">
   <section class="profile-card">
@@ -44,6 +45,7 @@
       </div>
       <p class="profile-cv-upload__saved"><asp:Literal ID="litCvStatus" runat="server" Text="No CV uploaded yet." /> <asp:HyperLink ID="lnkSavedCv" runat="server" Visible="false" /></p>
     </section>
+    <div class="profile-actions profile-personal-actions"><asp:Button ID="btnSave" runat="server" Text="Save changes" CssClass="btn btn-success" OnClick="Save_Click" /><span>University academic records stay read only.</span></div>
   </section>
 </div>
 
@@ -78,9 +80,8 @@
       <div class="profile-field skill-group" data-skill-group="technical"><label for="txtTechnicalSkill">Technical skills</label><div class="skill-list" data-skill-list></div><div class="skill-entry"><input id="txtTechnicalSkill" class="form-control" type="text" maxlength="40" placeholder="Add a technical skill" data-skill-input /><button type="button" class="btn btn-outline-success" data-skill-add>Add</button></div><p class="field-error" data-skill-error role="alert"></p><asp:HiddenField ID="hidTechnicalSkills" runat="server" ClientIDMode="Static" /></div>
     </div>
     <p class="profile-note">Add up to 20 skills in each list. Save your skills to update your student record.</p>
-    <div class="profile-actions profile-skills-actions"><asp:Button ID="btnSaveSkills" runat="server" Text="Save skills" CssClass="btn btn-success" OnClick="SaveSkills_Click" CausesValidation="false" /><span>Skills are saved to your student record.</span></div>
+    <div class="profile-actions profile-skills-actions"><asp:Button ID="btnSaveSkills" runat="server" ClientIDMode="Static" Text="Save skills" CssClass="btn btn-success" OnClick="SaveSkills_Click" CausesValidation="false" formnovalidate="formnovalidate" /><span>Skills are saved to your student record.</span></div>
   </section>
 </div>
 
-<div class="profile-actions"><asp:Button ID="btnSave" runat="server" Text="Save changes" CssClass="btn btn-success" OnClick="Save_Click" /><span>University academic records stay read only.</span></div>
 </asp:Content>

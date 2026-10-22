@@ -22,11 +22,10 @@ namespace Yarmouk.Services
         {
             return firebase.GetAsync<Major>(DatabasePaths.Majors + "/" + majorId, idToken);
         }
-        public async Task UpdateProfileAsync(string uid, User profile,
-            List<string> softSkills, List<string> technicalSkills, string idToken)
+        public Task UpdateProfileAsync(string uid, User profile, string idToken)
         {
             // only these fields are editable, everything else stays untouched
-            await firebase.UpdateAsync(DatabasePaths.Users + "/" + uid, new
+            return firebase.UpdateAsync(DatabasePaths.Users + "/" + uid, new
             {
                 fullName = profile.FullName,
                 phone = profile.Phone,
@@ -34,7 +33,6 @@ namespace Yarmouk.Services
                 portfolioLink = profile.PortfolioLink
             }, idToken);
 
-            await UpdateSkillsAsync(uid, softSkills, technicalSkills, idToken);
         }
 
         public Task UpdateSkillsAsync(string verifiedUid, List<string> softSkills,

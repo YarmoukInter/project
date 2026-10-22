@@ -247,15 +247,6 @@ namespace Yarmouk.StudentPages
             }
 
 
-            List<string> softSkills;
-            List<string> technicalSkills;
-            if (!TryReadSkills(hidSoftSkills.Value, out softSkills) ||
-                !TryReadSkills(hidTechnicalSkills.Value, out technicalSkills))
-            {
-                ShowError("Each skill list can have up to 20 skills, with 40 characters per skill.");
-                return;
-            }
-
             try
             {
 
@@ -265,8 +256,7 @@ namespace Yarmouk.StudentPages
                 profile.CvLink = cvLink;
                 profile.PortfolioLink = portfolioLink;
 
-                await studentService.UpdateProfileAsync(
-                    session.Uid, profile, softSkills, technicalSkills, session.IdToken);
+                await studentService.UpdateProfileAsync(session.Uid, profile, session.IdToken);
 
 
                 litFullName.Text = SafeText(fullName);
