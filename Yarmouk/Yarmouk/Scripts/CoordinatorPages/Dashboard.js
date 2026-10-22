@@ -27,14 +27,14 @@
             { label: 'Active internships', value: counts?.activeInternships ?? "—", description: 'Students currently in training', icon: 'check', route: 'MonitorPlacements.aspx' }
         ],
         workspace: [
-            { title: 'Students', description: 'Student accounts and academic records', route: 'ManageStudents.aspx' },
-            { title: 'Academic supervisors', description: 'Faculty accounts and student assignments', route: 'ManageAcademicSupervisors.aspx' },
-            { title: 'Partner companies', description: 'Training providers and company accounts', route: 'ManageCompanies.aspx' },
-            { title: 'Student internships', description: 'Placements, training progress and completion', route: 'MonitorPlacements.aspx' }
+            { title: 'Students', description: 'Accounts & academic records', icon: 'student', route: 'ManageStudents.aspx' },
+            { title: 'Academic supervisors', description: 'Faculty & student assignments', icon: 'supervisor', route: 'ManageAcademicSupervisors.aspx' },
+            { title: 'Partner companies', description: 'Training providers & employers', icon: 'building', route: 'ManageCompanies.aspx' },
+            { title: 'Student internships', description: 'Placements & training progress', icon: 'briefcase', route: 'MonitorPlacements.aspx' }
         ],
         reviews: [
             { title: 'Training hours to review', value: counts?.pendingHours ?? 0, route: 'MonitorPlacements.aspx' },
-            { title: 'Supervisor assignments', value: counts?.pendingAssignments ?? 0, route: 'AssignAcademicSupervisors.aspx' },
+            { title: 'Supervisor assignments', value: counts?.pendingAssignments ?? 0, route: 'ManageStudents.aspx' },
             { title: 'Final completion reviews', value: counts?.pendingCompletion ?? 0, route: 'FinalCompletionReview.aspx' }
         ]
     };
@@ -52,6 +52,7 @@
         const script = Array.from(document.scripts).find(item => /\/CoordinatorPages\/Dashboard\.js(?:\?|$)/i.test(item.src));
         const applicationRoot = script ? new URL('../../', script.src) : new URL('../', location.href);
         const logo = new URL('assets/yarmouk-logo-on-light.svg', applicationRoot).href;
+        const today = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Amman' }).format(new Date());
 
         if (header) header.innerHTML = `
             <a class="co-skip" href="#main">Skip to dashboard</a>
@@ -61,7 +62,7 @@
             </a>
             <div class="co-header-actions">
                 <a class="co-notifications" href="ContactMessages.aspx" aria-label="Open contact messages">${icon('bell')}</a>
-                <a class="co-account" href="Account.aspx"><span class="co-avatar" aria-hidden="true">YU</span><span>University coordinator</span>${icon('chevron')}</a>
+                <a class="co-account" href="Account.aspx" aria-label="My coordinator account"><span class="co-avatar" aria-hidden="true">YU</span><span>University coordinator</span>${icon('chevron')}</a>
             </div>`;
 
         main.id = 'main';
@@ -69,42 +70,48 @@
         main.innerHTML = `
             <section class="co-overview" aria-labelledby="co-title"><p role="status" data-dashboard-error></p>
                 <div class="co-title-row">
-                    <div class="co-title-group"><h1 id="co-title">College overview</h1></div>
-                    <div class="co-actions">
+                    <div class="co-title-group"><span class="co-eyebrow">Yarmouk University · Internship administration</span><h1 id="co-title">College overview<span aria-hidden="true">.</span></h1><p>A clear picture of your people, placements, and priorities.</p></div>
+                    <div class="co-title-tools"><time class="co-date">${today}</time><div class="co-actions">
                         <a class="co-button co-button-secondary" href="ManageAcademicSupervisors.aspx">${icon('people')}<span>Add supervisor</span></a>
                         <a class="co-button co-button-primary" href="ManageStudents.aspx">${icon('plus')}<span>Add student</span></a>
-                    </div>
+                    </div></div>
                 </div>
+                <div class="co-section-caption"><span>At a glance</span><span>Current account & training totals</span></div>
                 <div class="co-statistics" aria-label="Internship overview">
-                    ${overview.statistics.map(stat => `<a class="co-stat" href="${stat.route}">
-                        <span class="co-stat-icon">${icon(stat.icon)}</span>
+                    <a class="co-spotlight" href="MonitorPlacements.aspx">
+                        <div class="co-spotlight-top"><span class="co-spotlight-icon">${icon('briefcase')}</span><span class="co-training-tag"><span aria-hidden="true"></span>Training activity</span></div>
+                        <div class="co-spotlight-content"><span class="co-spotlight-value">${counts?.activeInternships ?? '—'}</span><h2>Active internships</h2><p>Students taking their next step<br />through practical training.</p></div>
+                        <span class="co-spotlight-link">View placements<span>${icon('arrow')}</span></span>
+                        <svg class="co-spotlight-art" viewBox="0 0 200 300" fill="none" aria-hidden="true"><g stroke="currentColor"><path d="M12 300V120L110 35l98 85v180M30 300V128l80-69 80 69v172M48 300V137l62-53 62 53v163M67 300V175a43 43 0 0 1 86 0v125M84 300V175a26 26 0 0 1 52 0v125"/><path d="M110 35V9M99 20h22M12 277h188M12 288h188"/></g></svg>
+                    </a>
+                    ${overview.statistics.slice(0, 5).map(stat => `<a class="co-stat" href="${stat.route}">
+                        <span class="co-stat-top"><span class="co-stat-label">${stat.label}</span><span class="co-stat-icon">${icon(stat.icon)}</span></span>
                         <span class="co-stat-value">${stat.value}</span>
-                        <span class="co-stat-label">${stat.label}</span>
-                        <span class="co-stat-description">${stat.description}</span>
+                        <span class="co-stat-bottom"><span class="co-stat-description">${stat.description}</span>${icon('arrow')}</span>
                     </a>`).join('')}
                 </div>
                 <div class="co-content-grid">
-                    <section class="co-panel co-workspace" aria-labelledby="co-workspace-title">
-                        <div class="co-panel-heading"><h2 id="co-workspace-title">Your college workspace</h2></div>
-                        <p class="co-panel-intro">Manage the people and progress behind every internship.</p>
-                        <nav aria-label="Coordinator workspace">
-                            ${overview.workspace.map(item => `<a class="co-workspace-link" href="${item.route}"><span><strong>${item.title}</strong><span>${item.description}</span></span>${icon('arrow')}</a>`).join('')}
-                        </nav>
-                    </section>
                     <div class="co-side-column">
                         <section class="co-panel co-review" aria-labelledby="co-review-title">
-                            <div class="co-panel-heading"><h2 id="co-review-title">Pending actions</h2><span class="co-count">${counts ? total + ' pending' : 'Unavailable'}</span></div>
+                            <div class="co-panel-heading"><div><span class="co-panel-kicker">Your next steps</span><h2 id="co-review-title" tabindex="-1">Pending actions</h2></div><span class="co-count">${counts ? total : '—'}<small>${counts ? 'pending' : 'unavailable'}</small></span></div>
                             <div class="co-review-list">
-                                ${overview.reviews.map(item => `<a class="co-review-link" href="${item.route}"><strong class="co-review-count">${counts ? item.value : '—'}</strong><span class="co-review-label"><span>${item.title}</span><small>${!counts ? 'Unable to load' : item.value ? 'Needs review' : 'Up to date'}</small></span><span class="co-review-action">${counts && item.value ? 'Review' : 'View'} ${icon('arrow')}</span></a>`).join('')}
+                                ${overview.reviews.map(item => `<a class="co-review-link${counts && item.value ? ' has-pending' : ''}" href="${item.route}"><span class="co-review-indicator" aria-hidden="true">${icon(counts && item.value ? 'chart' : 'check')}</span><span class="co-review-label"><span>${item.title}</span><small>${!counts ? 'Unable to load' : item.value ? 'Needs your attention' : 'Up to date'}</small></span><strong class="co-review-count">${counts ? item.value : '—'}</strong><span class="co-review-action">${icon('arrow')}<span class="co-sr-only">${counts && item.value ? 'Review' : 'View'}</span></span></a>`).join('')}
                             </div>
+                            <div class="co-review-foot">${icon('check')}<span>${!counts ? 'Dashboard data could not be loaded.' : total ? 'A few small steps keep every placement moving.' : 'All reviews and assignments are up to date.'}</span></div>
                         </section>
-                        <aside class="co-note" aria-labelledby="co-note-title">
+                    </div>
+                    <section class="co-panel co-workspace" aria-labelledby="co-workspace-title">
+                        <div class="co-panel-heading"><div><span class="co-panel-kicker">Everything in reach</span><h2 id="co-workspace-title">Your college workspace</h2></div><span class="co-workspace-mark">${icon('building')}</span></div>
+                        <nav aria-label="Coordinator workspace">
+                            ${overview.workspace.map(item => `<a class="co-workspace-link" href="${item.route}"><span class="co-workspace-icon">${icon(item.icon)}</span><span class="co-workspace-copy"><strong>${item.title}</strong><span>${item.description}</span></span>${icon('arrow')}</a>`).join('')}
+                        </nav>
+                    </section>
+                </div>
+                <aside class="co-note" aria-labelledby="co-note-title">
                             <h2 id="co-note-title">${icon('check')}Keep every placement on track</h2>
                             <p>Assign an academic supervisor to each trainee and review placement progress before approving final completion.</p>
                             <a href="AssignAcademicSupervisors.aspx">Review assignments ${icon('arrow')}</a>
-                        </aside>
-                    </div>
-                </div>
+                </aside>
             </section>`;
         main.querySelector('[data-dashboard-error]').textContent = state.error || '';
         if (footer) footer.innerHTML = '<span>Yarmouk University</span><span>Faculty of Information Technology and Computer Science</span>';
