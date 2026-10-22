@@ -239,6 +239,8 @@
     let scene = null;
     let camera = null;
     let archGroup = null;
+    let emblemGroup = null;
+    let emblemLayers = [];
     let threadMesh = null;
     let threadWireMesh = null;
     let stoneBlocks = [];
@@ -434,6 +436,7 @@
         scene.add(archGroup);
 
         buildEmblemGateGeometry(T);
+        buildEmblemInterior(T);
         buildGoldenThread(T);
 
         document.body.classList.add("has-webgl");
@@ -528,6 +531,117 @@
             }
         }
         archGroup.userData.gateShape = 'pointed-emblem';
+    }
+
+    // The crest is real relief geometry: a recessed ivory field, raised dark
+    // motif, interwoven red tubes and individual green wheat leaves.
+    // Coordinates follow the project's supplied emblem illustration.
+    function buildEmblemInterior(T) {
+        emblemGroup = new T.Group();
+        emblemGroup.name = 'Yarmouk crest interior';
+        emblemGroup.visible = false;
+        archGroup.add(emblemGroup);
+        emblemLayers = [];
+        const ivory = new T.MeshStandardMaterial({ color: 0xf0eadb, roughness: .76, metalness: .03 });
+        const dark = new T.MeshStandardMaterial({ color: 0x14201b, roughness: .38, metalness: .28 });
+        const red = new T.MeshStandardMaterial({ color: 0xc62838, roughness: .3, metalness: .24 });
+        const green = new T.MeshStandardMaterial({ color: 0x39874a, roughness: .42, metalness: .16 });
+        // Match the supplied sRGB logo inks under the scene's linear lighting.
+        [ivory, dark, red, green].forEach(material => material.color.convertSRGBToLinear());
+        const point = (x, y) => new T.Vector2((x - 250) * .0175, 5.5 - y * .0175);
+        function shapeFrom(commands) {
+            const shape = new T.Shape();
+            commands.forEach(([command, ...values]) => {
+                const points = [];
+                for (let i = 0; i < values.length; i += 2) points.push(point(values[i], values[i + 1]));
+                if (command === 'M') shape.moveTo(points[0].x, points[0].y);
+                else if (command === 'L') shape.lineTo(points[0].x, points[0].y);
+                else if (command === 'C') shape.bezierCurveTo(...points.flatMap(p => [p.x, p.y]));
+                else shape.closePath();
+            });
+            return shape;
+        }
+        function relief(shape, material, depth, z, parent) {
+            const geometry = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 18, steps: 1 });
+            const mesh = new T.Mesh(geometry, material);
+            mesh.position.z = z;
+            parent.add(mesh);
+            return mesh;
+        }
+        function layer(name, start, end) {
+            const group = new T.Group();
+            group.name = name;
+            emblemGroup.add(group);
+            emblemLayers.push({ group, start, end });
+            return group;
+        }
+        const field = layer('Recessed ivory field', .805, .845);
+        const shield = new T.Shape();
+        shield.moveTo(0, 4.49);
+        shield.bezierCurveTo(.35, 3.92, 1, 3.73, 1.78, 3.2);
+        shield.bezierCurveTo(2.37, 2.8, 2.46, 2.15, 2.46, 1.3);
+        shield.lineTo(2.46, -1.8);
+        shield.bezierCurveTo(2.46, -2.3, 2.6, -2.73, 2.79, -3.26);
+        shield.lineTo(-2.79, -3.26);
+        shield.bezierCurveTo(-2.6, -2.73, -2.46, -2.3, -2.46, -1.8);
+        shield.lineTo(-2.46, 1.3);
+        shield.bezierCurveTo(-2.46, 2.15, -2.37, 2.8, -1.78, 3.2);
+        shield.bezierCurveTo(-1, 3.73, -.35, 3.92, 0, 4.49);
+        shield.closePath();
+        relief(shield, ivory, .18, -.22, field);
+
+        const motifLayer = layer('Raised dark university motif', .835, .885);
+        const motif = shapeFrom([['M',185,106],['L',228,230],['L',235,230],['L',240,198],['L',261,198],['L',267,230],['L',274,230],['L',315,106],['L',266,365],['L',250,478],['L',234,365],['Z']]);
+        const opening = shapeFrom([['M',214,254],['L',250,448],['L',286,254],['Z']]);
+        motif.holes.push(opening);
+        relief(motif, dark, .12, .015, motifLayer);
+
+        const orbits = layer('Interwoven red orbital rings', .865, .925);
+        [-43, 43].forEach((degrees, index) => {
+            const angle = degrees * Math.PI / 180, points = [];
+            for (let i = 0; i < 128; i++) {
+                const t = i / 128 * Math.PI * 2;
+                const x = 58 * Math.cos(t), y = 109 * Math.sin(t);
+                const p = point(250 + x * Math.cos(angle) - y * Math.sin(angle), 337 + x * Math.sin(angle) + y * Math.cos(angle));
+                points.push(new T.Vector3(p.x, p.y, .27 + Math.sin(t) * .11 * (index ? -1 : 1)));
+            }
+            const curve = new T.CatmullRomCurve3(points, true);
+            orbits.add(new T.Mesh(new T.TubeGeometry(curve, 128, .035, 8, true), red));
+        });
+
+        const wheat = layer('Green wheat sprig', .905, .95);
+        const stem = new T.LineCurve3(new T.Vector3(0, point(250,430).y, .43), new T.Vector3(0, point(250,303).y, .43));
+        wheat.add(new T.Mesh(new T.TubeGeometry(stem, 1, .018, 8, false), green));
+        const leaves = [
+            [['M',250,313],['C',240,300,247,285,250,279],['C',256,289,258,302,250,313],['Z']],
+            [['M',249,336],['C',235,332,232,319,234,310],['C',244,313,250,325,249,336],['Z']],
+            [['M',251,336],['C',265,332,268,319,266,310],['C',256,313,250,325,251,336],['Z']],
+            [['M',249,368],['C',232,365,230,350,232,340],['C',244,345,251,357,249,368],['Z']],
+            [['M',251,368],['C',268,365,270,350,268,340],['C',256,345,249,357,251,368],['Z']],
+            [['M',249,399],['C',232,397,231,383,233,374],['C',245,378,250,388,249,399],['Z']],
+            [['M',251,399],['C',268,397,269,383,267,374],['C',255,378,250,388,251,399],['Z']]
+        ];
+        leaves.forEach(commands => relief(shapeFrom(commands), green, .055, .4, wheat));
+        emblemGroup.userData.revealAfter = .8;
+    }
+
+    function updateEmblemInterior(progress) {
+        if (!emblemGroup) return;
+        // Completely absent until every stone tier has finished. Reversing the
+        // scroll removes the relief before the gate begins to come apart.
+        emblemGroup.visible = progress > .805;
+        emblemLayers.forEach(({ group, start, end }) => {
+            const t = smoothstep(start, end, progress);
+            group.visible = t > 0;
+            group.position.z = lerp(-.28, 0, t);
+            group.scale.setScalar(lerp(.97, 1, t));
+            group.traverse(object => {
+                if (!object.isMesh) return;
+                object.material.transparent = t < 1;
+                object.material.opacity = t;
+                object.material.depthWrite = t >= 1;
+            });
+        });
     }
 
     // ========================================================================
@@ -651,6 +765,7 @@
             threadWireMesh.material.opacity = wireOpacity;
             threadWireMesh.visible = wireOpacity > 0.01;
         }
+        updateEmblemInterior(progress);
     }
 
     // ========================================================================
@@ -1041,6 +1156,7 @@
             get scene() { return scene; },
             get camera() { return camera; },
             get archGroup() { return archGroup; },
+            get emblemGroup() { return emblemGroup; },
             getRenderer: () => renderer,
             createStoneTexture: createProceduralStoneTexture,
             getStops: () => STAGES.map(stage => stage.targetScroll),
