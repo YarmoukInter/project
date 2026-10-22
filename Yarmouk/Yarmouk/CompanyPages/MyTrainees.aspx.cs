@@ -22,6 +22,7 @@ namespace Yarmouk.CompanyPages
                 var trainees = await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken);
                 TraineesList.DataSource = trainees;
                 TraineesList.DataBind();
+                TraineesList.Visible = trainees.Count > 0;
                 TraineeCount.Text = trainees.Count.ToString();
                 TraineeListCount.Text = trainees.Count.ToString();
                 TraineeApprovedHours.Text = trainees.Sum(x => x.ApprovedHours).ToString("N0");
@@ -43,6 +44,7 @@ namespace Yarmouk.CompanyPages
         {
             TraineesErrorText.Text = HttpUtility.HtmlEncode(message);
             TraineesError.Visible = true;
+            TraineesList.Visible = false;
             TraineesEmpty.Visible = false;
             TraineeCount.Text = "—";
             TraineeListCount.Text = "—";
