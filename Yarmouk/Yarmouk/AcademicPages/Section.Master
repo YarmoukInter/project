@@ -5,10 +5,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>UIMS</title>
-<link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
-<link href="<%= ResolveUrl("~/Content/AcademicPages/shared.css") %>" rel="stylesheet" />
-<link runat="server" href="~/Content/AcademicPages/sidebar.css" rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/AcademicPages/sidebar.js") %>' defer></script>
+<link runat="server" href="~/Content/bootstrap.min.css?v=dashboard-assets-3" rel="stylesheet" />
+<link runat="server" href="~/Content/AcademicPages/shared.css?v=dashboard-assets-3" rel="stylesheet" />
+<link runat="server" href="~/Content/AcademicPages/sidebar.css?v=sidebar-logout-4" rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/AcademicPages/sidebar.js") %>?v=sidebar-logout-4' defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
 </head>
 <body>
@@ -26,7 +26,8 @@
         <span class="yu-sidebar-section">Account</span>
         <a class="yu-sidebar-profile" data-sidebar-profile href="Account.aspx" aria-label="Profile" title="Profile"><svg aria-hidden="true"><use href="#ys-icon-profile"></use></svg><span><strong data-sidebar-role>Academic supervisor</strong><small>View profile</small></span></a>
         <button type="button" class="yu-sidebar-theme" data-sidebar-theme aria-label="Switch to dark mode" title="Change appearance"><svg aria-hidden="true"><use href="#ys-icon-moon"></use></svg><span>Dark mode</span></button>
-        <a href="#" hidden data-sidebar-logout aria-label="Sign out" title="Sign out"><svg aria-hidden="true"><use href="#ys-icon-logout"></use></svg><span>Sign out</span></a>
+        <input type="hidden" name="sidebarCsrf" value="<%= SidebarCsrf %>" />
+        <button id="SidebarLogout" runat="server" type="submit" class="yu-sidebar-logout" data-sidebar-logout onserverclick="SidebarLogout_Click" formnovalidate="formnovalidate" aria-label="Log out" title="Log out"><svg aria-hidden="true"><use href="#ys-icon-logout"></use></svg><span>Log out</span></button>
         <button type="button" class="yu-sidebar-pin" data-sidebar-pin role="switch" aria-checked="false" aria-label="Keep sidebar open"><span>Keep sidebar open</span><span class="yu-sidebar-pin-track" aria-hidden="true"></span></button>
       </div>
     </aside>

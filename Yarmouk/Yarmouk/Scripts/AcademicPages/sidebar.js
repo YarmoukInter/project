@@ -39,8 +39,6 @@
       root.querySelector('[data-sidebar-profile]').href = route('account');
       if (activePage === 'account') root.querySelector('[data-sidebar-profile]').setAttribute('aria-current','page');
       root.querySelector('[data-sidebar-role]').textContent = 'Academic supervisor';
-      // There is no shared sign-out endpoint in this project yet. Do not simulate a sign-out.
-      root.querySelector('[data-sidebar-logout]').hidden = true;
       root.querySelector('[data-sidebar-home]').href = new URL('PublicPages/Home.aspx',base).href;
       root.classList.add('is-enhanced'); menu.hidden = false;
       function render() {
