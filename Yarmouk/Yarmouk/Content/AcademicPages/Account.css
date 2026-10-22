@@ -1,1 +1,52 @@
-/* Styles for AcademicPages/Account.aspx only */
+/* Academic supervisor account page. Matches the UIMS supervisor workspace. */
+.academic-account, .academic-account * { box-sizing:border-box; }
+.academic-account { --account-green:#08734b; --account-dark:#123b2a; --account-muted:#6b7c72; --account-line:#e1e9e3; width:min(100%,1080px); margin:4px auto 0; color:var(--account-dark); }
+.academic-account a { color:inherit; text-decoration:none; }
+.academic-account :is(a,input,button):focus-visible { outline:3px solid #b6d8c1; outline-offset:3px; }
+.account-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:23px; }
+.account-heading h1 { margin:8px 0 7px; color:var(--account-dark); font-size:clamp(27px,3.2vw,38px); font-weight:750; letter-spacing:-.045em; line-height:1.2; }
+.account-heading p { max-width:670px; margin:0; color:var(--account-muted); font-size:13px; line-height:1.6; }
+.account-eyebrow { display:block; color:#62816e; font-size:10px; font-weight:800; letter-spacing:.15em; }
+.account-back-link { display:inline-flex; flex:none; align-items:center; gap:8px; padding:9px 11px; border:1px solid var(--account-line); border-radius:8px; background:#fff; color:#43634e !important; font-size:10px; font-weight:700; transition:background .18s ease,border-color .18s ease; }
+.account-back-link:hover { border-color:#b9d7c2; background:#f7faf7; }
+.academic-account .preview-notice { display:flex; align-items:center; gap:9px; margin-bottom:16px; padding:10px 13px; border:1px solid #d5e6da; border-radius:9px; background:#f1f8f3; color:#386149; font-size:10px; }
+.academic-account .preview-notice > span:first-child { color:var(--account-green); font-size:14px; }
+.account-layout { display:grid; grid-template-columns:minmax(245px,.72fr) minmax(0,1.7fr); align-items:start; gap:16px; }
+.profile-summary-card,.account-form-card { border:1px solid var(--account-line); border-radius:14px; background:#fff; box-shadow:0 4px 15px rgba(19,57,38,.035); }
+.profile-summary-card { display:flex; min-height:330px; flex-direction:column; align-items:center; padding:28px 22px 21px; text-align:center; }
+.profile-avatar { display:grid; width:70px; height:70px; place-items:center; border:4px solid #f2f7f3; border-radius:22px; background:#eaf3ed; color:#176342; font-size:19px; font-weight:800; letter-spacing:.02em; }
+.profile-summary-card h2 { max-width:100%; overflow-wrap:anywhere; margin:14px 0 4px; color:var(--account-dark); font-size:18px; font-weight:750; letter-spacing:-.025em; }
+.profile-role { color:#718278; font-size:10px; font-weight:600; }
+.profile-status { display:inline-flex; align-items:center; gap:7px; margin-top:13px; padding:6px 10px; border:1px solid #dcebe0; border-radius:999px; background:#f2f8f3; color:#31714c; font-size:9px; font-weight:700; }
+.profile-status i,.readonly-dot { width:6px; height:6px; border-radius:50%; background:#2e9d66; }
+.profile-summary-divider { width:100%; height:1px; margin:20px 0 15px; background:#edf1ee; }
+.profile-summary-detail { width:100%; text-align:left; }
+.profile-summary-detail span { display:block; margin-bottom:5px; color:#84938a; font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.profile-summary-detail strong { display:block; overflow-wrap:anywhere; color:#385743; font-size:11px; font-weight:650; }
+.profile-summary-note { display:flex; align-items:flex-start; gap:8px; width:100%; margin-top:18px; padding:10px; border-radius:9px; background:#f7faf7; color:#718278; text-align:left; }
+.profile-summary-note > span { color:#548064; font-size:13px; }
+.profile-summary-note p { margin:0; font-size:9px; line-height:1.5; }
+.account-form-card { padding:22px 23px 18px; }
+.account-card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:19px; }
+.account-card-heading h2 { margin:5px 0 4px; color:var(--account-dark); font-size:19px; font-weight:700; letter-spacing:-.025em; }
+.account-card-heading p { margin:0; color:var(--account-muted); font-size:11px; line-height:1.5; }
+.edit-mark { display:grid; width:34px; height:34px; flex:none; place-items:center; border-radius:10px; background:#eaf3ed; color:#176342; font-size:17px; }
+.account-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:17px 15px; }
+.account-field { display:flex; min-width:0; flex-direction:column; align-items:stretch; gap:6px; }
+.account-field > label,.account-field-label { color:#365440; font-size:10px; font-weight:750; }
+.account-input { width:100%; min-height:42px; padding:0 12px; border:1px solid #dbe5dd; border-radius:8px; background:#fff; color:var(--account-dark); font:500 11px/1.3 Inter,"Segoe UI",sans-serif; }
+.account-input:focus { border-color:#69a984; outline:3px solid #e2f0e6; }
+.account-input--readonly,.account-readonly-value { background:#f7faf7; color:#718278; }
+.account-input--readonly { cursor:not-allowed; }
+.account-field > small { color:#84938a; font-size:9px; line-height:1.45; }
+.account-readonly-value { display:flex; min-height:42px; align-items:center; gap:8px; padding:0 12px; border:1px solid #e6eee8; border-radius:8px; font-size:10px; font-weight:600; }
+.readonly-dot { width:5px; height:5px; flex:none; }
+.account-form-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:21px; padding-top:16px; border-top:1px solid #edf1ee; }
+.account-form-footer > span { color:#84938a; font-size:9px; line-height:1.4; }
+.account-form-footer > span.is-error { color:#a33d35; }
+.account-form-footer > span.is-success { color:#31714c; }
+.account-save-button { min-height:39px; padding:0 15px; border:0; border-radius:8px; background:var(--account-green); color:#fff; font:700 10px/1.2 Inter,"Segoe UI",sans-serif; cursor:pointer; transition:background .18s ease,transform .18s ease; }
+.account-save-button:hover { transform:translateY(-1px); background:#065e3d; }
+@media(max-width:760px) { .account-heading { align-items:flex-start; flex-direction:column; }.account-layout { grid-template-columns:1fr; }.profile-summary-card { min-height:0; }.profile-summary-note { max-width:390px; }.account-form-card { padding:19px 16px 15px; } }
+@media(max-width:500px) { .account-fields { grid-template-columns:1fr; gap:13px; }.account-form-footer { align-items:stretch; flex-direction:column; }.account-save-button { width:100%; }.account-heading h1 { font-size:29px; } }
+@media(prefers-reduced-motion:reduce) { .academic-account *, .academic-account *::before, .academic-account *::after { scroll-behavior:auto !important; transition-duration:.01ms !important; } }
