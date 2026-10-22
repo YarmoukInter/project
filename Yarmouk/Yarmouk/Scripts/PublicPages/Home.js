@@ -30,7 +30,7 @@
 (() => {
     'use strict';
     const current = document.documentElement.dataset.view || document.documentElement.dataset.page || 'home';
-    const items = [['home', 'Home', 'Home.aspx'], ['about', 'About Us', 'AboutUs.aspx'], ['contact', 'Contact Us', 'ContactUs.aspx']];
+    const items = [['home', 'Home', 'Home.aspx'], ['about', 'About Us', 'AboutUs.aspx'], ['team', 'Team', 'Team.aspx'], ['contact', 'Contact Us', 'ContactUs.aspx']];
     const markup = () => `<header class="yu-public-navbar" data-public-navbar>
     <div class="yu-nav-body">
       <a class="yu-nav-brand" href="Home.aspx" ${current === 'home' ? 'data-replay' : ''} aria-label="Yarmouk University home"><img src="${window.YarmoukHomeAsset('assets/yarmouk-logo-on-light.svg')}" width="140" height="51" alt="Yarmouk University"></a>
