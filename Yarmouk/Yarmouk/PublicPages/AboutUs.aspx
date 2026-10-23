@@ -1,8 +1,8 @@
 <%@ Page Title="AboutUs" Language="C#" MasterPageFile="~/PublicPages/Section.Master" AutoEventWireup="true" CodeBehind="AboutUs.aspx.cs" Inherits="Yarmouk.PublicPages.AboutUs" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <!-- About Us design: university sculpture and animated campus experience. -->
-<link href="<%= ResolveUrl("~/Content/PublicPages/AboutUs.css?v=sculpture-20261022") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/PublicPages/AboutUs.js?v=sculpture-20261022") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/PublicPages/AboutUs.css?v=sculpture-recovery-20261023") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/PublicPages/AboutUs.js?v=sculpture-recovery-20261023") %>" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
