@@ -51,7 +51,6 @@ namespace Yarmouk.CompanyPages
                 var auth = await VerifyCompanyAsync();
                 var applications = await new CompanyWorkflowService().GetApplicationsAsync(auth.CompanyId, auth.Session.IdToken);
                 BindPage(applications);
-                PageFeedbackLabel.Text = "Applications loaded from Firebase.";
             }
             catch (UnauthorizedAccessException) { RedirectToLogin(); }
             catch (AuthException) { RedirectToLogin(); }
@@ -230,6 +229,12 @@ namespace Yarmouk.CompanyPages
         private static bool IsSafeWebUrl(string value) { Uri uri; return Uri.TryCreate(value, UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps); }
         protected string Encode(object value) { return HttpUtility.HtmlEncode(Convert.ToString(value, CultureInfo.CurrentCulture)); }
         protected string Attribute(object value) { return HttpUtility.HtmlAttributeEncode(Convert.ToString(value, CultureInfo.InvariantCulture)); }
+        protected string Initials(object value)
+        {
+            string name = Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
+            var parts = name.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length == 0 ? "ST" : string.Concat(parts.Take(2).Select(part => char.ToUpperInvariant(part[0])));
+        }
         protected string CandidateRowCss(object id) { return "co-candidate-row" + (Same(Convert.ToString(id, CultureInfo.InvariantCulture), SelectedApplicationId.Value) ? " selected" : string.Empty); }
         protected string StatusCss(object status) { return "co-status co-status-" + HttpUtility.HtmlAttributeEncode(Convert.ToString(status, CultureInfo.InvariantCulture).ToLowerInvariant()); }
         protected string StatusLabel(object status) { string value = Convert.ToString(status, CultureInfo.InvariantCulture); return Same(value, "in-review") ? "In review" : string.IsNullOrEmpty(value) ? "Unknown" : HttpUtility.HtmlEncode(char.ToUpperInvariant(value[0]) + value.Substring(1)); }

@@ -25,18 +25,6 @@ namespace Yarmouk.CompanyPages
             RegisterAsyncTask(new PageAsyncTask(LoadPageAsync));
         }
 
-        protected void OpenOpportunityFormButton_Click(object sender, EventArgs e)
-        {
-            ClearEditor();
-            OpportunityEditorPanel.Visible = true;
-        }
-
-        protected void CloseEditorButton_Click(object sender, EventArgs e)
-        {
-            OpportunityEditorPanel.Visible = false;
-            RegisterAsyncTask(new PageAsyncTask(LoadPageAsync));
-        }
-
         protected void SaveOpportunityButton_Click(object sender, EventArgs e)
         {
             RegisterAsyncTask(new PageAsyncTask(SaveOpportunityAsync));
@@ -45,9 +33,7 @@ namespace Yarmouk.CompanyPages
         protected void OpportunitiesRepeater_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             var id = Convert.ToString(e.CommandArgument, CultureInfo.InvariantCulture);
-            if (e.CommandName == "EditOpportunity")
-                RegisterAsyncTask(new PageAsyncTask(() => OpenEditorAsync(id)));
-            else if (e.CommandName == "ToggleStatus")
+            if (e.CommandName == "ToggleStatus")
                 RegisterAsyncTask(new PageAsyncTask(() => ToggleStatusAsync(id)));
         }
 
@@ -93,6 +79,7 @@ namespace Yarmouk.CompanyPages
         private async Task SaveOpportunityAsync()
         {
             OpportunityEditorPanel.Visible = true;
+            OpportunityEditorPanel.Attributes.Remove("hidden");
             EditorFeedbackLabel.Visible = false;
             try
             {
@@ -122,7 +109,7 @@ namespace Yarmouk.CompanyPages
                 };
                 var auth = await VerifyCompanyAsync();
                 await new CompanyWorkflowService().SaveOpportunityAsync(auth.CompanyId, auth.Session.IdToken, input);
-                OpportunityEditorPanel.Visible = false;
+                OpportunityEditorPanel.Attributes["hidden"] = "hidden";
                 await LoadPageAsync();
                 PageFeedbackLabel.Text = "Opportunity saved to Firebase.";
             }
@@ -135,23 +122,6 @@ namespace Yarmouk.CompanyPages
                 System.Diagnostics.Trace.TraceWarning("Company opportunity save failed: " + error.GetType().Name);
                 ShowEditorError("Firebase could not save this opportunity. Please try again.");
             }
-        }
-
-        private async Task OpenEditorAsync(string id)
-        {
-            try
-            {
-                var auth = await VerifyCompanyAsync();
-                var items = await new CompanyWorkflowService().GetOpportunitiesAsync(auth.CompanyId, auth.Session.IdToken);
-                var item = items.FirstOrDefault(x => Same(x.Id, id));
-                if (item == null) throw new ArgumentException("Opportunity not found.");
-                PopulateEditor(item);
-                OpportunityEditorPanel.Visible = true;
-                BindPage(items);
-            }
-            catch (UnauthorizedAccessException) { RedirectToLogin(); }
-            catch (AuthException) { RedirectToLogin(); }
-            catch (Exception error) { PageFeedbackLabel.Text = HttpUtility.HtmlEncode(error.Message); await LoadPageAsync(); }
         }
 
         private async Task ToggleStatusAsync(string id)
@@ -173,46 +143,6 @@ namespace Yarmouk.CompanyPages
             catch (Exception error) { PageFeedbackLabel.Text = "Could not update the opportunity: " + HttpUtility.HtmlEncode(error.Message); }
         }
 
-        private void ClearEditor()
-        {
-            EditingOpportunityId.Value = string.Empty;
-            EditingOpportunityStatus.Value = "active";
-            EditorTitleLiteral.Text = "Add opportunity";
-            SaveOpportunityButton.Text = "Save opportunity";
-            OpportunityTitleInput.Text = string.Empty;
-            OpportunityDeadlineInput.Text = string.Empty;
-            OpportunitySeatsInput.Text = "1";
-            OpportunityDurationInput.Text = string.Empty;
-            OpportunityHoursInput.Text = "0";
-            OpportunityWorkModeInput.SelectedValue = "OnSite";
-            OpportunityDescriptionInput.Text = string.Empty;
-            OpportunityRequirementsInput.Text = string.Empty;
-            OpportunityQuestionsInput.Text = string.Empty;
-            MajorCisCheckBox.Checked = MajorCsCheckBox.Checked = MajorSeCheckBox.Checked = false;
-            EditorFeedbackLabel.Visible = false;
-        }
-
-        private void PopulateEditor(CompanyOpportunityItem item)
-        {
-            ClearEditor();
-            EditingOpportunityId.Value = item.Id;
-            EditingOpportunityStatus.Value = item.Status;
-            EditorTitleLiteral.Text = "Edit opportunity";
-            SaveOpportunityButton.Text = "Save changes";
-            OpportunityTitleInput.Text = item.Title;
-            OpportunityDeadlineInput.Text = item.Deadline;
-            OpportunitySeatsInput.Text = item.Seats.ToString(CultureInfo.InvariantCulture);
-            OpportunityDurationInput.Text = item.Duration;
-            OpportunityHoursInput.Text = item.Hours.ToString(CultureInfo.InvariantCulture);
-            if (OpportunityWorkModeInput.Items.FindByValue(item.WorkMode) != null) OpportunityWorkModeInput.SelectedValue = item.WorkMode;
-            OpportunityDescriptionInput.Text = item.Description;
-            OpportunityRequirementsInput.Text = item.Requirements;
-            OpportunityQuestionsInput.Text = string.Join(Environment.NewLine, item.Questions ?? new List<string>());
-            MajorCisCheckBox.Checked = Contains(item.Majors, "CIS");
-            MajorCsCheckBox.Checked = Contains(item.Majors, "CS");
-            MajorSeCheckBox.Checked = Contains(item.Majors, "SE");
-        }
-
         private List<string> SelectedMajors()
         {
             var result = new List<string>();
@@ -222,14 +152,16 @@ namespace Yarmouk.CompanyPages
             return result;
         }
 
-        private void ShowEditorError(string message) { EditorFeedbackLabel.Text = HttpUtility.HtmlEncode(message); EditorFeedbackLabel.Visible = true; }
+        private void ShowEditorError(string message) { OpportunityEditorPanel.Visible = true; OpportunityEditorPanel.Attributes.Remove("hidden"); EditorFeedbackLabel.Text = HttpUtility.HtmlEncode(message); EditorFeedbackLabel.Visible = true; }
         private void RedirectToLogin() { Response.Redirect(ResolveUrl("~/PublicPages/Login"), false); Context.ApplicationInstance.CompleteRequest(); }
         private static string NullIfEmpty(string value) { return string.IsNullOrWhiteSpace(value) ? null : value.Trim(); }
         private static bool Same(string left, string right) { return string.Equals(left, right, StringComparison.OrdinalIgnoreCase); }
-        private static bool Contains(IEnumerable<string> values, string value) { return values != null && values.Any(x => Same(x, value)); }
         private static List<string> SplitLines(string value) { return (value ?? string.Empty).Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x.Length > 0).ToList(); }
 
         protected string Encode(object value) { return HttpUtility.HtmlEncode(Convert.ToString(value, CultureInfo.CurrentCulture)); }
+        protected string Attr(object value) { return HttpUtility.HtmlAttributeEncode(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty); }
+        protected string JoinAttribute(object value, string separator) { var values = value as IEnumerable<string>; return Attr(values == null ? string.Empty : string.Join(separator, values)); }
+        protected string FormatDateInput(object value) { DateTime date; var text = Convert.ToString(value, CultureInfo.InvariantCulture); return DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : string.Empty; }
         protected string RenderMajors(object value) { return string.Join(string.Empty, ((value as IEnumerable<string>) ?? Enumerable.Empty<string>()).Select(x => "<span class=\"co-major-chip\">" + HttpUtility.HtmlEncode(x) + "</span>")); }
         protected string FormatDeadline(object value) { DateTime date; string text = Convert.ToString(value, CultureInfo.InvariantCulture); return DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) : "Not set"; }
         protected string StatusCss(object value) { return "co-status co-status-" + HttpUtility.HtmlAttributeEncode(Convert.ToString(value, CultureInfo.InvariantCulture).ToLowerInvariant()); }

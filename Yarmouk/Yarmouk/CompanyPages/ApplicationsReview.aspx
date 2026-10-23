@@ -1,9 +1,9 @@
 <%@ Page Title="Applications Review" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ApplicationsReview.aspx.cs" Inherits="Yarmouk.CompanyPages.ApplicationsReview" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=5' rel="stylesheet" />
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
-<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
+    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=horizontal-pages-7' rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=record-cards-3" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="co-page co-applications" aria-labelledby="applicationsTitle">
@@ -26,17 +26,15 @@
                     <asp:DropDownList ID="ApplicationStatusFilter" runat="server" CssClass="co-select" aria-label="Filter applications by status"><asp:ListItem Value="all">All statuses</asp:ListItem><asp:ListItem Value="new">New</asp:ListItem><asp:ListItem Value="in-review">In review</asp:ListItem><asp:ListItem Value="offered">Offer sent</asp:ListItem><asp:ListItem Value="accepted">Accepted</asp:ListItem><asp:ListItem Value="rejected">Rejected</asp:ListItem><asp:ListItem Value="withdrawn">Withdrawn</asp:ListItem></asp:DropDownList>
                     <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" OnClick="ApplyFiltersButton_Click" />
                 </div>
-                <div class="co-table-wrap co-candidate-table-wrap"><table class="co-table co-candidate-table">
-                    <thead><tr><th scope="col">Student</th><th scope="col">Major</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span class="co-visually-hidden">View</span></th></tr></thead>
-                    <tbody><asp:Repeater ID="ApplicationsRepeater" runat="server"><ItemTemplate>
-                        <tr class='<%# CandidateRowCss(Eval("Id")) %>'>
-                            <td><span class="co-student-name"><%# Encode(Eval("Name")) %></span><span class="co-student-number"><%# Encode(Eval("Number")) %></span></td>
-                            <td class="co-major-cell"><%# Encode(Eval("Major")) %></td><td><%# FormatDate(Eval("AppliedAtUnixMs")) %></td>
-                            <td><span class='<%# StatusCss(Eval("Status")) %>'><%# StatusLabel(Eval("Status")) %></span></td>
-                            <td><button type="button" class="co-row-open" data-application-open="<%# Attribute(Eval("Id")) %>" aria-label="View application details">View details</button></td>
-                        </tr>
-                    </ItemTemplate></asp:Repeater></tbody>
-                </table></div>
+                <div class="co-candidate-list" aria-label="Candidate applications"><asp:Repeater ID="ApplicationsRepeater" runat="server"><ItemTemplate>
+                    <article class='co-candidate-card <%# CandidateRowCss(Eval("Id")) %>' data-status='<%# Attribute(Eval("Status")) %>'>
+                        <div class="co-candidate-identity"><span class="co-candidate-avatar" aria-hidden="true"><%# Encode(Initials(Eval("Name"))) %></span><div><span class="co-student-name"><%# Encode(Eval("Name")) %></span><span class="co-student-number"><%# Encode(Eval("Number")) %></span></div></div>
+                        <div class="co-candidate-meta"><span class="co-card-label">Major</span><span class="co-major-cell"><%# Encode(Eval("Major")) %></span></div>
+                        <div class="co-candidate-meta co-candidate-applied"><span class="co-card-label">Applied</span><span><%# FormatDate(Eval("AppliedAtUnixMs")) %></span></div>
+                        <div class="co-candidate-status"><span class="co-card-label">Status</span><span class='<%# StatusCss(Eval("Status")) %>'><%# StatusLabel(Eval("Status")) %></span></div>
+                        <button type="button" class="co-row-open" data-application-open="<%# Attribute(Eval("Id")) %>" aria-label="View application details">View details <span aria-hidden="true">→</span></button>
+                    </article>
+                </ItemTemplate></asp:Repeater></div>
                 <asp:Panel ID="EmptyStatePanel" runat="server" CssClass="co-empty-state" Visible="false">No applications match these filters.</asp:Panel>
             </div>
 

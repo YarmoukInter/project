@@ -492,14 +492,16 @@ namespace Yarmouk.CompanyPages
             if (rows.Count == 0) return "<div class=\"empty-state task-empty-state\"><strong>" +
                 (hasFilters ? "No tasks match these filters." : "No tasks have been created for this company yet.") +
                 "</strong><span>" + (hasFilters ? "Change a filter or use Clear all to return to the complete task list." : "Use Add task to create the first trainee assignment.") + "</span></div>";
-            var html = new StringBuilder("<div class=\"table-scroll\"><table class=\"tasks-table\"><thead><tr><th>Student</th><th>Task</th><th>Deadline</th><th>Status</th><th>Evaluation / 10</th><th>Review decision</th></tr></thead><tbody>");
+            var html = new StringBuilder("<div class=\"task-card-list\" aria-label=\"Trainee tasks\">");
             foreach (var row in rows)
             {
                 var id = HttpUtility.HtmlAttributeEncode(row.Id);
-                html.Append("<tr><td>").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</td><td><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></td>");
-                html.Append("<td>").Append(row.DueAt > 0 ? HttpUtility.HtmlEncode(FormatDate(row.DueAt)) : "—").Append("</td>");
-                html.Append("<td><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></td>");
-                html.Append("<td><span class=\"task-grade\">").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : "—").Append(" <small>/ 10</small></span></td><td>");
+                html.Append("<article class=\"task-review-card\" data-status=\"").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">")
+                    .Append("<div class=\"task-review-card__student\"><span class=\"task-card-label\">Student</span><strong class=\"task-card-student\">").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</strong></div>")
+                    .Append("<div class=\"task-review-card__task\"><span class=\"task-card-label\">Task</span><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-card-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></div>")
+                    .Append("<div class=\"task-review-card__deadline\"><span class=\"task-card-label\">Deadline</span><time class=\"task-card-deadline\">").Append(row.DueAt > 0 ? HttpUtility.HtmlEncode(FormatDate(row.DueAt)) : "—").Append("</time></div>")
+                    .Append("<div class=\"task-review-card__status\"><span class=\"task-card-label\">Status</span><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></div>")
+                    .Append("<div class=\"task-review-card__grade\"><span class=\"task-card-label\">Evaluation</span><span class=\"task-grade\">").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : "—").Append(" <small>/ 10</small></span></div><div class=\"task-review-card__action\">");
                 if (row.Status == "done" || row.Status == "completed")
                     html.Append("<button type=\"button\" class=\"review-open-button\" data-review-id=\"").Append(id)
                         .Append("\" data-review-student-uid=\"").Append(HttpUtility.HtmlAttributeEncode(row.StudentUid))
@@ -511,9 +513,9 @@ namespace Yarmouk.CompanyPages
                         .Append("\" data-review-grade=\"").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : string.Empty)
                         .Append("\">").Append(row.Status == "done" ? "Review submission" : "View review").Append("</button>");
                 else html.Append("<span class=\"muted\">Available after submission</span>");
-                html.Append("</td></tr>");
+                html.Append("</div></article>");
             }
-            html.Append("</tbody></table></div>");
+            html.Append("</div>");
             return html.ToString();
         }
 

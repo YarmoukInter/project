@@ -1,9 +1,9 @@
 <%@ Page Title="Reports & Final Evaluation" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="FinalEvaluation.aspx.cs" Inherits="Yarmouk.CompanyPages.FinalEvaluation" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/CompanyPages/FinalEvaluation.css?v=modal-6") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=modal-4") %>" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/CompanyPages/FinalEvaluation.css?v=horizontal-cards-7") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=modal-4") %>" defer></script>
 <script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -25,35 +25,21 @@
   <div class="evaluation-layout">
     <aside class="trainee-panel" aria-label="Assigned trainees">
       <div class="panel-heading"><p class="evaluation-eyebrow">COMPANY RECORDS</p><h2>Company trainees</h2><span class="trainee-count"><asp:Literal ID="TraineeCount" runat="server" Text="0" /></span></div>
-      <div class="trainee-table-wrap">
-        <table class="trainee-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Student</th><th>Student No.</th><th>Major</th>
-              <th>Placement</th><th>Start</th><th>End</th><th>Evaluation</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <asp:Repeater ID="TraineeList" runat="server">
-              <ItemTemplate>
-                <tr class='<%#: Eval("CssClass") %>' title='<%#: Eval("ToolTip") %>'>
-                  <td><%# Container.ItemIndex + 1 %></td>
-                  <td><span class="trainee-avatar trainee-avatar--small" aria-hidden="true"><%#: Eval("Initials") %></span><strong><%#: Eval("StudentName") %></strong></td>
-                  <td><%#: Eval("StudentNumber") %></td>
-                  <td><%#: Eval("MajorId") %></td>
-                  <td><%#: Eval("PlacementStatus") %></td>
-                  <td><%#: Eval("StartDate") %></td>
-                  <td><%#: Eval("EndDate") %></td>
-                  <td><span class="status-pill"><%#: Eval("StatusLabel") %></span></td>
-                  <td>
-                    <asp:HyperLink runat="server" CssClass="evaluation-button evaluation-button--primary"
-                        data-evaluation-open="true" NavigateUrl='<%# Eval("SelectUrl") %>' Visible='<%# (bool)Eval("CanEvaluate") %>' Text="Evaluate" />
-                  </td>
-                </tr>
-              </ItemTemplate>
-            </asp:Repeater>
-          </tbody>
-        </table>
+      <div class="evaluation-trainee-list">
+        <asp:Repeater ID="TraineeList" runat="server">
+          <ItemTemplate>
+            <article class='evaluation-trainee-card <%#: Eval("CssClass") %>' title='<%#: Eval("ToolTip") %>' data-status='<%#: Eval("StatusLabel") %>'>
+              <div class="evaluation-trainee-identity"><span class="trainee-avatar trainee-avatar--small" aria-hidden="true"><%#: Eval("Initials") %></span><div><strong class="evaluation-trainee-name"><%#: Eval("StudentName") %></strong><span class="evaluation-trainee-number"><%#: Eval("StudentNumber") %></span></div></div>
+              <div class="evaluation-trainee-detail"><span>Major</span><strong><%#: Eval("MajorId") %></strong></div>
+              <div class="evaluation-trainee-detail"><span>Placement</span><strong><%#: Eval("PlacementStatus") %></strong></div>
+              <div class="evaluation-trainee-period"><div><span>Start</span><strong><%#: Eval("StartDate") %></strong></div><div><span>End</span><strong><%#: Eval("EndDate") %></strong></div></div>
+              <div class="evaluation-trainee-review"><span class="status-pill"><%#: Eval("StatusLabel") %></span>
+                <asp:HyperLink runat="server" CssClass="evaluation-button evaluation-button--primary"
+                    data-evaluation-open="true" NavigateUrl='<%# Eval("SelectUrl") %>' Visible='<%# (bool)Eval("CanEvaluate") %>' Text="Evaluate" />
+              </div>
+            </article>
+          </ItemTemplate>
+        </asp:Repeater>
       </div>
       <asp:Panel ID="TraineesEmpty" runat="server" CssClass="empty-state" Visible="false">
         <span class="empty-state__icon" aria-hidden="true">✓</span><strong>No trainees to evaluate yet</strong><p>Accepted placements linked to your company will appear here.</p>
@@ -134,7 +120,7 @@
           <div class="evaluation-actions__buttons"><button type="button" class="evaluation-button evaluation-button--light" onclick="window.print()">Print / save as PDF</button><asp:Button ID="SaveDraft" runat="server" Text="Save draft" CssClass="evaluation-button evaluation-button--light" OnClick="SaveDraft_Click" CausesValidation="false" /><asp:Button ID="SubmitEvaluation" runat="server" Text="Send final evaluation" CssClass="evaluation-button evaluation-button--primary" OnClick="SubmitEvaluation_Click" CausesValidation="false" OnClientClick="return confirm('Send this final evaluation to the academic supervisor? You will not be able to edit it after submission.');" /></div>
         </footer>
       </asp:Panel>
-      <asp:Panel ID="EvaluationEmpty" runat="server" CssClass="evaluation-placeholder" Visible="true"><span class="empty-state__icon" aria-hidden="true">✓</span><h2>Select a trainee</h2><p>Choose a trainee from the table above to review reports and complete the final company evaluation.</p></asp:Panel>
+      <asp:Panel ID="EvaluationEmpty" runat="server" CssClass="evaluation-placeholder" Visible="true"><span class="empty-state__icon" aria-hidden="true">✓</span><h2>Select a trainee</h2><p>Choose a trainee from the list above to review reports and complete the final company evaluation.</p></asp:Panel>
     </section>
   </div>
 </main>

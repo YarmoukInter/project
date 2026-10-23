@@ -218,6 +218,189 @@
   .trainee-track span { transform:none; }
 }
 
+/* Keep the page heading aligned with the company's green workspace identity. */
+.company-trainees-workspace .trainees-heading {
+  background:linear-gradient(116deg,#082e25 0%,#07543d 58%,#117b53 100%);
+  border-color:rgba(177,221,192,.38);
+}
+
+/* Raise supporting text to a comfortable reading size while preserving hierarchy. */
+.company-trainees-workspace .trainees-eyebrow { font-size:11px; }
+.company-trainees-workspace .trainees-heading p { font-size:15px; }
+.company-trainees-workspace .trainees-live { font-size:12px; }
+.company-trainees-workspace .trainees-summary article > span:not(.summary-icon) { font-size:13px; }
+.company-trainees-workspace .trainees-summary article small { font-size:11px; }
+.company-trainees-workspace .trainees-list-heading h2 { font-size:24px; }
+.company-trainees-workspace :is(.trainee-search,.trainee-status-filter) { font-size:13px; }
+.company-trainees-workspace .trainee-count-pill { font-size:12px; }
+.company-trainees-workspace .trainee-person h3 { font-size:15px; }
+.company-trainees-workspace .trainee-person p,
+.company-trainees-workspace .trainee-company strong,
+.company-trainees-workspace .trainee-progress-label strong,
+.company-trainees-workspace .trainee-card-meta strong { font-size:12px; }
+.company-trainees-workspace .trainee-status { font-size:10px; }
+.company-trainees-workspace .trainee-company small,
+.company-trainees-workspace .trainee-card-meta small { font-size:9px; }
+.company-trainees-workspace .trainee-progress-label > span,
+.company-trainees-workspace .trainee-progress-foot { font-size:11px; }
+.company-trainees-workspace .trainee-action { font-size:12px; }
+
+@media(max-width:680px) {
+  .company-trainees-workspace .trainees-heading p { font-size:14px; }
+  .company-trainees-workspace .trainees-summary article > span:not(.summary-icon) { font-size:12px; }
+  .company-trainees-workspace .trainee-action { font-size:11px; }
+}
+
+/* A single deep-green palette keeps every surface readable in dark mode. */
+[data-theme="dark"] .company-trainees-workspace {
+  --trainee-ink:#e4eee7;
+  --trainee-green:#77d5a0;
+  --trainee-muted:#adc0b4;
+  --trainee-line:#344d3f;
+  color:var(--trainee-ink);
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-heading {
+  border-color:#28634a;
+  background:linear-gradient(116deg,#092d24 0%,#084936 58%,#0c6849 100%);
+  box-shadow:inset 4px 0 #4eaa78,0 14px 32px rgba(0,0,0,.18);
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-heading p { color:#c0d7ca; }
+[data-theme="dark"] .company-trainees-workspace .trainees-live {
+  border-color:#41715a;
+  background:#1c4935;
+  color:#d9eee0;
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-summary article {
+  border-color:#344d3f;
+  background:linear-gradient(145deg,#1b2e24,#17281f);
+  box-shadow:inset 0 1px rgba(220,245,228,.035),0 8px 20px rgba(0,0,0,.12);
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-summary article::before {
+  background:linear-gradient(90deg,transparent,#58ad7b,transparent);
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-summary article > span:not(.summary-icon),
+[data-theme="dark"] .company-trainees-workspace .trainees-summary article small { color:#b1c4b8; }
+[data-theme="dark"] .company-trainees-workspace .trainees-summary article strong { color:#f0f7f2; }
+[data-theme="dark"] .company-trainees-workspace .summary-icon {
+  border-color:#355846;
+  background:#223d2d;
+  color:#91d8a9;
+  box-shadow:none;
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-list-heading h2 { color:#e4eee7; }
+[data-theme="dark"] .company-trainees-workspace :is(.trainee-search,.trainee-status-filter) {
+  border-color:#3a5847;
+  background:#172a20;
+  color:#e4eee7;
+  color-scheme:dark;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-search::placeholder { color:#91a99a; }
+[data-theme="dark"] .company-trainees-workspace .trainee-search-wrap > svg { stroke:#91b5a0; }
+[data-theme="dark"] .company-trainees-workspace :is(.trainee-search,.trainee-status-filter):focus {
+  border-color:#66c18a;
+  outline:3px solid rgba(102,193,138,.18);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-count-pill {
+  border-color:#3a5847;
+  background:#1b3024;
+  color:#b7c9bd;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-count-pill strong { color:#d8eadc; }
+[data-theme="dark"] .company-trainees-workspace .trainee-card {
+  border-color:#344d3f;
+  background:linear-gradient(145deg,#1b2e24,#17281f);
+  box-shadow:inset 0 1px rgba(220,245,228,.035),0 8px 22px rgba(0,0,0,.14);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-card:hover {
+  border-color:#4b765a;
+  background:linear-gradient(145deg,#20372a,#192c22);
+  box-shadow:0 12px 28px rgba(0,0,0,.2);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-card::before {
+  background:radial-gradient(circle,rgba(66,132,83,.28),rgba(40,91,58,.12) 46%,transparent 72%);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-card::after {
+  background:linear-gradient(90deg,transparent,#4b9b69,transparent);
+}
+[data-theme="dark"] .company-trainees-workspace :is(.trainee-person h3,.trainee-company strong,.trainee-progress-label strong,.trainee-progress-label b,.trainee-card-meta strong) { color:#dcebe0; }
+[data-theme="dark"] .company-trainees-workspace :is(.trainee-person p,.trainee-company small,.trainee-card-meta small,.trainee-progress-label > span,.trainee-progress-foot) { color:#a2b8aa; }
+[data-theme="dark"] .company-trainees-workspace .trainee-avatar {
+  border-color:#3c694b;
+  background:linear-gradient(145deg,#294b34,#213c2c);
+  color:#b7e5c2;
+  box-shadow:none;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-status {
+  border-color:#3a6547;
+  background:#254431;
+  color:#bce5c5;
+  box-shadow:none;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-status i { background:#69c889; }
+[data-theme="dark"] .company-trainees-workspace .trainee-company {
+  border-color:#334d3d;
+  background:#1b3024;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-company-icon {
+  border-color:#3b5946;
+  background:#243b2c;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-company-icon svg { stroke:#a5d8b2; }
+[data-theme="dark"] .company-trainees-workspace .trainee-track {
+  background:#2c4033;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.25);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-track span {
+  background:linear-gradient(90deg,#168458,#70d393);
+  box-shadow:0 0 10px rgba(62,185,113,.2);
+}
+[data-theme="dark"] .company-trainees-workspace :is(.trainee-card-meta > div,.trainee-card-actions) { border-color:#344d3f; }
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary {
+  border-color:#45634f;
+  background:#24392c;
+  color:#d1e4d6;
+  box-shadow:none;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary:hover {
+  border-color:#68ad7c;
+  background:#2c4936;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-action--primary {
+  border-color:#16734f;
+  background:linear-gradient(135deg,#08724d,#07583e);
+  color:#f3fff6;
+  box-shadow:inset 0 1px rgba(255,255,255,.08);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-action--primary:hover {
+  border-color:#25875f;
+  background:linear-gradient(135deg,#0a8057,#096344);
+}
+[data-theme="dark"] .company-trainees-workspace :is(.trainee-search-empty,.trainees-empty) {
+  border-color:#3a5847;
+  background:#182b21;
+  color:#b4c7ba;
+}
+[data-theme="dark"] .company-trainees-workspace .trainees-empty h3 { color:#e4eee7; }
+[data-theme="dark"] .company-trainees-workspace .trainees-empty p { color:#adc0b4; }
+[data-theme="dark"] .company-trainees-workspace .trainees-alert {
+  border-color:#694440;
+  background:#382725;
+  color:#f0c1b9;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-dialog {
+  border-color:#3b5847;
+  background:#192b21;
+  color:#e4eee7;
+  box-shadow:0 26px 80px rgba(0,0,0,.48);
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-dialog :is(h2,h3,strong,label) { color:#e4eee7; }
+[data-theme="dark"] .company-trainees-workspace .trainee-dialog :is(p,small,.trainee-profile-grid span) { color:#adc0b4; }
+[data-theme="dark"] .company-trainees-workspace .trainee-profile-grid > div {
+  border-color:#344d3f;
+  background:#203429;
+  box-shadow:none;
+}
+
 /* Keep action controls distinct from the shared dashboard link and button rules. */
 .company-trainees-workspace .trainee-card-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
 .company-trainees-workspace .trainee-action {
@@ -269,4 +452,63 @@
   .company-trainees-workspace .trainee-card-actions { grid-template-columns:1fr; }
   .company-trainees-workspace .trainee-action { min-height:45px; }
   .trainee-action-arrow { margin-left:auto; }
+}
+
+/* The host-company label should sit directly on the trainee card surface. */
+[data-theme="dark"] .company-trainees-workspace .trainee-company {
+  border-color:transparent;
+  background:transparent;
+}
+
+/* The native dialog is rendered outside the workspace section, so theme it directly. */
+[data-theme="dark"] .trainee-dialog {
+  border-color:#3b5847;
+  background:#192b21;
+  color:#e4eee7;
+  color-scheme:dark;
+  box-shadow:0 26px 80px rgba(0,0,0,.52);
+}
+[data-theme="dark"] .trainee-dialog::backdrop { background:rgba(2,12,8,.76); }
+[data-theme="dark"] .trainee-dialog h2 { color:#eff7f1; }
+[data-theme="dark"] .trainee-dialog .trainees-eyebrow { color:#80d5a1; }
+[data-theme="dark"] .trainee-dialog .trainee-dialog-subtitle { color:#b0c4b8; }
+[data-theme="dark"] .trainee-dialog .trainee-dialog-icon {
+  border-color:#3b6549;
+  background:#223d2d;
+  color:#a6dfb5;
+  box-shadow:none;
+}
+[data-theme="dark"] .trainee-dialog .trainee-dialog-close {
+  border-color:#45604e;
+  background:#22372a;
+  color:#d3e4d8;
+}
+[data-theme="dark"] .trainee-dialog .trainee-dialog-close:hover {
+  border-color:#70bb85;
+  background:#2d4a35;
+  color:#fff;
+}
+[data-theme="dark"] .trainee-dialog .trainee-profile-grid > div {
+  border-color:#3a5745;
+  background:#213429;
+  box-shadow:inset 0 1px rgba(220,245,228,.035);
+}
+[data-theme="dark"] .trainee-dialog .trainee-profile-grid dt { color:#a8c0ae; }
+[data-theme="dark"] .trainee-dialog .trainee-profile-grid dd { color:#e4eee7; }
+
+/* Keep secondary-action labels clear in every hover and keyboard state. */
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary,
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary:link,
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary:visited {
+  border-color:#45634f;
+  background:#24392c;
+  color:#e0eee4;
+  box-shadow:none;
+}
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary:hover,
+[data-theme="dark"] .company-trainees-workspace .trainee-action--secondary:focus-visible {
+  border-color:#79c690;
+  background:#31513b;
+  color:#fff;
+  box-shadow:0 0 0 2px rgba(121,198,144,.16);
 }

@@ -13,7 +13,6 @@ namespace Yarmouk.CompanyPages
 
     public partial class ManageOpportunities
     {
-        protected global::System.Web.UI.WebControls.Button OpenOpportunityFormButton;
         protected global::System.Web.UI.WebControls.Literal ActiveCountLiteral;
         protected global::System.Web.UI.WebControls.Literal DraftCountLiteral;
         protected global::System.Web.UI.WebControls.Literal ApplicationCountLiteral;
@@ -25,8 +24,6 @@ namespace Yarmouk.CompanyPages
         protected global::System.Web.UI.WebControls.Panel EmptyStatePanel;
         protected global::System.Web.UI.WebControls.Label PageFeedbackLabel;
         protected global::System.Web.UI.WebControls.Panel OpportunityEditorPanel;
-        protected global::System.Web.UI.WebControls.Literal EditorTitleLiteral;
-        protected global::System.Web.UI.WebControls.Button CloseEditorButton;
         protected global::System.Web.UI.WebControls.HiddenField EditingOpportunityId;
         protected global::System.Web.UI.WebControls.HiddenField EditingOpportunityStatus;
         protected global::System.Web.UI.WebControls.TextBox OpportunityTitleInput;
@@ -42,7 +39,6 @@ namespace Yarmouk.CompanyPages
         protected global::System.Web.UI.WebControls.TextBox OpportunityRequirementsInput;
         protected global::System.Web.UI.WebControls.TextBox OpportunityQuestionsInput;
         protected global::System.Web.UI.WebControls.Label EditorFeedbackLabel;
-        protected global::System.Web.UI.WebControls.Button CancelEditorButton;
         protected global::System.Web.UI.WebControls.Button SaveOpportunityButton;
     }
 }

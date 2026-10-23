@@ -19,3 +19,74 @@
 @media(max-width:620px){.task-filter-panel .filter-heading{padding:17px}.task-filter-panel .task-filter-grid{grid-template-columns:1fr;padding:17px}.task-filter-actions{align-items:stretch;flex-direction:column;padding:0 17px 17px}.task-filter-actions .apply-task-filters{width:100%}.task-filter-actions>span{text-align:center}}
 .task-filter-panel .task-filter-grid{grid-template-columns:minmax(200px,1.5fr) repeat(2,minmax(160px,1fr))}
 @media(max-width:760px){.task-filter-panel .task-filter-grid{grid-template-columns:1fr}}
+
+/* Each trainee task is a landscape card with its fields aligned across wide screens. */
+.task-card-list { display:grid; gap:10px; padding:12px; }
+.task-review-card {
+  display:grid;
+  grid-template-columns:minmax(145px,1.1fr) minmax(190px,1.5fr) minmax(125px,.85fr) minmax(110px,.75fr) minmax(105px,.65fr) minmax(150px,1.1fr);
+  align-items:center; gap:16px; min-width:0; padding:17px 18px;
+  border:1px solid #e3ebe6; border-radius:13px; background:#fbfdfb; color:#29483c;
+  transition:border-color .16s ease,background .16s ease;
+}
+.task-review-card:hover { border-color:#c2d9ca; background:#f6faf7; }
+.task-review-card > div { display:grid; min-width:0; gap:5px; }
+.task-card-label { color:#72847a; font-size:.69rem; font-weight:750; letter-spacing:.045em; text-transform:uppercase; }
+.task-card-student,.task-review-card__task > strong { color:#1f4031; font-size:.92rem; overflow-wrap:anywhere; }
+.task-card-title { color:#536a5d; line-height:1.45; overflow-wrap:anywhere; }
+.task-card-deadline { color:#3f5e4d; font-size:.88rem; font-variant-numeric:tabular-nums; }
+.task-review-card__status .status-pill,.task-review-card__grade .task-grade { justify-self:start; }
+.task-review-card__action { align-content:center; }
+.task-review-card__action .muted { line-height:1.45; }
+.task-review-card :is(button,a):focus-visible { outline:3px solid rgba(8,114,77,.28); outline-offset:3px; }
+
+[data-theme="dark"] .manage-tasks-page {
+  --mt-ink:#e2eee6; --mt-muted:#adc1b4; --mt-line:#344e3e; --mt-paper:#18281f; --mt-soft:#20372a;
+  color:var(--mt-ink);
+}
+[data-theme="dark"] .manage-tasks-heading h1,[data-theme="dark"] .manage-tasks-heading .eyebrow { color:#8bdbab; }
+[data-theme="dark"] .manage-tasks-heading>p:last-child { color:#b4c8ba; }
+[data-theme="dark"] .manage-tasks-page :is(.student-filter,.tasks-table-panel) { border-color:var(--mt-line); background:var(--mt-paper); color:var(--mt-ink); box-shadow:none; }
+[data-theme="dark"] .manage-tasks-page .table-heading { border-color:var(--mt-line); }
+[data-theme="dark"] .manage-tasks-page .table-heading h2 { color:var(--mt-ink); }
+[data-theme="dark"] .manage-tasks-page .table-heading p { color:var(--mt-muted); }
+[data-theme="dark"] .manage-tasks-page .task-count { background:#214331; color:#b9e6c4; }
+[data-theme="dark"] .manage-tasks-page .filter-heading { border-color:var(--mt-line); background:linear-gradient(110deg,#1b3024,#20382a); }
+[data-theme="dark"] .manage-tasks-page .filter-heading strong { color:#d8e8dc; }
+[data-theme="dark"] .manage-tasks-page .filter-heading div div span,[data-theme="dark"] .manage-tasks-page .task-filter-actions>span { color:#a9bfb0; }
+[data-theme="dark"] .manage-tasks-page .filter-icon { background:#254634; color:#95ddb0; }
+[data-theme="dark"] .manage-tasks-page .clear-task-filters { border-color:#46634e; background:#263d2e; color:#d5e8da; }
+[data-theme="dark"] .manage-tasks-page .clear-task-filters:hover { border-color:#68b985; background:#2b4936; }
+[data-theme="dark"] .manage-tasks-page .task-filter-grid label { color:#c2d2c7; }
+[data-theme="dark"] .manage-tasks-page .task-filter-grid :is(input,select) { border-color:#3d5948; background:#14251c; color:#e2eee6; color-scheme:dark; }
+[data-theme="dark"] .manage-tasks-page .task-filter-grid :is(input,select)::placeholder { color:#93a99a; }
+[data-theme="dark"] .manage-tasks-page .task-filter-grid :is(input,select):focus { border-color:#70c18b; box-shadow:0 0 0 3px rgba(112,193,139,.18); }
+[data-theme="dark"] .manage-tasks-page .apply-task-filters,[data-theme="dark"] .manage-tasks-page .add-task-button,[data-theme="dark"] .manage-tasks-page .approve-button { border:1px solid #16845a; background:linear-gradient(135deg,#0b8057,#086443); color:#f2fff5; }
+[data-theme="dark"] .manage-tasks-page :is(.apply-task-filters,.add-task-button,.approve-button):hover { background:#0b8b60; }
+[data-theme="dark"] .manage-tasks-page .task-review-card { border-color:#344e3e; background:#1b2d23; color:#c7d8cc; }
+[data-theme="dark"] .manage-tasks-page .task-review-card:hover { border-color:#52745e; background:#20372a; }
+[data-theme="dark"] .manage-tasks-page .task-card-label,[data-theme="dark"] .manage-tasks-page .muted { color:#a8bdad; }
+[data-theme="dark"] .manage-tasks-page :is(.task-card-student,.task-review-card__task>strong,.task-card-title,.task-card-deadline) { color:#d9e9dd; }
+[data-theme="dark"] .manage-tasks-page .status-pill { background:#303c34; color:#d0ddd4; }
+[data-theme="dark"] .manage-tasks-page .status-done { background:#443a23; color:#f0d48d; }
+[data-theme="dark"] .manage-tasks-page .status-completed { background:#21432f; color:#a8e1b9; }
+[data-theme="dark"] .manage-tasks-page .status-inProgress { background:#243951; color:#b8d3f2; }
+[data-theme="dark"] .manage-tasks-page .task-grade { background:#234431; color:#c2e7ca; }
+[data-theme="dark"] .manage-tasks-page .task-grade small { color:#a9cbb2; }
+[data-theme="dark"] .manage-tasks-page .review-open-button { border-color:#52765d; background:#264432; color:#d7f0dc; }
+[data-theme="dark"] .manage-tasks-page .review-open-button:hover { border-color:#79c690; background:#31543d; }
+[data-theme="dark"] .manage-tasks-page .revision-button { border:1px solid #735c31; background:#44391f; color:#f0d48d; }
+[data-theme="dark"] .manage-tasks-page .revision-button:hover { background:#574624; }
+[data-theme="dark"] .manage-tasks-page .task-empty-state { background:#1a2c22; }
+[data-theme="dark"] .manage-tasks-page .task-empty-state strong { color:#e2eee6; }
+[data-theme="dark"] .manage-tasks-page .task-empty-state span { color:#adc1b4; }
+
+@media(max-width:1050px) {
+  .task-review-card { grid-template-columns:minmax(140px,1fr) minmax(190px,1.4fr) minmax(115px,.8fr) minmax(110px,.8fr); }
+  .task-review-card__action { grid-column:3 / -1; }
+}
+@media(max-width:680px) {
+  .task-card-list { padding:10px; }
+  .task-review-card { grid-template-columns:minmax(0,1fr) minmax(105px,.75fr); gap:14px; padding:15px; }
+  .task-review-card__student,.task-review-card__task,.task-review-card__action { grid-column:1 / -1; }
+}

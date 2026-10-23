@@ -1,11 +1,11 @@
 <%@ Page Title="My Trainees" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="MyTrainees.aspx.cs" Inherits="Yarmouk.CompanyPages.MyTrainees" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/CompanyPages/MyTrainees.css") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/CompanyPages/MyTrainees.js?v=search-2") %>" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
 <script src="../Scripts/Shared/record-lists.js?v=review-groups-3" defer></script>
 <link href="../Content/Shared/review-workspaces.css?v=review-queue-2" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/CompanyPages/MyTrainees.css?v=dialog-contrast-4") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="company-trainees-workspace">

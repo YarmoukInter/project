@@ -287,6 +287,23 @@
     color: #a83c32
 }
 
+[data-theme="dark"] .company-account { --yu-ink:#e3eee7; --yu-muted:#a9bdb1; color:var(--yu-ink); }
+[data-theme="dark"] .company-account .account-card { border-color:#2c483b; background:#172c22; box-shadow:0 10px 30px #00170d35; }
+[data-theme="dark"] .company-account .card-title h2,
+[data-theme="dark"] .company-account .field label,
+[data-theme="dark"] .company-account .company-details dd { color:#e3eee7; }
+[data-theme="dark"] .company-account .live-pill { border-color:#355c46; background:#203b2c; color:#c5ead1; }
+[data-theme="dark"] .company-account .field input { border-color:#355344; background:#13251d; color:#e3eee7; color-scheme:dark; }
+[data-theme="dark"] .company-account .field input::placeholder { color:#91a99a; }
+[data-theme="dark"] .company-account .field-wide > span,
+[data-theme="dark"] .company-account .read-only-note { border:1px solid #2c483b; background:#1d3528; color:#b7c9bd; }
+[data-theme="dark"] .company-account .account-notice { border-color:#326747; background:#193b2a; color:#bce6c8; }
+[data-theme="dark"] .company-account .account-error { border-color:#784640; background:#392522; color:#ffd0c8; }
+[data-theme="dark"] .company-account .primary-button { background:#087a50; color:#fff; }
+[data-theme="dark"] .company-account .primary-button:hover { background:#0a905f; }
+[data-theme="dark"] .company-account .company-details > div { border-color:#2c483b; }
+[data-theme="dark"] .company-account .company-details dt { color:#a9bdb1; }
+
 @media(max-width:820px) {
     .company-account {
         padding: 24px 18px 48px

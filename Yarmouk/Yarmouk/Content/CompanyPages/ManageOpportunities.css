@@ -726,3 +726,126 @@ body.co-modal-open {
     .co-opportunity-card { transition: none; }
     .co-opportunity-card:hover { transform: none; }
 }
+
+.co-opportunity-details { border: 0; }
+
+[data-theme="dark"] .co-opportunities {
+    --co-ink: #e1eee6;
+    --co-green: #80d5a9;
+    --co-green-dark: #5fc894;
+    --co-muted: #b0c4b8;
+    --co-line: #344e3e;
+    --co-soft: #22382b;
+    color: var(--co-ink);
+}
+
+[data-theme="dark"] .co-opportunities .co-panel,
+[data-theme="dark"] .co-opportunities .co-stat-card {
+    border-color: var(--co-line);
+    background: #18281f;
+    color: var(--co-ink);
+    box-shadow: none;
+}
+
+[data-theme="dark"] .co-opportunities .co-panel-heading h2,
+[data-theme="dark"] .co-opportunities .co-opportunity-title,
+[data-theme="dark"] .co-opportunities .co-stat-copy strong { color: var(--co-ink); }
+[data-theme="dark"] .co-opportunities .co-panel-heading p,
+[data-theme="dark"] .co-opportunities .co-stat-copy span,
+[data-theme="dark"] .co-opportunities .co-filter-label { color: var(--co-muted); }
+[data-theme="dark"] .co-opportunities .co-count-pill {
+    border-color: #355442;
+    background: #20392b;
+    color: #c2e4ce;
+}
+[data-theme="dark"] .co-opportunities .co-toolbar { background: #18281f; }
+[data-theme="dark"] .co-opportunities .co-search,
+[data-theme="dark"] .co-opportunities .co-select {
+    border-color: var(--co-line);
+    background: #14231a;
+    color: var(--co-ink);
+}
+[data-theme="dark"] .co-opportunities .co-search input { color: var(--co-ink); }
+[data-theme="dark"] .co-opportunities .co-search input::placeholder { color: #91a99a; }
+[data-theme="dark"] .co-opportunities .co-opportunity-card {
+    border-color: #344e3e;
+    background: linear-gradient(145deg,#1b2d23,#18281f);
+    color: #c2d2c8;
+    box-shadow: none;
+}
+[data-theme="dark"] .co-opportunities .co-opportunity-card:hover { border-color: #52745e; background: #20362a; }
+[data-theme="dark"] .co-opportunities .co-opportunity-subtitle,
+[data-theme="dark"] .co-opportunities .co-detail-label { color: #9db4a5; }
+[data-theme="dark"] .co-opportunities .co-opportunity-details { border-color: #344e3e; }
+[data-theme="dark"] .co-opportunities .co-major-chip { background: #263d30; color: #c4dacb; }
+[data-theme="dark"] .co-opportunities .co-seat-value,
+[data-theme="dark"] .co-opportunities .co-deadline-value { color: #c8dbce; }
+[data-theme="dark"] .co-opportunities .co-status-active { background: #21432f; color: #a8e1b9; }
+[data-theme="dark"] .co-opportunities .co-status-draft { background: #443a23; color: #f0d48d; }
+[data-theme="dark"] .co-opportunities .co-status-closed { background: #303b35; color: #c2d0c7; }
+[data-theme="dark"] .co-opportunities .co-edit-action { color: #9de0b6; }
+[data-theme="dark"] .co-opportunities .co-text-action.close { color: #ffb6b0; }
+[data-theme="dark"] .co-opportunities .co-opportunity-card-actions .co-text-action {
+    min-height: 40px;
+    border: 1px solid #42634e;
+    border-radius: 9px;
+    background: #24392c;
+    color: #d0e5d6;
+    transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+[data-theme="dark"] .co-opportunities .co-opportunity-card-actions .co-edit-action:hover {
+    border-color: #69b982;
+    background: #2b4936;
+    color: #e7f7eb;
+}
+[data-theme="dark"] .co-opportunities .co-opportunity-card-actions .co-text-action.close {
+    border-color: #694442;
+    background: #382725;
+    color: #f1bbb5;
+}
+[data-theme="dark"] .co-opportunities .co-opportunity-card-actions .co-text-action.close:hover {
+    border-color: #a65f58;
+    background: #4a302d;
+    color: #ffe2de;
+}
+[data-theme="dark"] .co-opportunities .co-toolbar .co-button-quiet {
+    border-color: #42634e;
+    background: #24392c;
+    color: #d0e5d6;
+}
+[data-theme="dark"] .co-opportunities .co-toolbar .co-button-quiet:hover {
+    border-color: #69b982;
+    background: #2b4936;
+    color: #e7f7eb;
+}
+[data-theme="dark"] .co-opportunities .co-button-primary {
+    border-color: #16845a;
+    background: linear-gradient(135deg,#0b8057,#086443);
+    color: #f1fff5;
+    box-shadow: 0 5px 14px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.1);
+}
+[data-theme="dark"] .co-opportunities .co-button-primary:hover {
+    border-color: #25966b;
+    background: linear-gradient(135deg,#0e9063,#08734d);
+    color: #fff;
+}
+[data-theme="dark"] .co-opportunities :is(.co-text-action,.co-button):focus-visible {
+    outline: 3px solid rgba(117,213,160,.45);
+    outline-offset: 2px;
+}
+[data-theme="dark"] .co-opportunities .co-modal {
+    border-color: var(--co-line);
+    background: #18281f;
+    color: var(--co-ink);
+}
+[data-theme="dark"] .co-opportunities .co-modal :is(.co-modal-heading h2,.co-field) { color: var(--co-ink); }
+[data-theme="dark"] .co-opportunities .co-modal :is(input,select,textarea) {
+    border-color: var(--co-line);
+    background: #14231a;
+    color: var(--co-ink);
+}
+[data-theme="dark"] .co-opportunities .co-modal .co-button-quiet {
+    border-color: #42634e;
+    background: #21392b;
+    color: #c8e5d2;
+}

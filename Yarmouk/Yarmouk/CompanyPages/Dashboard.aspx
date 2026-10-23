@@ -4,9 +4,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-<link href="<%= ResolveUrl("~/Content/CompanyPages/Dashboard.css") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/CompanyPages/Dashboard.js") %>" defer></script>
 <link href="<%= ResolveUrl("~/Content/dashboard-overview.css") %>?v=admin-alignment-1" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/CompanyPages/Dashboard.css?v=dashboard-type-2") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <div class="company-dashboard role-dashboard">
@@ -18,7 +18,6 @@
         </div>
         <div class="heading-actions">
             <span class="snapshot-date"><i class="bi bi-calendar3" aria-hidden="true"></i><time id="dashboardDate"></time></span>
-            <a class="button button-primary" href="<%= ResolveUrl("~/CompanyPages/ManageOpportunities.aspx") %>"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add opportunity</a>
         </div>
     </section>
 

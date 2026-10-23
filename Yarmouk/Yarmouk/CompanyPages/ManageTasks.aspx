@@ -1,10 +1,10 @@
 <%@ Page Title="Manage Tasks" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ManageTasks.aspx.cs" Inherits="Yarmouk.CompanyPages.ManageTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="../Content/CompanyPages/ManageTasks.css?v=task-filters-3" rel="stylesheet" />
 <script src="../Scripts/CompanyPages/ManageTasks.js?v=review-modal-1" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
-<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
+<script src="../Scripts/Shared/record-lists.js?v=record-cards-3" defer></script>
+<link href="../Content/CompanyPages/ManageTasks.css?v=horizontal-dark-cards-4" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <main class="manage-tasks-page">
