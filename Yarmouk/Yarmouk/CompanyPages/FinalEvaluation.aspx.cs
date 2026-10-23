@@ -15,27 +15,7 @@ namespace Yarmouk.CompanyPages
     {
         private readonly CompanySupervisorService service = new CompanySupervisorService();
 
-        private static readonly string[] Criteria =
-        {
-            "His/Her attendance and punctuality",
-            "His/Her involvement in social events of the company/establishment",
-            "Ability to adapt to the work environment and understand the nature of activities in the company/establishment",
-            "His/Her appreciation of security and safety rules and level of commitment to them",
-            "Ability to comprehend and respond to the directions of the training supervisor",
-            "Ability to understand others’ point of view and communicate his/her own",
-            "Ability to fit into the team",
-            "His/Her self-initiative and autonomy",
-            "Ability to apply gained theoretical knowledge and willingness to learn more",
-            "Ability to accomplish given tasks within the specified timetable",
-            "His/Her manual skills (assembling, maintenance, installation)",
-            "His/Her skills in preparing sketches and engineering plans for a given idea",
-            "His/Her computer and programming skills (software and hardware)",
-            "His/Her creativity, originality and imagination",
-            "Ability to conduct research and efficiently use the available resources",
-            "Interest and usefulness of the work for the establishment",
-            "His/Her overall quality of work",
-            "General quality of the student’s report (contents, syntax, presentation, literature survey)"
-        };
+        private static readonly string[] Criteria = CompanyEvaluationPdf.Criteria;
 
         private static readonly string[] Levels = { "Excellent", "Very Good", "Good", "Satisfactory", "Poor", "Fail" };
 
@@ -121,7 +101,7 @@ namespace Yarmouk.CompanyPages
                 await service.SaveCompanyEvaluationAsync(auth.Uid, companyId, auth.IdToken, SelectedPlacementId.Value,
                     scoreValue, CompanyFeedback.Text, ratings, submit);
                 ShowMessage(submit
-                    ? "The final company evaluation was submitted to the academic supervisor. You can print or save a PDF copy."
+                    ? "The final company evaluation was submitted to the academic supervisor. The assigned academic supervisor can now download its PDF copy."
                     : "Your evaluation draft was saved to Firebase.", true);
                 await BindPageAsync();
                 ActiveEvaluationTab.Value = "review";
@@ -169,7 +149,7 @@ namespace Yarmouk.CompanyPages
                     StudentName = string.IsNullOrWhiteSpace(x.StudentName) ? "Student" : x.StudentName,
                     StudentNumber = string.IsNullOrWhiteSpace(x.StudentNumber) ? "Student number not recorded" : x.StudentNumber,
                     Initials = GetInitials(x.StudentName),
-                    CanEvaluate = !string.IsNullOrWhiteSpace(x.PlacementId),
+                    CanEvaluate = !string.IsNullOrWhiteSpace(x.PlacementId) && !x.Locked,
                     ToolTip = string.IsNullOrWhiteSpace(x.PlacementId) ? "A placement record must be linked before reports or evaluations can be opened." : string.Empty,
                     CssClass = string.IsNullOrWhiteSpace(x.PlacementId) ? "trainee-row is-unlinked"
                         : (string.Equals(x.PlacementId, SelectedPlacementId.Value, StringComparison.Ordinal)

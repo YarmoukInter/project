@@ -2,6 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/CoordinatorPages/Account.css?v=20261021-4") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/CoordinatorPages/Account.js?v=20261021-4") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <div class="co-account-page" data-account-page dir="ltr">

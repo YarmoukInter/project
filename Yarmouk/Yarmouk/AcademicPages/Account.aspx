@@ -2,6 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="../Content/AcademicPages/Account.css" rel="stylesheet" />
 <script src="../Scripts/AcademicPages/Account.js" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="academic-account" aria-labelledby="accountTitle">

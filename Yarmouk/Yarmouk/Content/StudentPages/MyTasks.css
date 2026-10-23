@@ -28,3 +28,66 @@
 .task-submission-record p strong{color:#254a38}
 .task-submission-record a{color:#08734f;font-weight:750}
 @media(max-width:560px){.task-record-grid{grid-template-columns:1fr}.task-submission-record p{grid-template-columns:1fr;gap:3px}}
+
+/* Cohesive dark surfaces for the task board and its detail dialog. */
+[data-theme="dark"] .my-tasks-page { color:#dce9e1; }
+[data-theme="dark"] .my-tasks-page :is(.tasks-eyebrow,.task-card-id),
+[data-theme="dark"] .my-tasks-page h1 { color:#79d3a5; }
+[data-theme="dark"] .my-tasks-page :is(.tasks-intro,.task-count) { color:#a9beb1; }
+[data-theme="dark"] .my-tasks-page .tasks-section-heading h2 { color:#e5f0e9; }
+[data-theme="dark"] .my-tasks-page .task-board-tools { border-color:#344e40; background:#182a20; color:#dce9e1; }
+[data-theme="dark"] .my-tasks-page .task-board-tools .record-field > span { color:#a9beb1; }
+[data-theme="dark"] .my-tasks-page .task-board-tools .record-field :is(input,select) { border-color:#3b5948; background:#102018; color:#e1eee6; }
+[data-theme="dark"] .my-tasks-page .task-board-tools input::placeholder { color:#90a99a; }
+[data-theme="dark"] .my-tasks-page .task-column { border-color:#344e40; background:#192b21; }
+[data-theme="dark"] .my-tasks-page .task-column--todo { background:#192922; }
+[data-theme="dark"] .my-tasks-page .task-column--progress { background:#1a3025; }
+[data-theme="dark"] .my-tasks-page .task-column--done { background:#2b2b20; }
+[data-theme="dark"] .my-tasks-page .task-column--complete { background:#1d3326; }
+[data-theme="dark"] .my-tasks-page .task-column > header h3 { color:#dce9e1; }
+[data-theme="dark"] .my-tasks-page .task-column--progress > header h3 { color:#b9d4fa; }
+[data-theme="dark"] .my-tasks-page .task-column--done > header h3 { color:#e6ca83; }
+[data-theme="dark"] .my-tasks-page .task-column--complete > header h3 { color:#91ddb0; }
+[data-theme="dark"] .my-tasks-page .column-count { background:#2a4033; color:#dce9e1; }
+[data-theme="dark"] .my-tasks-page .task-column-empty { border-color:#42594a; color:#a1b5a8; }
+[data-theme="dark"] .my-tasks-page .task-column--drag-over { border-color:#72d2a3; background:#203c2b; }
+[data-theme="dark"] .my-tasks-page .task-column .task-card { border-color:#344e40; background:#14231b; color:#dce9e1; box-shadow:0 5px 16px #00000024; }
+[data-theme="dark"] .my-tasks-page .task-column .task-card:hover { border-color:#4c7059; box-shadow:0 12px 24px #00000035; }
+[data-theme="dark"] .my-tasks-page .task-column .task-card h3 { color:#e5f0e9; }
+[data-theme="dark"] .my-tasks-page .task-card-description,
+[data-theme="dark"] .my-tasks-page .task-card-meta { color:#b2c7b9; }
+[data-theme="dark"] .my-tasks-page .task-card-meta strong { color:#e1eee6; }
+[data-theme="dark"] .my-tasks-page .task-status { background:#283b30; color:#c6d8cc; }
+[data-theme="dark"] .my-tasks-page .task-status--inReview,
+[data-theme="dark"] .my-tasks-page .task-status--done,
+[data-theme="dark"] .my-tasks-page .task-status--revisionRequested { background:#40351f; color:#efd18a; }
+[data-theme="dark"] .my-tasks-page .task-status--inProgress { background:#24374d; color:#bdd4fa; }
+[data-theme="dark"] .my-tasks-page .task-status--completed { background:#203e2b; color:#a9e2bc; }
+[data-theme="dark"] .my-tasks-page .task-open-button,
+[data-theme="dark"] .my-tasks-page .task-pdf-card-link,
+[data-theme="dark"] .my-tasks-page .task-reference-pdf a { color:#7dd8aa; }
+[data-theme="dark"] .my-tasks-page .task-pdf-card-link,
+[data-theme="dark"] .my-tasks-page .task-reference-pdf { border-color:#365343; background:#1c3325; }
+[data-theme="dark"] .my-tasks-page :is(.tasks-empty,.tasks-alert,.tasks-success) { border-color:#344e40; background:#182a20; color:#dce9e1; }
+[data-theme="dark"] .my-tasks-page .tasks-empty h2 { color:#e5f0e9; }
+[data-theme="dark"] .my-tasks-page .tasks-alert { border-color:#68433e; background:#392725; color:#efb5ad; }
+[data-theme="dark"] .my-tasks-page .tasks-success { border-color:#365d47; background:#1f3929; color:#b4e2c3; }
+[data-theme="dark"] .my-tasks-page .empty-icon { background:#203b2b; color:#8ad8a9; }
+[data-theme="dark"] .task-modal { border:1px solid #3b5546; background:#17271e; color:#dce9e1; scrollbar-color:#53735d #17271e; }
+[data-theme="dark"] .task-modal-content :is(h2,h3,.notes-label) { color:#e5f0e9; }
+[data-theme="dark"] .task-modal-content :is(p,.task-description>span,.task-meta-grid span,.submission-panel>p,.selected-file-name) { color:#a9beb1; }
+[data-theme="dark"] .task-meta-grid,
+[data-theme="dark"] .previous-submission { border:1px solid #344e40; background:#203329; color:#c7d8cd; }
+[data-theme="dark"] .task-meta-grid strong { color:#e1eee6; }
+[data-theme="dark"] .task-description { border-color:#344e40; }
+[data-theme="dark"] .task-description p { color:#c5d7cb; }
+[data-theme="dark"] .review-feedback { border-color:#d4a64a; background:#382f1d; color:#efd18a; }
+[data-theme="dark"] .review-feedback p { color:#e2d3a8; }
+[data-theme="dark"] .pdf-upload { border-color:#456650; background:#1a3024; color:#dce9e1; }
+[data-theme="dark"] .upload-icon { background:#203b2b; color:#8ad8a9; }
+[data-theme="dark"] .pdf-upload small,
+[data-theme="dark"] .notes-label span { color:#a9beb1; }
+[data-theme="dark"] .submission-notes,
+[data-theme="dark"] .submission-url { border-color:#3b5948; background:#102018; color:#e1eee6; }
+[data-theme="dark"] .completed-panel { background:#203c2b; color:#a8e4bd; }
+[data-theme="dark"] .completed-panel p { color:#b6cfc0; }

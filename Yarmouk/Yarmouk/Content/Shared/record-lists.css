@@ -1,0 +1,196 @@
+/* Content organization for eligible record pages. Tokens inherit the workspace theme. */
+[data-record-hidden] { display: none !important; }
+.record-tools[hidden], .record-pagination[hidden], .record-reset[hidden], .record-no-matches[hidden] { display: none !important; }
+.record-tools, .record-pagination, .record-no-matches { box-sizing: border-box; font-family: var(--wp-font, 'Segoe UI', sans-serif); }
+.task-register-region, .yr-table-region, .co-table-wrap, .table-scroll, .trainee-table-wrap, .mp-table-wrap, .fr-table-wrap { position: relative; }
+.record-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 18px;
+  border: 1px solid var(--wp-line, #dce7df);
+  border-radius: 12px;
+  background: var(--wp-paper, #fff);
+  color: var(--wp-ink, #193c2d);
+  scroll-margin-top: 20px;
+}
+.record-field { display: grid; gap: 6px; min-width: 0; margin: 0; font-size: 12px; font-weight: 600; }
+.record-field:first-child:has(input) { flex: 1 1 230px; }
+.record-field > span { color: var(--wp-muted, #576d60); }
+.record-field :is(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--wp-line, #dce7df);
+  border-radius: 8px;
+  background: var(--wp-paper, #fff);
+  color: var(--wp-ink, #193c2d);
+  font: 400 14px/1.4 var(--wp-font, 'Segoe UI', sans-serif);
+  text-overflow: ellipsis;
+}
+.record-field input { min-width: 180px; }
+.record-field select { max-width: 240px; padding-right: 30px; }
+.record-tools :is(input,select,button):focus-visible,
+.record-pagination button:focus-visible,
+.task-description summary:focus-visible,
+.task-resource-link:focus-visible {
+  outline: 3px solid var(--wp-focus, #207b54);
+  outline-offset: 3px;
+}
+.record-reset, .record-page-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--wp-line, #dce7df);
+  border-radius: 8px;
+  background: var(--wp-paper, #fff);
+  color: var(--wp-ink, #193c2d);
+  font: 600 13px/1.4 var(--wp-font, 'Segoe UI', sans-serif);
+  cursor: pointer;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out;
+}
+.record-reset { color: var(--wp-green, #076541); }
+.record-page-controls button:hover:not(:disabled), .record-reset:hover { background: var(--wp-soft, #f1f6f3); border-color: var(--wp-green, #076541); }
+.record-page-controls button[aria-current="page"] { border-color: #076541; background: #076541; color: #fff; }
+.record-page-controls button:disabled { color: var(--wp-muted, #576d60); opacity: .5; cursor: default; }
+.record-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 20px 0 8px;
+  color: var(--wp-muted, #576d60);
+}
+.record-result-summary { margin: 0; font-size: 13px; line-height: 1.6; font-variant-numeric: tabular-nums; }
+.record-page-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.record-page-controls > span { padding-inline: 2px; }
+.record-no-matches { margin: 0; padding: 32px 24px; border: 1px dashed var(--wp-line, #dce7df); border-radius: 10px; background: var(--wp-paper, #fff); color: var(--wp-muted, #576d60); text-align: center; line-height: 1.7; }
+.record-tools--compact { padding: 12px; gap: 8px; border: 0; border-radius: 0; border-bottom: 1px solid var(--wp-line, #dce7df); }
+.record-tools--compact .record-field { flex: 1 1 100px; }
+.record-tools--compact .record-field:first-child:has(input) { flex-basis: 100%; }
+.record-tools--compact .record-field select { max-width: none; }
+.record-tools--compact ~ .record-pagination { padding: 16px 12px; }
+.record-tools--compact ~ .record-pagination .record-page-controls { gap: 6px; }
+[data-record-list-ready] > :is(.application-card, .trainee-card, .student-progress-card, .evaluation-card) { animation: none; }
+
+/* The application index is a concise decision list; its existing detail dialog holds the full brief. */
+#applicationList {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--wp-line);
+  border-radius: 12px;
+  background: var(--wp-paper);
+}
+#applicationList:empty { display: none; }
+#applicationList > .application-card {
+  grid-template-columns: minmax(0, 1.6fr) minmax(180px, .8fr) minmax(130px, .45fr);
+  min-height: 0;
+  padding: 20px 24px;
+  gap: 24px;
+  border: 0;
+  border-bottom: 1px solid var(--wp-line);
+  border-radius: 0;
+  background: var(--wp-paper);
+  box-shadow: none;
+  animation: none;
+}
+#applicationList > .application-card:hover { transform: none; background: var(--wp-soft); box-shadow: none; }
+#applicationList > .application-card::before { display: none; }
+#applicationList .application-category,
+#applicationList .application-summary,
+#applicationList .application-status-panel:not(.status-offered) p { display: none; }
+#applicationList .application-copy h2 { margin: 0 0 7px; font-size: 16px; line-height: 1.5; }
+#applicationList .application-company { margin: 0; color: var(--wp-muted); font-size: 13px; }
+#applicationList .application-status-column { min-height: 0; padding: 0; border: 0; }
+#applicationList .application-status-panel { display: inline-block; padding: 6px 9px; border-radius: 6px; }
+#applicationList .application-status-panel strong { margin: 0; font-size: 12px; }
+#applicationList .application-date { margin: 9px 0 0; color: var(--wp-muted); font-size: 12px; }
+#applicationList .application-actions { padding: 0; border: 0; }
+#applicationList .view-details-button { min-height: 44px; font-size: 13px; }
+.my-applications-page .application-sort { flex: 0 0 auto; min-height: 44px; height: 44px; }
+.my-applications-page .application-search { min-height: 44px; }
+
+/* Academic tasks are a register: comparable rows with descriptions available on demand. */
+.task-register-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 20px; }
+.task-register-heading h2 { margin: 0 0 6px; font-size: 22px; }
+.task-register-heading p { margin: 0; color: var(--wp-muted); font-size: 14px; }
+.task-register-total { flex: none; padding: 6px 12px; border-radius: 6px; color: var(--wp-green); background: var(--wp-soft); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.task-register-region { border: 1px solid var(--wp-line); border-radius: 12px; background: var(--wp-paper); overflow-x: auto; }
+.task-register { width: 100%; min-width: 760px; border-collapse: collapse; font: 14px/1.55 var(--wp-font); color: var(--wp-ink); }
+.task-register th { padding: 14px 20px; border-bottom: 1px solid var(--wp-line); background: var(--wp-soft); color: var(--wp-muted); font-size: 12px; font-weight: 600; text-align: left; white-space: nowrap; }
+.task-register td { padding: 19px 20px; border-bottom: 1px solid var(--wp-line); text-align: left; vertical-align: top; }
+.task-register tr:last-child td { border-bottom: 0; }
+.task-register tbody tr:hover { background: var(--wp-soft); }
+.task-register td:first-child { width: 19%; }
+.task-register td:nth-child(2) { width: 41%; }
+.task-register .task-student { color: var(--wp-ink); font-size: 14px; font-weight: 600; }
+.task-register-title { margin: 0 0 6px; font-size: 15px; font-weight: 600; line-height: 1.55; text-wrap: pretty; }
+.task-description summary { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 0; color: var(--wp-muted); font-size: 12px; font-weight: 500; cursor: pointer; }
+.task-description summary::before { content: '+'; display: inline-block; width: 16px; font-size: 16px; }
+.task-description[open] summary::before { content: '−'; }
+.task-description summary:hover { color: var(--wp-green); }
+.task-description p { max-width: 65ch; margin: 10px 0 4px; padding: 12px 14px; border-inline-start: 2px solid var(--wp-line); color: var(--wp-muted); font-size: 14px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.task-due { font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.task-register .task-status { display: inline-block; padding: 5px 9px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; background: #edf1ef; color: #465d50; }
+.task-register .task-status--done { background: #fff3d9; color: #775218; }
+.task-register .task-status--inprogress { background: #edf2fc; color: #365b90; }
+.task-register .task-status--completed { background: #e7f3ec; color: #226440; }
+.task-register .task-resource-link { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: var(--wp-green); font-size: 12px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.task-register td:last-child:empty::after { content: 'No file'; color: var(--wp-muted); font-size: 12px; }
+.task-board-more { min-height: 44px; width: 100%; margin-top: 12px; padding: 10px; border: 1px solid var(--wp-line); border-radius: 8px; color: var(--wp-green); background: var(--wp-paper); font: 600 13px/1.5 var(--wp-font); cursor: pointer; }
+.task-board-more:hover { background: var(--wp-soft); }
+.task-board-tools { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; margin: 0 0 20px; padding: 18px; border: 1px solid var(--wp-line); border-radius: 12px; background: var(--wp-paper); }
+.task-board-tools .record-field:first-child { flex: 1 1 240px; }
+[data-theme="dark"] .task-register .task-status { background: #2b3d31; color: #c4d5ca; }
+[data-theme="dark"] .task-register .task-status--done { background: #3a321e; color: #efd08b; }
+[data-theme="dark"] .task-register .task-status--inprogress { background: #23364c; color: #b8d3f2; }
+[data-theme="dark"] .task-register .task-status--completed { background: #203f2c; color: #a4dfb9; }
+
+@media (max-width: 700px) {
+  .record-tools { padding: 14px; gap: 12px; }
+  .record-field { flex: 1 1 120px; }
+  .record-field:first-child:has(input) { flex-basis: 100%; }
+  .record-field--sort { flex-grow: 3; }
+  .record-field--size { flex: 0 0 84px; }
+  .record-field :is(input,select) { max-width: none; min-width: 0; font-size: 16px; }
+  .record-tools--compact { padding: 12px; }
+  .record-pagination { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .record-page-controls { width: 100%; justify-content: flex-start; gap: 6px; }
+  .record-page-controls button { padding-inline: 10px; }
+  .task-register { min-width: 0; }
+  .task-register thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .task-register tbody { display: block; }
+  .task-register tr { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px 16px; padding: 20px; border-bottom: 1px solid var(--wp-line); }
+  .task-register tr:last-child { border-bottom: 0; }
+  .task-register td { display: block; width: auto !important; min-width: 0; padding: 0; border: 0; }
+  .task-register td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .task-register td:nth-child(4) { grid-column: 2; grid-row: 1; }
+  .task-register td:nth-child(3)::before { content: 'Due '; color: var(--wp-muted); font-size: 12px; }
+  .task-register td:last-child { text-align: right; }
+  .task-description summary, .task-register .task-resource-link { min-height: 44px; }
+  .task-register-title { margin-top: 4px; font-size: 16px; }
+  #applicationList > .application-card { grid-template-columns: minmax(0, 1fr); padding: 18px; gap: 12px; }
+  #applicationList .application-status-column { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  #applicationList .application-date { margin: 0; }
+  #applicationList .application-actions { grid-column: auto; grid-template-columns: 1fr; }
+  #applicationList .rejection-reason { flex-basis: 100%; }
+  .my-applications-page .application-sort { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .record-tools *, .record-pagination * { transition: none; }
+}
+@media print {
+  .record-tools, .record-pagination, .record-reset, .task-board-tools, .task-board-more { display: none !important; }
+}

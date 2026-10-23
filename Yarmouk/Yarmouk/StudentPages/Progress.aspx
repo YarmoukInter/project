@@ -3,8 +3,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="<%= ResolveUrl("~/Content/StudentPages/Progress.css") %>" rel="stylesheet" />
+    <link href="<%= ResolveUrl("~/Content/StudentPages/Progress.css?v=progress-ux-2") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/StudentPages/Progress.js") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="progress-page" aria-labelledby="progress-title">
@@ -12,7 +15,7 @@
             <div>
                 <p class="eyebrow">STUDENT TRAINING</p>
                 <h1 id="progress-title">My Progress</h1>
-                <p class="heading-copy">A clear view of your internship hours and your path to completion.</p>
+                <p class="heading-copy">Complete 10 tasks to reach 100% internship progress.</p>
             </div>
             <div class="program-pill"><span class="status-dot"></span> Internship journey</div>
         </header>
@@ -39,15 +42,15 @@
                         </div>
                     </div>
                     <div class="completion-summary">
-                        <p class="hours-total"><asp:Literal ID="ApprovedHours" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> hours</span></p>
-                        <p class="summary-copy">Approved training hours count toward your internship completion.</p>
-                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Approved training hours" aria-valuemin="0" aria-valuemax="0">
+                        <p class="hours-total"><asp:Literal ID="CompletedTaskCount" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks completed</span></p>
+                        <p class="summary-copy">Each completed task adds 10% toward your internship progress.</p>
+                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Completed tasks" aria-valuemin="0" aria-valuemax="0">
                             <span id="hoursTrack" runat="server"></span>
                         </div>
-                        <div class="track-labels"><span>0 hours</span><span><asp:Literal ID="TrackTarget" runat="server" /> hours</span></div>
+                        <div class="track-labels"><span>0 tasks</span><span><asp:Literal ID="TrackTarget" runat="server" /> tasks</span></div>
                     </div>
                 </div>
-                <div class="completion-footnote"><span class="gold-dot"></span> Required training target: <strong><asp:Literal ID="TargetHours" runat="server" /> approved hours</strong></div>
+                <div class="completion-footnote"><span class="gold-dot"></span> Required completion target: <strong><asp:Literal ID="TargetHours" runat="server" /> tasks</strong></div>
             </article>
 
             <article class="progress-card target-card">
@@ -64,17 +67,17 @@
                 </div>
                 <div class="plan-divider"></div>
                 <div class="plan-detail"><span class="detail-icon calendar-icon" aria-hidden="true">✓</span><span><strong><asp:Literal ID="PlanApprovedHours" runat="server" /></strong><small>Approved hours so far</small></span></div>
-                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">8</span><span><strong>8 stages</strong><small>Based on your required hours</small></span></div>
-                <p class="plan-note">Your progress updates as training hours are approved.</p>
+                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each completed task adds 10%</small></span></div>
+                <p class="plan-note">Only tasks marked Completed count toward your progress.</p>
             </article>
         </div>
 
         <article class="progress-card milestones-card">
             <div class="card-heading milestone-heading">
                 <div>
-                    <p class="card-kicker">HOUR MILESTONES</p>
+                    <p class="card-kicker">TASK MILESTONES</p>
                     <h2>Your training milestones</h2>
-                    <p class="section-description">Milestones are calculated from your required training hours.</p>
+                    <p class="section-description">Complete each of the 10 required tasks to reach the next milestone.</p>
                 </div>
                 <div class="milestone-legend"><span class="legend-complete"></span> Reached <span class="legend-upcoming"></span> Ahead</div>
             </div>
@@ -82,28 +85,26 @@
                 <asp:Repeater ID="MilestoneRepeater" runat="server">
                     <ItemTemplate>
                         <div class='milestone <%# Eval("CssClass") %>'>
-                            <div class="milestone-top"><span class="milestone-check"><%# Eval("Marker") %></span><span class="milestone-week">STAGE <%# Eval("Week") %></span></div>
+                            <div class="milestone-top"><span class="milestone-check"><%# Eval("Marker") %></span><span class="milestone-week">TASK <%# Eval("Week") %></span></div>
                             <div class="milestone-bar"><span style='width:<%# Eval("Fill") %>%'></span></div>
-                            <div class="milestone-hours"><strong><%# Eval("HoursLabel") %></strong><span>/ <%# Eval("TargetHours") %> h</span></div>
+                            <div class="milestone-hours"><strong><%# Eval("HoursLabel") %></strong><span>/ <%# Eval("TargetHours") %> completed</span></div>
                         </div>
                     </ItemTemplate>
                 </asp:Repeater>
             </div>
-            <div class="milestone-caption"><span class="caption-line"></span><span>Only approved training hours count toward these milestones.</span></div>
+            <div class="milestone-caption"><span class="caption-line"></span><span>Only distinct tasks marked Completed count toward milestones.</span></div>
         </article>
 
-        <article class="progress-card milestones-card task-updates-card">
-            <div class="card-heading"><div><p class="card-kicker">TASK ACTIVITY</p><h2>Submissions and feedback</h2></div></div>
-            <p class="task-count-summary"><asp:Literal ID="TaskSummary" runat="server" /></p>
-            <asp:Repeater ID="TaskUpdates" runat="server">
+        <article class="progress-card milestones-card academic-notes-card">
+            <div class="card-heading"><div><p class="card-kicker">ACADEMIC GUIDANCE</p><h2>Notes from your academic supervisor</h2><p class="section-description">Feedback about your training progress and next steps.</p></div></div>
+            <asp:Repeater ID="ProgressNotes" runat="server">
+                <HeaderTemplate><div id="academic-notes-list"></HeaderTemplate>
                 <ItemTemplate>
-                    <div class="task-update-row">
-                        <div><strong><%#: Eval("Title") %></strong><span><%#: Eval("Status") %><%#: Eval("Grade") %></span></div>
-                        <p><%#: Eval("Feedback") %></p>
-                    </div>
+                    <div class="academic-note"><div class="academic-note-header"><strong><%#: Eval("Author") %></strong><time datetime='<%# Eval("DateIso") %>'><%#: Eval("Date") %></time></div><p><%#: Eval("Body") %></p></div>
                 </ItemTemplate>
+                <FooterTemplate></div></FooterTemplate>
             </asp:Repeater>
-            <asp:Panel ID="NoTaskUpdates" runat="server" Visible="false"><p class="plan-note">No tasks have been assigned yet.</p></asp:Panel>
+            <asp:Panel ID="NoProgressNotes" runat="server" Visible="false"><p class="plan-note">Your academic supervisor has not added a progress note yet.</p></asp:Panel>
         </article>
 
         <div class="progress-bottom-grid">
@@ -112,7 +113,7 @@
                 <div class="next-step-copy">
                     <p class="card-kicker">KEEP GOING</p>
                     <h2>Small steps add up</h2>
-                    <p>Check task feedback and requested revisions while you work toward your required training hours.</p>
+                    <p>Check task feedback and requested revisions while you work toward completing your 10 required tasks.</p>
                 </div>
                 <a class="tasks-link" href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>">View my tasks <span aria-hidden="true">→</span></a>
             </article>

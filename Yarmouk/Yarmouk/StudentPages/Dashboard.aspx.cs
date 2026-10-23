@@ -53,51 +53,60 @@ namespace Yarmouk.StudentPages
                 var placements = await placementsTask ?? new Dictionary<string, JObject>();
 
                 var taskRows = tasks.Select(x => new { x.Key, Data = x.Value, Submission = GetSubmission(submissions, Text(x.Value, "id", x.Key)) }).ToList();
-                var upcoming = taskRows.Where(x => Number(x.Data, "dueAtUnixMs") >= DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                        && Number(x.Data, "dueAtUnixMs") <= DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeMilliseconds()
+                long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                long weekEnd = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeMilliseconds();
+                var upcoming = taskRows.Where(x => Number(x.Data, "dueAtUnixMs") >= now
+                        && Number(x.Data, "dueAtUnixMs") <= weekEnd
                         && TaskStatus(x.Data, x.Submission) != "Completed")
                     .OrderBy(x => Number(x.Data, "dueAtUnixMs")).ToList();
+                var pendingTasks = taskRows.Where(x => TaskStatus(x.Data, x.Submission) != "Completed")
+                    .OrderBy(x => Number(x.Data, "dueAtUnixMs") <= 0 ? long.MaxValue : Number(x.Data, "dueAtUnixMs")).ToList();
+                var displayedTasks = (pendingTasks.Count > 0 ? pendingTasks : taskRows
+                    .OrderByDescending(x => Number(x.Data, "dueAtUnixMs")).ToList()).Take(4).ToList();
+                int overdue = pendingTasks.Count(x => Number(x.Data, "dueAtUnixMs") > 0 && Number(x.Data, "dueAtUnixMs") < now);
                 int completed = taskRows.Count(x => TaskStatus(x.Data, x.Submission) == "Completed");
                 int reviewed = submissions.Values.Count(IsReviewed);
 
-                var studentName = auth.User == null ? "Student" : auth.User.FullName;
-                StudentName.Text = HttpUtility.HtmlEncode(studentName);
-                StudentInitials.Text = HttpUtility.HtmlEncode(Initials(studentName));
                 ApplicationsCount.Text = apps.Count.ToString(CultureInfo.InvariantCulture);
                 ApplicationsSummary.Text = CountStatus(apps, "pending") + " pending · " + CountStatus(apps, "accepted") + " accepted · " + CountStatus(apps, "rejected") + " rejected";
                 TasksCount.Text = taskRows.Count.ToString(CultureInfo.InvariantCulture);
                 TasksSummary.Text = completed + " completed · " + (taskRows.Count - completed) + " active";
                 DeadlinesCount.Text = upcoming.Count.ToString(CultureInfo.InvariantCulture);
-                DeadlinesMessage.Text = upcoming.Count + (upcoming.Count == 1 ? " task due this week" : " tasks due this week");
+                DeadlinesMessage.Text = HttpUtility.HtmlEncode((overdue > 0 ? overdue + (overdue == 1 ? " overdue task · " : " overdue tasks · ") : "")
+                    + upcoming.Count + (upcoming.Count == 1 ? " task due this week" : " tasks due this week"));
                 EvaluationsCount.Text = reviewed.ToString(CultureInfo.InvariantCulture);
 
-                UpcomingTasks.DataSource = upcoming.Take(4).Select(x => new
+                UpcomingTasks.DataSource = displayedTasks.Select(x => new
                 {
                     Title = Text(x.Data, "title", "Task"), Description = Text(x.Data, "description", "Training task"),
                     Deadline = FormatDate(Number(x.Data, "dueAtUnixMs")), DeadlineIso = FormatIso(Number(x.Data, "dueAtUnixMs")),
+                    DeadlineNote = Number(x.Data, "dueAtUnixMs") > 0 && Number(x.Data, "dueAtUnixMs") < now
+                        && TaskStatus(x.Data, x.Submission) != "Completed" ? "Overdue" : "",
                     Status = TaskStatus(x.Data, x.Submission), BadgeClass = BadgeClass(TaskStatus(x.Data, x.Submission))
                 }).ToList();
                 UpcomingTasks.DataBind();
-                NoUpcomingTasks.Visible = upcoming.Count == 0;
+                NoUpcomingTasks.Visible = taskRows.Count == 0;
 
                 var target = student == null ? 0 : Math.Max(0, student.RequiredTrainingHours);
                 var hours = student == null ? 0 : Math.Max(0, student.ApprovedTrainingHours);
-                int percent = target == 0 ? 0 : Math.Min(100, hours * 100 / target);
+                int submitted = TrainingProgress.CountSubmitted(tasks,
+                    (await submissionsTask ?? new Dictionary<string, JObject>()).Values, auth.Uid);
+                int percent = TrainingProgress.Percent(submitted);
                 ApprovedHours.Text = hours.ToString("N0", CultureInfo.InvariantCulture);
                 RequiredHours.Text = target == 0 ? "—" : target.ToString("N0", CultureInfo.InvariantCulture);
-                DashboardProgressPercent.Text = target == 0 ? "—" : percent.ToString(CultureInfo.InvariantCulture) + "%";
+                DashboardProgressPercent.Text = percent.ToString(CultureInfo.InvariantCulture) + "%";
                 DashboardProgressRing.Style["--progress"] = percent + "%";
-                DashboardProgressRing.Attributes["aria-label"] = target == 0 ? "Training target unavailable" : "Internship progress: " + percent + "%";
-                TaskCompletionLabel.Text = completed + " of " + taskRows.Count + " tasks";
-                DashboardTaskProgress.Attributes["value"] = completed.ToString(CultureInfo.InvariantCulture);
-                DashboardTaskProgress.Attributes["max"] = Math.Max(1, taskRows.Count).ToString(CultureInfo.InvariantCulture);
-                DashboardTaskProgressPercent.Text = taskRows.Count == 0 ? "0" : (completed * 100 / taskRows.Count).ToString(CultureInfo.InvariantCulture);
+                DashboardProgressRing.Attributes["aria-label"] = "Internship progress: " + percent + "%, " + TrainingProgress.Label(submitted);
+                TaskCompletionLabel.Text = TrainingProgress.Label(submitted);
+                DashboardTaskProgress.Attributes["value"] = Math.Min(TrainingProgress.RequiredTasks, submitted).ToString(CultureInfo.InvariantCulture);
+                DashboardTaskProgress.Attributes["max"] = TrainingProgress.RequiredTasks.ToString(CultureInfo.InvariantCulture);
+                DashboardTaskProgressPercent.Text = percent.ToString(CultureInfo.InvariantCulture);
                 InternshipStatus.Text = HttpUtility.HtmlEncode(student == null || string.IsNullOrWhiteSpace(student.InternshipStatus)
                     ? "No active training" : Humanize(student.InternshipStatus));
 
                 BindApplications(apps, opportunities, companies);
                 BindReviews(submissions, tasks);
-                BindPlacement(placements, student, companies, auth.Uid);
+                await BindPlacementAsync(placements, student, companies, auth.Uid, auth.IdToken);
             }
             catch (Exception ex)
             {
@@ -135,16 +144,47 @@ namespace Yarmouk.StudentPages
             NoRecentReviews.Visible = rows.Count == 0;
         }
 
-        private void BindPlacement(Dictionary<string, JObject> placements, Student student,
-            Dictionary<string, JObject> companies, string uid)
+        private async Task BindPlacementAsync(Dictionary<string, JObject> placements, Student student,
+            Dictionary<string, JObject> companies, string uid, string idToken)
         {
             var placement = placements.FirstOrDefault(x => Text(x.Value, "studentUid") == uid
                 && !new[] { "pending", "rejected", "declined", "cancelled" }.Contains(Normalize(Text(x.Value, "status"))));
             if (placement.Value == null) return;
             var company = Find(companies, Text(placement.Value, "companyId", student == null ? "" : student.CompanyId));
             PlacementCompany.Text = HttpUtility.HtmlEncode(Text(company, "name", "Confirmed placement"));
-            CompanySupervisor.Text = HttpUtility.HtmlEncode(Text(placement.Value, "companySupervisorName", "Assigned"));
-            AcademicSupervisor.Text = HttpUtility.HtmlEncode(student == null ? "Assigned" : Text(JObject.FromObject(student), "academicSupervisorName", "Assigned"));
+            string companyUid = Text(placement.Value, "companySupervisorUid", Text(company, "supervisorUid"));
+            string academicUid = Text(placement.Value, "academicSupervisorUid", Text(placement.Value, "academicSupervisorId",
+                student == null ? "" : student.AcademicSupervisorId));
+            var companyUserTask = GetSupervisorUserAsync(companyUid, idToken);
+            var academicUserTask = GetSupervisorUserAsync(academicUid, idToken);
+            await Task.WhenAll(companyUserTask, academicUserTask);
+            CompanySupervisor.Text = SupervisorDetails(await companyUserTask,
+                Text(placement.Value, "companySupervisorName"), companyUid);
+            AcademicSupervisor.Text = SupervisorDetails(await academicUserTask,
+                student == null ? "" : student.AcademicSupervisorName, academicUid);
+        }
+
+        private async Task<JObject> GetSupervisorUserAsync(string uid, string idToken)
+        {
+            if (string.IsNullOrWhiteSpace(uid)) return null;
+            try { return await firebase.GetAsync<JObject>(DatabasePaths.Users + "/" + uid, idToken); }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning("Student dashboard supervisor lookup failed: " + ex.GetType().Name);
+                return null;
+            }
+        }
+
+        private static string SupervisorDetails(JObject user, string fallbackName, string uid)
+        {
+            string name = Text(user, "fullName", fallbackName);
+            if (string.IsNullOrWhiteSpace(name)) name = string.IsNullOrWhiteSpace(uid) ? "Not assigned" : "Supervisor details unavailable";
+            string email = Text(user, "email");
+            string phone = Text(user, "phone");
+            string details = "<strong class=\"supervisor-name\">" + HttpUtility.HtmlEncode(name) + "</strong>";
+            if (!string.IsNullOrWhiteSpace(email)) details += "<span class=\"supervisor-contact\">" + HttpUtility.HtmlEncode(email) + "</span>";
+            if (!string.IsNullOrWhiteSpace(phone)) details += "<span class=\"supervisor-contact\">" + HttpUtility.HtmlEncode(phone) + "</span>";
+            return details;
         }
 
         private static JObject GetSubmission(Dictionary<string, JObject> submissions, string taskId)
@@ -210,12 +250,6 @@ namespace Yarmouk.StudentPages
         {
             try { return value <= 0 ? "" : DateTimeOffset.FromUnixTimeMilliseconds(value).UtcDateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture); }
             catch (ArgumentOutOfRangeException) { return ""; }
-        }
-        private static string Initials(string name)
-        {
-            var parts = (name ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            return parts.Length == 0 ? "ST" : parts.Length == 1 ? parts[0].Substring(0, 1).ToUpperInvariant()
-                : (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpperInvariant();
         }
         private void ShowNotice(string message)
         {

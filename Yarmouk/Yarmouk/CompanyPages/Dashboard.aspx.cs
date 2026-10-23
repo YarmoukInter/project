@@ -108,7 +108,7 @@ namespace Yarmouk.CompanyPages
                     .Take(4).Select(x => BuildOpportunityRow(x, applications)).ToList();
                 OpportunitiesRepeater.DataBind();
                 TraineesRepeater.DataSource = placements.GroupBy(x => Text(x.Value, "studentUid"), StringComparer.OrdinalIgnoreCase)
-                    .Where(x => x.Key != "").Take(5).Select(x => BuildTraineeRow(x.First(), tasks, users, students, majors)).ToList();
+                    .Where(x => x.Key != "").Take(5).Select(x => BuildTraineeRow(x.First(), tasks, submissions, users, students, majors)).ToList();
                 TraineesRepeater.DataBind();
                 NoApplications.Visible = pendingApps.Count == 0;
                 NoSubmissions.Visible = pendingSubmissions.Count == 0;
@@ -146,14 +146,17 @@ namespace Yarmouk.CompanyPages
                 State = IsActive(item.Value) ? "Active" : "Closed" };
         }
         private static object BuildTraineeRow(KeyValuePair<string, JObject> placement, List<KeyValuePair<string, JObject>> tasks,
+            List<KeyValuePair<string, JObject>> submissions,
             Dictionary<string, JObject> users, Dictionary<string, JObject> students, Dictionary<string, JObject> majors)
         {
             string uid = Text(placement.Value, "studentUid"); var user = Find(users, uid); var student = Find(students, uid);
             var major = Find(majors, Text(student, "majorId"));
             var traineeTasks = tasks.Where(x => Text(x.Value, "studentUid") == uid && (Text(x.Value, "placementId") == "" || Text(x.Value, "placementId") == placement.Key)).ToList();
-            int completed = traineeTasks.Count(x => IsTaskComplete(x.Value)); int total = traineeTasks.Count;
+            int completed = TrainingProgress.CountSubmitted(tasks, submissions.Select(s => s.Value), uid,
+                placement.Key, Text(placement.Value, "opportunityId"));
+            int total = TrainingProgress.RequiredTasks;
             return new { Name = Text(user, "fullName", "Trainee"), Program = Text(major, "name", "Active trainee"), Initials = Initials(Text(user, "fullName", "T")),
-                Completed = completed, Total = total, Percent = total == 0 ? 0 : completed * 100 / total };
+                Completed = completed, Total = total, Percent = TrainingProgress.Percent(completed) };
         }
         private static bool IsSupervisor(JObject company, string uid)
         {

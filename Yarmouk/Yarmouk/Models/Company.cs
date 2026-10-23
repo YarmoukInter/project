@@ -8,6 +8,7 @@ namespace Yarmouk.Models
         public string Industry { get; set; }
         public string Location { get; set; }
         public string ContactEmail { get; set; }
+        public string CompanyEmail { get; set; }
         public string LogoUrl { get; set; }
         public bool IsApproved { get; set; }
         public string SupervisorUid { get; set; }

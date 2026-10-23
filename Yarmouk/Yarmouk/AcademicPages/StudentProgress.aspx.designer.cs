@@ -22,6 +22,7 @@ namespace Yarmouk.AcademicPages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel ProgressError;
+        protected global::System.Web.UI.WebControls.Panel ProgressSuccess;
 
         /// <summary>
         /// ProgressErrorText control.
@@ -85,5 +86,9 @@ namespace Yarmouk.AcademicPages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater AssignedStudents;
+        protected global::System.Web.UI.WebControls.HiddenField NotePlacementId;
+        protected global::System.Web.UI.WebControls.Label NoteBodyLabel;
+        protected global::System.Web.UI.WebControls.TextBox NoteBody;
+        protected global::System.Web.UI.WebControls.Button SaveProgressNoteButton;
     }
 }

@@ -39,22 +39,27 @@ namespace Yarmouk.AcademicPages
                 var trainingLogs = await GetRecordsAsync("trainingLogs", auth.IdToken);
                 var evaluations = await GetRecordsAsync("evaluations", auth.IdToken);
 
+                var assignedStudents = students
+                    .Where(item => Same(Read(item.Value, "academicSupervisorId"), auth.Uid))
+                    .ToList();
+                var assignedStudentIds = new HashSet<string>(assignedStudents.Select(item => item.Key), StringComparer.Ordinal);
                 var assignedPlacements = placements
-                    .Where(item => IsAssigned(item.Value, auth.Uid, students))
+                    .Where(item => assignedStudentIds.Contains(Read(item.Value, "studentUid")))
                     .ToList();
 
-                var studentRows = assignedPlacements
-                    .Where(item => !string.IsNullOrWhiteSpace(Read(item.Value, "studentUid")))
-                    .GroupBy(item => Read(item.Value, "studentUid"), StringComparer.Ordinal)
-                    .Select(group => BuildStudentRow(group
+                var studentRows = assignedStudents.Select(student => {
+                    var placement = assignedPlacements
+                        .Where(item => Same(Read(item.Value, "studentUid"), student.Key))
                         .OrderByDescending(item => IsActivePlacement(Read(item.Value, "status")))
-                        .First(), students, users, companies, tasks, submissions, trainingLogs))
-                    .OrderBy(row => row.StudentName, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
+                        .FirstOrDefault();
+                    if (placement.Value == null)
+                        placement = new KeyValuePair<string, JObject>(string.Empty,
+                            new JObject { ["studentUid"] = student.Key, ["status"] = "No placement" });
+                    return BuildStudentRow(placement, students, users, companies, tasks, submissions, trainingLogs);
+                }).OrderBy(row => row.StudentName, StringComparer.OrdinalIgnoreCase).ToList();
 
                 int assignedStudentCount = studentRows.Count;
                 int activePlacementCount = assignedPlacements.Count(item => IsActivePlacement(Read(item.Value, "status")));
-                var assignedStudentIds = new HashSet<string>(studentRows.Select(row => row.StudentUid), StringComparer.Ordinal);
                 int submissionsToReview = CountSubmissionsToReview(submissions, tasks, assignedStudentIds);
                 int evaluationsReady = CountEvaluationsReady(evaluations, assignedPlacements, assignedStudentIds);
 
@@ -98,20 +103,6 @@ namespace Yarmouk.AcademicPages
                 ?? new Dictionary<string, JObject>(StringComparer.Ordinal);
         }
 
-        private static bool IsAssigned(JObject placement, string supervisorUid,
-            IDictionary<string, JObject> students)
-        {
-            if (Same(Read(placement, "academicSupervisorUid"), supervisorUid)
-                || Same(Read(placement, "academicSupervisorId"), supervisorUid))
-                return true;
-
-            JObject student;
-            string studentUid = Read(placement, "studentUid");
-            return !string.IsNullOrWhiteSpace(studentUid)
-                && students.TryGetValue(studentUid, out student)
-                && Same(Read(student, "academicSupervisorId"), supervisorUid);
-        }
-
         private static SupervisorStudentProgress BuildStudentRow(
             KeyValuePair<string, JObject> placementEntry,
             IDictionary<string, JObject> students,
@@ -123,8 +114,8 @@ namespace Yarmouk.AcademicPages
         {
             JObject placement = placementEntry.Value;
             string studentUid = Read(placement, "studentUid");
-            string companyId = Read(placement, "companyId");
             JObject student = Find(students, studentUid);
+            string companyId = Read(placement, "companyId", Read(student, "companyId"));
             JObject user = Find(users, studentUid);
             JObject company = Find(companies, companyId);
             var studentTasks = tasks.Where(item => Same(Read(item.Value, "placementId"), placementEntry.Key)
@@ -134,7 +125,8 @@ namespace Yarmouk.AcademicPages
                 .ToList();
 
             int completedTasks = studentTasks.Count(item => IsCompleted(Read(item.Value, "status")));
-            int submittedTasks = CountStudentSubmissions(submissions, tasks, studentUid, placementEntry.Key);
+            int submittedTasks = TrainingProgress.CountSubmitted(tasks, submissions.Values, studentUid,
+                placementEntry.Key, Read(placement, "opportunityId"));
             int approvedHours = ReadInt(placement, "approvedHours");
             if (approvedHours == 0)
             {
@@ -149,8 +141,7 @@ namespace Yarmouk.AcademicPages
 
             int requiredHours = ReadInt(placement, "requiredHours");
             if (requiredHours == 0) requiredHours = ReadInt(student, "requiredTrainingHours");
-            int progressPercent = requiredHours > 0
-                ? Math.Min(100, (int)Math.Round(approvedHours * 100.0 / requiredHours)) : 0;
+            int progressPercent = TrainingProgress.Percent(submittedTasks);
             string name = Read(user, "fullName", Read(student, "englishName", "Student"));
 
             return new SupervisorStudentProgress
@@ -168,8 +159,7 @@ namespace Yarmouk.AcademicPages
                 TotalTasks = studentTasks.Count,
                 CompletedTasks = completedTasks,
                 SubmittedTasks = submittedTasks,
-                TaskProgressLabel = studentTasks.Count == 0
-                    ? "No tasks assigned" : completedTasks + " of " + studentTasks.Count + " tasks complete",
+                TaskProgressLabel = TrainingProgress.Label(submittedTasks),
                 HoursProgressLabel = requiredHours > 0
                     ? approvedHours + " / " + requiredHours + " approved hours" : approvedHours + " approved hours"
             };

@@ -15,7 +15,8 @@ namespace Yarmouk.Services
         }
 
         public Task SaveAcademicEvaluationAsync(string evaluationId, string placementId, string studentUid,
-            string academicSupervisorUid, int score, string feedback, bool submit, string idToken)
+            string academicSupervisorUid, int score, string feedback, bool submit,
+            string meetingDate, string meetingUrl, string meetingAssessment, string idToken)
         {
             if (string.IsNullOrWhiteSpace(evaluationId) || string.IsNullOrWhiteSpace(placementId)
                 || string.IsNullOrWhiteSpace(studentUid) || string.IsNullOrWhiteSpace(academicSupervisorUid)
@@ -33,6 +34,9 @@ namespace Yarmouk.Services
                 academicSupervisorUid,
                 academicScore = score,
                 academicFeedback = feedback,
+                zoomMeetingDate = meetingDate,
+                zoomMeetingUrl = meetingUrl,
+                zoomMeetingAssessment = meetingAssessment,
                 academicSubmitted = submit,
                 academicUpdatedAtUnixMs = now,
                 academicSubmittedAtUnixMs = submit ? (long?)now : null

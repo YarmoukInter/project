@@ -1,7 +1,11 @@
 <%@ Page Title="My Trainees" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="MyTrainees.aspx.cs" Inherits="Yarmouk.CompanyPages.MyTrainees" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/CompanyPages/MyTrainees.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CompanyPages/MyTrainees.js") %>" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/CompanyPages/MyTrainees.js?v=search-2") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=review-groups-3" defer></script>
+<link href="../Content/Shared/review-workspaces.css?v=review-queue-2" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/CompanyPages/MyTrainees.css?v=dialog-contrast-4") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="company-trainees-workspace">
@@ -12,15 +16,15 @@
     <article><span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span><span>Approved hours</span><strong><asp:Literal ID="TraineeApprovedHours" runat="server" /></strong><small>Verified training time</small></article>
     <article><span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5h12M8 12h12M8 19h12M3 5l1 1 2-2m-3 8 1 1 2-2m-3 8 1 1 2-2"/></svg></span><span>Tasks completed</span><strong><asp:Literal ID="TraineeCompletedTasks" runat="server" /></strong><small>Completed across your cohort</small></article>
   </div>
-  <div class="trainees-list-heading"><div><span class="trainees-eyebrow">PLACEMENTS</span><h2>Your training cohort</h2></div><div class="trainee-list-tools"><label class="trainee-search-wrap"><span class="visually-hidden">Search trainees</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input id="traineeSearch" type="search" class="trainee-search" placeholder="Search name or student ID" /></label><label class="trainee-filter-wrap"><span class="visually-hidden">Filter by placement status</span><select id="traineeStatusFilter" class="trainee-status-filter"><option value="all">All statuses</option><option value="active">In progress</option><option value="completed">Completed</option></select></label><span class="trainee-count-pill"><strong id="traineeVisibleCount"><asp:Literal ID="TraineeListCount" runat="server" /></strong> shown</span></div></div>
+  <div class="trainees-list-heading"><div><span class="trainees-eyebrow">PLACEMENTS</span><h2>Your training cohort</h2></div><div class="trainee-list-tools"><label class="trainee-search-wrap"><span class="visually-hidden">Search trainees</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input id="traineeSearch" type="search" class="trainee-search" placeholder="Search name or student ID" /></label><label class="trainee-filter-wrap"><span class="visually-hidden">Filter by placement status</span><select id="traineeStatusFilter" class="trainee-status-filter"><option value="all">All statuses</option><option value="active">In progress</option><option value="completed">Completed</option></select></label><span class="trainee-count-pill"><strong id="traineeVisibleCount"><asp:Literal ID="TraineeListCount" runat="server" /></strong> matched</span></div></div>
   <asp:Panel ID="TraineesEmpty" runat="server" CssClass="trainees-empty" Visible="false"><span class="trainees-empty-icon" aria-hidden="true">◌</span><h3>No confirmed trainees yet</h3><p>Confirmed placements assigned to your company will appear here.</p></asp:Panel>
   <asp:Repeater ID="TraineesList" runat="server">
     <HeaderTemplate><div class="trainees-grid"></HeaderTemplate>
     <ItemTemplate>
-      <article class="trainee-card" data-trainee-status="<%#: Eval("PlacementStatus") %>">
+      <article class="trainee-card" data-trainee-status="<%#: Eval("PlacementStatus") %>" data-search='<%#: Eval("StudentName") %> <%#: Eval("StudentNumber") %> <%#: Eval("CompanyName") %>'>
         <header class="trainee-card-header"><div class="trainee-person"><span class="trainee-avatar"><%#: Eval("Initials") %></span><div><h3><%#: Eval("StudentName") %></h3><p>Student ID <%#: Eval("StudentNumber") %></p></div></div><span class="trainee-status"><i aria-hidden="true"></i><%#: Eval("PlacementStatus") %></span></header>
         <div class="trainee-company"><span class="trainee-company-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V4h11v17M15 10h5v11M2 21h20M8 8h1m3 0h1M8 12h1m3 0h1M8 16h1m3 0h1m6-2h1m-1 4h1" /></svg></span><div><small>HOST COMPANY</small><strong><%#: Eval("CompanyName") %></strong></div></div>
-        <div class="trainee-progress"><div class="trainee-progress-label"><span>Approved training hours</span><strong><%#: Eval("HoursProgressLabel") %></strong><b><%#: Eval("ProgressPercent") %>%</b></div><div class="trainee-track" role="progressbar" aria-label="Approved training hours" aria-valuemin="0" aria-valuemax="100" aria-valuenow='<%# Eval("ProgressPercent") %>'><span style='width:<%# Eval("ProgressPercent") %>%'></span></div><div class="trainee-progress-foot"><span><%#: Eval("TaskProgressLabel") %></span></div></div>
+        <div class="trainee-progress"><div class="trainee-progress-label"><span>Task submission progress</span><strong><%#: Eval("TaskProgressLabel") %></strong><b><%#: Eval("ProgressPercent") %>%</b></div><div class="trainee-track" role="progressbar" aria-label="Task submission progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow='<%# Eval("ProgressPercent") %>'><span style='width:<%# Eval("ProgressPercent") %>%'></span></div><div class="trainee-progress-foot"><span><%#: Eval("HoursProgressLabel") %></span></div></div>
         <div class="trainee-card-meta"><div><small>TRAINING PERIOD</small><strong><%#: Eval("TrainingPeriodLabel") %></strong></div><div><small>TASKS FOR REVIEW</small><strong><%#: Eval("SubmittedTasks") %></strong></div></div>
         <div class="trainee-card-actions">
           <button type="button" class="trainee-action trainee-action--secondary" data-info-trigger="true"

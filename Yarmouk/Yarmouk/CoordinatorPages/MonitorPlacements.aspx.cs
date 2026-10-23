@@ -176,8 +176,9 @@ namespace Yarmouk.CoordinatorPages
                     studentName = "Student";
                 string status = IsCompleted(placement.Status) ? "complete"
                     : (overdueCount > 0 ? "attention" : "active");
-                int progress = requiredHours <= 0 ? 0
-                    : (int)Math.Min(100, Math.Floor(approvedHours * 100.0 / requiredHours));
+                submittedCount = TrainingProgress.CountSubmitted(taskRecords, submissionRecords == null ? null : submissionRecords.Values,
+                    placement.StudentUid, entry.Key, placement.OpportunityId);
+                int progress = TrainingProgress.Percent(submittedCount);
 
                 rows.Add(new MonitorPlacementRow
                 {
@@ -189,7 +190,7 @@ namespace Yarmouk.CoordinatorPages
                     city = GetText(companyRecord, "location"),
                     supervisor = GetText(supervisorRecord, "fullName"),
                     progress = progress,
-                    tasks = submittedCount.ToString(CultureInfo.InvariantCulture) + " submitted · "
+                    tasks = TrainingProgress.Label(submittedCount) + " · "
                         + reviewPendingCount.ToString(CultureInfo.InvariantCulture) + " awaiting review · "
                         + overdueCount.ToString(CultureInfo.InvariantCulture) + " overdue",
                     evaluations = evaluationSummary,

@@ -13,5 +13,32 @@ namespace Yarmouk.CompanyPages
 
     public partial class ManageOpportunities
     {
+        protected global::System.Web.UI.WebControls.Literal ActiveCountLiteral;
+        protected global::System.Web.UI.WebControls.Literal DraftCountLiteral;
+        protected global::System.Web.UI.WebControls.Literal ApplicationCountLiteral;
+        protected global::System.Web.UI.WebControls.Label OpportunityCountLabel;
+        protected global::System.Web.UI.WebControls.TextBox OpportunitySearchTextBox;
+        protected global::System.Web.UI.WebControls.DropDownList OpportunityStatusFilter;
+        protected global::System.Web.UI.WebControls.Button ApplyFiltersButton;
+        protected global::System.Web.UI.WebControls.Repeater OpportunitiesRepeater;
+        protected global::System.Web.UI.WebControls.Panel EmptyStatePanel;
+        protected global::System.Web.UI.WebControls.Label PageFeedbackLabel;
+        protected global::System.Web.UI.WebControls.Panel OpportunityEditorPanel;
+        protected global::System.Web.UI.WebControls.HiddenField EditingOpportunityId;
+        protected global::System.Web.UI.WebControls.HiddenField EditingOpportunityStatus;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityTitleInput;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityDeadlineInput;
+        protected global::System.Web.UI.WebControls.TextBox OpportunitySeatsInput;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityDurationInput;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityHoursInput;
+        protected global::System.Web.UI.WebControls.DropDownList OpportunityWorkModeInput;
+        protected global::System.Web.UI.WebControls.CheckBox MajorCisCheckBox;
+        protected global::System.Web.UI.WebControls.CheckBox MajorCsCheckBox;
+        protected global::System.Web.UI.WebControls.CheckBox MajorSeCheckBox;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityDescriptionInput;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityRequirementsInput;
+        protected global::System.Web.UI.WebControls.TextBox OpportunityQuestionsInput;
+        protected global::System.Web.UI.WebControls.Label EditorFeedbackLabel;
+        protected global::System.Web.UI.WebControls.Button SaveOpportunityButton;
     }
 }

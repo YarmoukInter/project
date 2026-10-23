@@ -17,6 +17,7 @@
     appId: '1:930938489436:web:70e4d7616b8886446c7499'
   };
 </script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 </head><body id="page-login"><form id="AuthForm" runat="server" novalidate>
     <div class="login-page">
       <div class="lb-ambience" aria-hidden="true"></div>

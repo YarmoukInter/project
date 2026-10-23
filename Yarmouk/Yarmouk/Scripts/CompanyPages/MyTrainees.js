@@ -16,12 +16,13 @@
     return filter === 'completed' ? isCompleted : !isCompleted;
   };
 
+  const normalize = value => (value || '').toLocaleLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').trim();
   const filterRows = () => {
-    const query = search ? search.value.trim().toLocaleLowerCase() : '';
+    const query = search ? normalize(search.value) : '';
     const filter = statusFilter ? statusFilter.value : 'all';
     let visible = 0;
     cards.forEach(card => {
-      const matchesText = !query || card.textContent.toLocaleLowerCase().includes(query);
+      const matchesText = !query || normalize(card.dataset.search || card.textContent).includes(query);
       const matchesSelectedStatus = matchesStatus(card, filter);
       card.hidden = !(matchesText && matchesSelectedStatus);
       if (!card.hidden) visible += 1;
@@ -31,7 +32,10 @@
   };
 
   if (search) search.addEventListener('input', filterRows);
+  const initialQuery = new URLSearchParams(location.search).get('search') || new URLSearchParams(location.search).get('q');
+  if (search && initialQuery) search.value = initialQuery;
   if (statusFilter) statusFilter.addEventListener('change', filterRows);
+  filterRows();
 
   if (!dialog) return;
 

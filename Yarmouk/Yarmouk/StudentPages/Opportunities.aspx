@@ -1,7 +1,10 @@
 <%@ Page Title="Explore Opportunities" Language="C#" MasterPageFile="~/StudentPages/Section.Master" AutoEventWireup="true" Async="true" CodeBehind="Opportunities.aspx.cs" Inherits="Yarmouk.StudentPages.Opportunities" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href="<%= ResolveUrl("~/Content/StudentPages/Opportunities.css?v=apply-modal-1") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/StudentPages/Opportunities.js?v=apply-modal-1") %>" defer="defer"></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+    <link href="<%= ResolveUrl("~/Content/StudentPages/Opportunities.css?v=unavailable-cursor-2") %>" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="opportunities-page">
@@ -21,11 +24,6 @@
             </div>
         </section>
         <header class="opportunities-heading">
-            <div>
-                <p class="eyebrow">FIND YOUR NEXT STEP</p>
-                <h1>Explore opportunities</h1>
-                <p class="heading-copy">Browse internships, review the details, and find a role that fits your major.</p>
-            </div>
             <a class="applications-shortcut" href="<%= ResolveUrl("~/StudentPages/MyApplications.aspx") %>">My applications <span aria-hidden="true">→</span></a>
         </header>
 

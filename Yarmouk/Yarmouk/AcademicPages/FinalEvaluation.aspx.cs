@@ -20,6 +20,9 @@ namespace Yarmouk.AcademicPages
             if (e.CommandName != "draft" && e.CommandName != "submit") return;
             var scoreInput = e.Item.FindControl("AcademicScoreInput") as TextBox;
             var feedbackInput = e.Item.FindControl("AcademicFeedbackInput") as TextBox;
+            var meetingDateInput = e.Item.FindControl("ZoomMeetingDateInput") as TextBox;
+            var meetingUrlInput = e.Item.FindControl("ZoomMeetingUrlInput") as TextBox;
+            var meetingAssessmentInput = e.Item.FindControl("ZoomMeetingAssessmentInput") as TextBox;
             string placementId = Convert.ToString(e.CommandArgument, CultureInfo.InvariantCulture);
             int score;
             if (scoreInput == null || !int.TryParse(scoreInput.Text, NumberStyles.Integer,
@@ -38,7 +41,10 @@ namespace Yarmouk.AcademicPages
                 {
                     var auth = GetSupervisorSession("academic");
                     await new SupervisorWorkspaceService().SaveAcademicEvaluationAsync(
-                        placementId, auth.Uid, auth.IdToken, score, feedback, submit);
+                        placementId, auth.Uid, auth.IdToken, score, feedback, submit,
+                        meetingDateInput == null ? string.Empty : meetingDateInput.Text,
+                        meetingUrlInput == null ? string.Empty : meetingUrlInput.Text,
+                        meetingAssessmentInput == null ? string.Empty : meetingAssessmentInput.Text);
                     ShowMessage(submit
                         ? "Academic evaluation submitted. It is now waiting for university approval."
                         : "Draft saved. You can continue editing until it is submitted.", true);

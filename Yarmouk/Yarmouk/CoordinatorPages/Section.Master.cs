@@ -49,7 +49,7 @@ namespace Yarmouk.CoordinatorPages
             Context.Items["CoordinatorSignedOut"] = true;
             Response.Cache.SetCacheability(HttpCacheability.NoCache);
             Response.Cache.SetNoStore();
-            Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"), false);
+            Response.Redirect(ResolveUrl("~/PublicPages/Login"), false);
             Context.ApplicationInstance.CompleteRequest();
         }
     }
@@ -109,6 +109,7 @@ namespace Yarmouk.CoordinatorPages
         private static string FriendlyError(Exception ex)
         {
             System.Diagnostics.Trace.TraceError("Coordinator request failed: " + ex.GetType().Name);
+            if (ex.Message.StartsWith("Firebase Admin", StringComparison.Ordinal)) return ex.Message;
             if (ex is ArgumentException || ex is AuthException || ex is UnauthorizedAccessException) return ex.Message;
             if (ex.Message.StartsWith("Firebase HTTP error 401") || ex.Message.StartsWith("Firebase HTTP error 403"))
                 return "Firebase denied access. Check the signed-in coordinator profile and publish the coordinator database rules.";

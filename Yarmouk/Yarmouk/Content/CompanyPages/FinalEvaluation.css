@@ -113,7 +113,7 @@
         background: #fae1de;
     }
 
-/* Layout: trainees table on top, selected evaluation below */
+/* Layout */
 .evaluation-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -121,7 +121,9 @@
     gap: 20px;
 }
 
-.trainee-panel, .evaluation-workspace, .evaluation-placeholder {
+.trainee-panel,
+.evaluation-workspace,
+.evaluation-placeholder {
     overflow: hidden;
     border: 1px solid var(--eval-border);
     border-radius: 13px;
@@ -343,7 +345,8 @@
     cursor: pointer;
 }
 
-    .evaluation-tab:hover, .evaluation-tab.is-active {
+    .evaluation-tab:hover,
+    .evaluation-tab.is-active {
         border-bottom-color: var(--eval-green);
         color: var(--eval-green);
     }
@@ -694,13 +697,15 @@ textarea.evaluation-control {
     white-space: nowrap;
 }
 
-.rating-option:has(input:checked), .rating-option.is-selected {
+.rating-option:has(input:checked),
+.rating-option.is-selected {
     border-color: #99c6a7;
     background: #f0f8f2;
     box-shadow: inset 0 0 0 1px #d6eadc;
 }
 
-    .rating-option:has(input:checked) .rating-option__name, .rating-option.is-selected .rating-option__name {
+    .rating-option:has(input:checked) .rating-option__name,
+    .rating-option.is-selected .rating-option__name {
         color: #005b30;
     }
 
@@ -744,7 +749,8 @@ textarea.evaluation-control {
     gap: 8px;
 }
 
-.empty-state, .evaluation-placeholder {
+.empty-state,
+.evaluation-placeholder {
     display: grid;
     justify-items: center;
     gap: 7px;
@@ -753,13 +759,15 @@ textarea.evaluation-control {
     text-align: center;
 }
 
-    .empty-state strong, .evaluation-placeholder h2 {
+    .empty-state strong,
+    .evaluation-placeholder h2 {
         margin: 0;
         color: #34503f;
         font-size: 14px;
     }
 
-    .empty-state p, .evaluation-placeholder p {
+    .empty-state p,
+    .evaluation-placeholder p {
         max-width: 250px;
         margin: 0;
         font-size: 11px;
@@ -794,7 +802,8 @@ textarea.evaluation-control {
     }
 
 @media (max-width: 1050px) {
-    .criteria-heading, .criteria-row {
+    .criteria-heading,
+    .criteria-row {
         grid-template-columns: minmax(150px, .8fr) minmax(400px, 1.5fr);
     }
 
@@ -802,7 +811,8 @@ textarea.evaluation-control {
         overflow-x: auto;
     }
 
-    .criteria-heading, .criteria-row {
+    .criteria-heading,
+    .criteria-row {
         min-width: 720px;
     }
 }
@@ -870,11 +880,14 @@ textarea.evaluation-control {
         padding: 18px 14px;
     }
 
-    .report-review__fields, .placement-details, .global-review-card {
+    .report-review__fields,
+    .placement-details,
+    .global-review-card {
         grid-template-columns: 1fr;
     }
 
-    .criteria-heading, .criteria-row {
+    .criteria-heading,
+    .criteria-row {
         grid-template-columns: 1fr;
         min-width: 700px;
         gap: 9px;
@@ -909,7 +922,14 @@ textarea.evaluation-control {
         background: #fff !important;
     }
 
-    .yu-sidebar-rail, .yu-topbar, .evaluation-hero__rings, .trainee-panel, .evaluation-tabs, .evaluation-actions, .report-review, .evaluation-alert {
+    .yu-sidebar-rail,
+    .yu-topbar,
+    .evaluation-hero__rings,
+    .trainee-panel,
+    .evaluation-tabs,
+    .evaluation-actions,
+    .report-review,
+    .evaluation-alert {
         display: none !important;
     }
 
@@ -958,18 +978,23 @@ textarea.evaluation-control {
         -webkit-print-color-adjust: exact;
     }
 
-    .evaluation-section, .evaluation-section[hidden] {
+    .evaluation-section,
+    .evaluation-section[hidden] {
         display: block !important;
         padding: 16px 0;
         overflow: visible;
         break-inside: auto;
     }
 
-    .report-card, .global-review-card, .criteria-row, .placement-details > div {
+    .report-card,
+    .global-review-card,
+    .criteria-row,
+    .placement-details > div {
         break-inside: avoid;
     }
 
-    .criteria-heading, .criteria-row {
+    .criteria-heading,
+    .criteria-row {
         grid-template-columns: minmax(190px, 1fr) minmax(430px, 1.8fr);
         min-width: 0;
     }
@@ -1029,3 +1054,60 @@ textarea.evaluation-control {
         text-decoration: none !important;
     }
 }
+
+/* Force the Evaluate link text to stay white */
+.company-evaluation .trainee-table a.evaluation-button.evaluation-button--primary,
+.company-evaluation .trainee-table a.evaluation-button.evaluation-button--primary:link,
+.company-evaluation .trainee-table a.evaluation-button.evaluation-button--primary:visited,
+.company-evaluation .trainee-table a.evaluation-button.evaluation-button--primary:hover,
+.company-evaluation .trainee-table a.evaluation-button.evaluation-button--primary:focus {
+    color: #fff !important;
+}
+/* Evaluation dialog: presentation only; existing server form handles all actions. */
+.evaluation-list-view .evaluation-layout>.evaluation-main{display:none}
+.evaluation-list-view .evaluation-layout{display:block}
+.evaluation-dialog{width:min(1120px,96vw);height:92vh;max-height:92vh;padding:0;border:1px solid #d5e5dc;border-radius:20px;overflow:hidden;box-shadow:0 30px 100px #001c1966;background:#f8fbf9}
+.evaluation-dialog::backdrop{background:#092d24aa;backdrop-filter:blur(5px)}
+.evaluation-dialog[open]{display:flex;flex-direction:column;animation:evaluation-dialog-in .2s ease-out}
+.evaluation-dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px 25px;background:linear-gradient(120deg,#093f2e,#08734f);color:white}
+.evaluation-dialog-heading span{font-size:10px;letter-spacing:.15em;color:#c6dec9;font-weight:700}
+.evaluation-dialog-heading h2{margin:5px 0 0;font-size:20px;color:white}
+.evaluation-dialog-heading button{width:40px;height:40px;border:1px solid #ffffff50;background:#ffffff15;color:white;border-radius:12px;font-size:26px;cursor:pointer}
+@keyframes evaluation-dialog-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:600px){.evaluation-dialog{width:98vw;height:96vh;max-height:96vh;border-radius:14px}.evaluation-dialog-heading{padding:14px}.evaluation-dialog-heading h2{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.evaluation-dialog[open]{animation:none}}
+
+.evaluation-dialog-body{flex:1;min-height:0;overflow:auto;padding:20px;color:#173d32}
+.evaluation-dialog-body .evaluation-main{display:block;width:100%;min-width:0}
+.evaluation-dialog-body .evaluation-workspace{box-shadow:none;margin:0}
+.evaluation-dialog-body .evaluation-tabs{overflow-x:auto}
+@media(max-width:600px){.evaluation-dialog-body{padding:10px}}
+
+/* Responsive trainee cards and coordinated theme colors. */
+.evaluation-trainee-list { display:grid; gap:10px; }
+.evaluation-trainee-card { display:grid; grid-template-columns:minmax(190px,1.5fr) minmax(100px,.8fr) minmax(100px,.8fr) minmax(160px,1fr) minmax(145px,.8fr); align-items:center; gap:16px; padding:14px 16px; border:1px solid var(--eval-border); border-radius:12px; background:#fff; color:var(--eval-ink); transition:background .16s,border-color .16s; }
+.evaluation-trainee-card:hover { border-color:#b8d7c5; background:#f8fbf9; }
+.evaluation-trainee-card.is-selected { border-color:#81bc96; background:#edf7f0; box-shadow:inset 3px 0 #08724d; }
+.evaluation-trainee-card.is-unlinked { opacity:.62; }
+.evaluation-trainee-identity { display:flex; align-items:center; min-width:0; }
+.evaluation-trainee-identity > div,.evaluation-trainee-detail,.evaluation-trainee-period > div { display:grid; gap:4px; min-width:0; }
+.evaluation-trainee-name { color:var(--eval-ink); font-size:14px; overflow-wrap:anywhere; }
+.evaluation-trainee-number,.evaluation-trainee-detail span,.evaluation-trainee-period span { color:var(--eval-muted); font-size:11px; }
+.evaluation-trainee-detail strong,.evaluation-trainee-period strong { color:var(--eval-ink); font-size:12px; overflow-wrap:anywhere; }
+.evaluation-trainee-period { display:flex; gap:16px; }
+.evaluation-trainee-review { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+.evaluation-trainee-card .evaluation-button { white-space:nowrap; }
+@media(max-width:1000px) { .evaluation-trainee-card { grid-template-columns:minmax(190px,1.5fr) minmax(100px,.8fr) minmax(100px,.8fr); } .evaluation-trainee-period { grid-column:2; } .evaluation-trainee-review { grid-column:3; grid-row:2; } }
+@media(max-width:620px) { .evaluation-trainee-card { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; padding:14px; } .evaluation-trainee-identity,.evaluation-trainee-review { grid-column:1/-1; } .evaluation-trainee-period { grid-column:1/-1; } .evaluation-trainee-review { justify-content:space-between; } }
+[data-theme="dark"] .company-evaluation { --eval-ink:#e3eee7; --eval-muted:#a9bdb1; --eval-border:#2c483b; }
+[data-theme="dark"] .company-evaluation :is(.trainee-panel,.evaluation-workspace,.evaluation-placeholder,.evaluation-section,.student-summary,.global-review-card,.report-card,.placement-details > div,.criteria-row,.evaluation-stats > div) { background:#172c22; border-color:#2c483b; color:#e3eee7; }
+[data-theme="dark"] .company-evaluation :is(.panel-heading,.evaluation-section,.criteria-heading) { border-color:#2c483b; }
+[data-theme="dark"] .company-evaluation :is(.panel-heading h2,.evaluation-trainee-name,.evaluation-trainee-detail strong,.evaluation-trainee-period strong,.evaluation-workspace h2,.evaluation-workspace h3,.evaluation-workspace h4,.evaluation-placeholder h2,.placement-details dd) { color:#e3eee7; }
+[data-theme="dark"] .evaluation-trainee-card { background:#192f25; border-color:#2c483b; color:#e3eee7; }
+[data-theme="dark"] .evaluation-trainee-card:hover { background:#203b2c; border-color:#47745a; }
+[data-theme="dark"] .evaluation-trainee-card.is-selected { background:#1b3b2b; border-color:#5da477; box-shadow:inset 3px 0 #31a56f; }
+[data-theme="dark"] .evaluation-trainee-card.is-unlinked { opacity:.7; }
+[data-theme="dark"] .company-evaluation :is(.trainee-count,.status-pill,.tab-count) { background:#244535; color:#bde6cb; border-color:#355c46; }
+[data-theme="dark"] .company-evaluation .evaluation-button--primary { color:#fff; }
+[data-theme="dark"] .evaluation-dialog { background:#14271e; border-color:#355644; }
+[data-theme="dark"] .evaluation-dialog-body { color:#e3eee7; }

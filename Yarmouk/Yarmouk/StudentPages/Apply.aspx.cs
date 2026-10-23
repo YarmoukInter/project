@@ -145,6 +145,6 @@ namespace Yarmouk.StudentPages
             return JsonConvert.SerializeObject(value, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() })
                 .Replace("<", "\\u003c").Replace(">", "\\u003e").Replace("&", "\\u0026");
         }
-        private void GoToLogin() { Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"), false); Context.ApplicationInstance.CompleteRequest(); }
+        private void GoToLogin() { Response.Redirect(ResolveUrl("~/PublicPages/Login"), false); Context.ApplicationInstance.CompleteRequest(); }
     }
 }

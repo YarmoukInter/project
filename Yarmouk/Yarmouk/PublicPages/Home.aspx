@@ -12,20 +12,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=emblem-reveal-21" />
-  <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=emblem-reveal-21' defer></script>
+  <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=public-routes-1' defer></script>
 </head>
 <body data-scene="discover" data-home-root='<%= ResolveUrl("~/") %>'>
   <form id="form1" runat="server">
   <a class="skip-link" href="#chapter-discover">Skip to main content</a>
   <header class="yu-public-navbar" data-public-navbar="true">
     <div class="yu-nav-body">
-      <a class="yu-nav-brand" href="Home.aspx" data-replay="true" aria-label="Yarmouk University home"><img src='<%= ResolveUrl("~/assets/yarmouk-logo-on-light.svg") %>' width="140" height="51" alt="Yarmouk University"></a>
+      <a class="yu-nav-brand" href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' data-replay="true" aria-label="Yarmouk University home"><img src='<%= ResolveUrl("~/assets/yarmouk-logo-on-light.svg") %>' width="140" height="51" alt="Yarmouk University"></a>
       <button class="yu-nav-toggle" type="button" aria-expanded="false" aria-controls="yu-public-links" aria-label="Open navigation" hidden><span></span><span></span></button>
       <nav class="yu-nav-links" id="yu-public-links" aria-label="Main navigation">
-        <a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' aria-current="page" data-replay="true">Home</a><a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'  >About Us</a><a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'  >Contact Us</a>
+        <a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' aria-current="page" data-replay="true">Home</a><a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'  >About Us</a><a href='<%= ResolveUrl("~/PublicPages/Team.aspx") %>'>Team</a><a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'  >Contact Us</a>
 
       </nav>
-      <a class="yu-nav-login" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>' >Log in <span aria-hidden="true">↗</span></a>
+      <a class="yu-nav-login" href='<%= ResolveUrl("~/PublicPages/Login") %>' >Log in <span aria-hidden="true">↗</span></a>
     </div>
   </header>
 
@@ -55,29 +55,29 @@
           <div class="hero-university"><img src='<%= ResolveUrl("~/assets/yarmouk-mark.svg") %>' width="43" height="50" alt=""><span><span class="hero-university-ar" lang="ar" dir="rtl">جامعة اليرموك</span><span class="hero-university-en">Yarmouk University</span></span></div>
           <h1 class="chapter-title" id="discover-heading" tabindex="-1">Your future.<br>In the making.</h1>
           <p class="chapter-desc">Turn what you know into what you can do.<br class="desktop-break"> Your practical training journey starts at Yarmouk.</p><p class="record-transcript a11y-sr-only">Browse public opportunity summaries. Log in to view full details and apply for a role suited to your major.</p>
-          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Explore internships <span aria-hidden="true">↗</span></a><button type="button" class="text-btn" data-open-dialog="opportunities-dialog">View open opportunities</button></div>
+          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Explore internships <span aria-hidden="true">↗</span></a><button type="button" class="text-btn" data-open-dialog="opportunities-dialog">View open opportunities</button></div>
         </article>
         <article class="chapter-card" id="chapter-apply" data-chapter-index="1" aria-labelledby="apply-heading"><svg class="record-illustration" viewBox="0 0 120 120" aria-hidden="true"><path d="M25 18h70v86H25zM39 37h42M39 49h30M39 74l14 13 28-31"/></svg>
           <h2 class="chapter-title" id="apply-heading" tabindex="-1">A place to begin.</h2>
           <p class="chapter-desc">Find a role that fits your major. The company reviews your application; you confirm one accepted offer to make it your placement.</p><p class="record-transcript a11y-sr-only">Applications begin Pending. The company accepts or rejects them. Confirm one accepted offer to begin your placement.</p>
           <p class="scene-detail">Apply. Receive an offer. Make your choice.</p>
-          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Find your opportunity <span aria-hidden="true">↗</span></a></div>
+          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Find your opportunity <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="chapter-card" id="chapter-train" data-chapter-index="2" aria-labelledby="train-heading"><svg class="record-illustration" viewBox="0 0 120 120" aria-hidden="true"><path d="M25 18h70v86H25zM39 36l5 5 8-10m8 6h20M39 57l5 5 8-10m8 6h20M39 81h42m-42 8h24"/></svg>
           <h2 class="chapter-title" id="train-heading" tabindex="-1">Build your ability.</h2>
           <p class="chapter-desc">Take on real tasks, learn from company feedback and track the hours approved by your academic supervisor.</p><p class="record-transcript a11y-sr-only">Company supervisors review your submitted work and give feedback. Your academic supervisor approves training hours independently.</p>
           <p class="scene-detail">Every task. Every revision. Every hour.</p>
-          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Continue your training <span aria-hidden="true">↗</span></a></div>
+          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Continue your training <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="chapter-card" id="chapter-complete" data-chapter-index="3" aria-labelledby="complete-heading"><svg class="record-illustration" viewBox="0 0 120 120" aria-hidden="true"><path d="M13 25h94v70H13zM21 33h78v54H21zM36 48h48M29 60h62M47 75h26"/></svg>
           <h2 class="chapter-title" id="complete-heading" tabindex="-1">Your next<br>beginning.</h2>
           <p class="chapter-desc">Complete your training. Receive coordinator approval. Take your certificate into what comes next.</p><p class="record-transcript a11y-sr-only">Completion requires reviewed work and a final report, approved hours, staff evaluations, an ended training period and coordinator approval.</p>
-          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>View your progress <span aria-hidden="true">↗</span></a><button type="button" class="text-btn" data-open-dialog="requirements-dialog">Completion requirements</button></div>
+          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>View your progress <span aria-hidden="true">↗</span></a><button type="button" class="text-btn" data-open-dialog="requirements-dialog">Completion requirements</button></div>
         </article>
         <article class="chapter-card" id="chapter-faculty" data-chapter-index="4" aria-labelledby="faculty-heading"><svg class="record-illustration" viewBox="0 0 120 120" aria-hidden="true"><path d="M20 92h80M27 43v44m16-44v44m17-44v44m17-44v44m16-44v44M20 37l40-19 40 19z"/></svg>
           <img class="final-logo" src='<%= ResolveUrl("~/assets/yarmouk-logo-on-dark.svg") %>' alt="Yarmouk University" width="210" height="73"><h2 class="chapter-title" id="faculty-heading" tabindex="-1">Your journey.<br>One Yarmouk.</h2>
           <p class="chapter-desc">Let your next chapter begin at Yarmouk. Explore practical training at the Faculty of Information Technology and Computer Science.</p><p class="record-transcript a11y-sr-only">Practical training connects students, company supervisors, academic supervisors and the university internship coordinator. Explore the faculty’s six majors.</p>
-          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Start your journey <span aria-hidden="true">↗</span></a><button type="button" id="open-majors-modal" class="text-btn" aria-haspopup="dialog">Explore our six majors</button></div>
+          <div class="chapter-actions"><a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Start your journey <span aria-hidden="true">↗</span></a><button type="button" id="open-majors-modal" class="text-btn" aria-haspopup="dialog">Explore our six majors</button></div>
         </article>
       </div>
 
@@ -129,7 +129,7 @@
     </section>
 
     <section class="home-section opportunities-section" id="opportunities" aria-labelledby="opportunities-heading">
-      <div class="section-heading"><div><h2 id="opportunities-heading">Find your<br> first opening.</h2></div><div class="section-heading-aside"><p>Explore a few of the roles available to your faculty. Full details and applications are available after login.</p><a class="section-link" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Explore opportunities <span aria-hidden="true">↗</span></a></div></div>
+      <div class="section-heading"><div><h2 id="opportunities-heading">Find your<br> first opening.</h2></div><div class="section-heading-aside"><p>Explore a few of the roles available to your faculty. Full details and applications are available after login.</p><a class="section-link" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Explore opportunities <span aria-hidden="true">↗</span></a></div></div>
       <div class="opportunity-filters"><div class="opportunity-search"><label for="public-search">Search opportunities</label><input id="public-search" type="search" placeholder="Role, company or location" autocomplete="off" aria-controls="home-opportunities"></div><div class="opportunity-major-filter"><label for="public-major">Your field</label><select id="public-major"><option value="">All six majors</option><option value="cs">Computer Science</option><option value="cis">Computer Information Systems</option><option value="bit">Business Information Technology</option><option value="cys">Cybersecurity</option><option value="dai">Data Science and Artificial Intelligence</option><option value="drg">Digital Reality and Game Development</option></select></div><span id="public-opportunity-count" role="status" aria-live="polite"></span></div>
       <div class="opportunity-carousel-controls"><p id="opportunity-carousel-hint">Browse at your pace. Hover or focus on a card to pause.</p><div><button type="button" id="opportunity-previous" aria-label="Previous opportunities">←</button><button type="button" id="opportunity-motion" aria-pressed="false">Pause motion</button><button type="button" id="opportunity-next" aria-label="Next opportunities">→</button></div></div><div id="home-opportunities" class="opportunity-carousel" role="region" aria-label="Internship opportunity cards" aria-describedby="opportunity-carousel-hint" tabindex="0" aria-busy="true"><p>Loading opportunity summaries…</p></div>
     </section>
@@ -175,7 +175,7 @@
           <a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'>About us</a>
           <a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'>Contact us</a>
           <a href="https://it.yu.edu.jo/" target="_blank" rel="noopener noreferrer">Faculty website <span aria-hidden="true">↗</span></a>
-          <a class="footer-login" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Start your journey <span aria-hidden="true">↗</span></a>
+          <a class="footer-login" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Start your journey <span aria-hidden="true">↗</span></a>
         </nav>
         <div class="footer-map">
           <div class="footer-map-heading"><h3>Find the faculty</h3><a href="https://www.google.com/maps/search/?api=1&amp;query=Faculty+of+Information+Technology+and+Computer+Science+Yarmouk+University+Irbid" target="_blank" rel="noopener noreferrer">Directions <span aria-hidden="true">↗</span></a></div>
@@ -191,14 +191,14 @@
     <div class="dialog-header"><h2 id="opportunities-title">Find your opening.</h2><button type="button" class="dialog-close-btn" data-close-dialog="true" aria-label="Close opportunities">×</button></div>
     <p class="dialog-intro">A glimpse of available training. Log in to view full details and apply.</p>
     <div id="featured-opportunities-list" class="public-opportunities"><p>Loading public opportunity summaries…</p></div>
-    <a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>Log in to explore <span aria-hidden="true">↗</span></a>
+    <a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Log in to explore <span aria-hidden="true">↗</span></a>
   </dialog>
   <dialog id="requirements-dialog" class="journey-dialog" aria-labelledby="requirements-title">
     <div class="dialog-header"><h2 id="requirements-title">Ready to complete.</h2><button type="button" class="dialog-close-btn" data-close-dialog="true" aria-label="Close requirements">×</button></div>
     <p class="dialog-intro">The university internship coordinator reviews your record before approving completion.</p>
     <ul class="requirements-list"><li>Company and academic final evaluations received.</li><li>Required training hours approved by your academic supervisor.</li><li>Assigned tasks completed and reviewed; final report reviewed.</li><li>A passing calculated result and the end of the training period.</li></ul>
     <p class="dialog-note">Approval releases your successful-completion message and certificate. Final evaluation forms and results remain private to staff.</p>
-    <a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>'>View your training record <span aria-hidden="true">↗</span></a>
+    <a class="primary-btn" href='<%= ResolveUrl("~/PublicPages/Login") %>'>View your training record <span aria-hidden="true">↗</span></a>
   </dialog>
   <dialog id="majors-dialog" class="journey-dialog" aria-labelledby="dialog-title">
     <div class="dialog-header"><h2 id="dialog-title">Six majors. Your path.</h2><button type="button" class="dialog-close-btn" id="close-majors-modal" aria-label="Close academic majors dialog">×</button></div>
@@ -211,3 +211,5 @@
   </form>
 </body>
 </html>
+
+<!-- H -->
