@@ -610,3 +610,4 @@ body.co-modal-open {
         padding-inline: 1rem;
     }
 }
+.co-modal-feedback{margin:0 1.25rem .75rem;padding:.75rem 1rem;border:1px solid #e6aaa4;border-radius:.7rem;background:#fff3f1;color:#9b3028;font-weight:650}.co-modal-feedback[hidden]{display:none}

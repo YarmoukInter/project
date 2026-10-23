@@ -60,7 +60,7 @@ namespace Yarmouk.Helpers
             bool setup = path.Equals("~/StudentPages/ChangePassword.aspx", StringComparison.OrdinalIgnoreCase)
                 || path.Equals("~/StudentPages/ChangePassword", StringComparison.OrdinalIgnoreCase);
             string userRole = NormalizeRole(user.Role);
-            if (userRole == "student" && user.MustChangePassword)
+            if (user.MustChangePassword)
                 return setup ? null : "~/StudentPages/ChangePassword.aspx";
             if (userRole != role || setup) return Home(userRole);
             return null;

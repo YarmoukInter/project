@@ -1,8 +1,8 @@
 <%@ Page Async="true" Title="Students" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="ManageStudents.aspx.cs" Inherits="Yarmouk.CoordinatorPages.ManageStudents" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageStudents.css") %>?v=student-inputs-2' rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=input-types-3' defer></script>
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageStudents.js") %>?v=input-types-3' defer></script>
+<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageStudents.css") %>?v=backend-1' rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=student-admin-1' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageStudents.js") %>' defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>
@@ -25,7 +25,7 @@
   </section>
   <dialog class="yr-dialog" data-roster-dialog aria-labelledby="editor-title" aria-describedby="editor-description">
     <div class="yr-dialog-heading"><h2 id="editor-title">Register student</h2><button class="yr-close" type="button" data-dialog-close aria-label="Close editor">×</button></div>
-    <p id="editor-description">Save account details to Firebase. New accounts require a temporary password.</p>
+    <p id="editor-description">Save account details to Firebase. New users receive a password setup link by email.</p>
     <div class="yr-editor-fields" data-editor-fields></div>
     <p class="yr-editor-error" data-editor-error role="alert"></p>
     <div class="yr-dialog-actions"><button class="yr-button" type="button" data-dialog-close>Cancel</button><button class="yr-button yr-primary" type="button" data-editor-save>Save student</button></div>
@@ -34,6 +34,22 @@
     <div class="yr-dialog-heading"><h2 id="delete-title">Deactivate student?</h2><button class="yr-close" type="button" data-delete-cancel aria-label="Close confirmation">×</button></div>
     <p id="delete-description" data-delete-description></p>
     <div class="yr-dialog-actions"><button class="yr-button" type="button" data-delete-cancel>Cancel</button><button class="yr-button yr-danger-solid" type="button" data-delete-confirm>Deactivate student</button></div>
+  </dialog>
+  <dialog class="yr-dialog" data-access-dialog aria-labelledby="access-title">
+    <div class="yr-dialog-heading"><h2 id="access-title">Manage student sign-in</h2><button class="yr-close" type="button" data-access-close aria-label="Close">×</button></div>
+    <p>Change the Firebase Authentication email or set a temporary password. A changed password must be replaced by the student at next sign-in.</p>
+    <div class="yr-editor-fields">
+      <div class="yr-editor-field yr-field-wide"><label for="access-email">Sign-in email</label><input id="access-email" type="email" maxlength="254" autocomplete="off" /></div>
+      <div class="yr-editor-field yr-field-wide"><label for="access-password">New temporary password</label><input id="access-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Leave blank to keep the current password" /></div>
+    </div>
+    <p class="yr-editor-error" data-access-error role="alert"></p>
+    <div class="yr-dialog-actions"><button class="yr-button" type="button" data-access-close>Cancel</button><button class="yr-button yr-primary" type="button" data-access-save>Update sign-in</button></div>
+  </dialog>
+  <dialog class="yr-dialog yr-delete-dialog" data-permanent-dialog aria-labelledby="permanent-title">
+    <div class="yr-dialog-heading"><h2 id="permanent-title">Delete student permanently?</h2><button class="yr-close" type="button" data-permanent-close aria-label="Close">×</button></div>
+    <p data-permanent-description></p>
+    <p>This deletes the Firebase Authentication account and related student records. This action cannot be undone.</p>
+    <div class="yr-dialog-actions"><button class="yr-button" type="button" data-permanent-close>Cancel</button><button class="yr-button yr-danger-solid" type="button" data-permanent-confirm>Delete permanently</button></div>
   </dialog>
 </section>
 </asp:Content>

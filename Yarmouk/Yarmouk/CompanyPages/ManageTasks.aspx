@@ -8,17 +8,17 @@
   <header class="manage-tasks-heading">
     <p class="eyebrow">Company workspace</p>
     <h1>Manage trainee tasks</h1>
-    <p>Choose a student to review their tasks, submissions, and deadlines.</p>
+    <p>View every trainee task, then choose a student to narrow the list.</p>
   </header>
   <asp:Literal ID="PageMessage" runat="server" />
   <div class="add-task-toolbar"><button id="open-add-task" class="add-task-button" type="button">+ Add task</button></div>
   <section class="student-filter" aria-labelledby="student-filter-heading">
-    <label id="student-filter-heading" for="StudentSelector">Student</label>
+    <label id="student-filter-heading" for="StudentSelector">Filter by student</label>
     <asp:DropDownList ID="StudentSelector" runat="server" ClientIDMode="Static" AutoPostBack="true" />
   </section>
   <section class="tasks-table-panel" aria-labelledby="task-list-heading">
     <div class="table-heading">
-      <div><h2 id="task-list-heading">Student tasks</h2><p>Tasks are ordered from oldest to newest.</p></div>
+      <div><h2 id="task-list-heading">Trainee tasks</h2><p>All tasks are shown by default, oldest first.</p></div>
       <asp:Literal ID="TaskCount" runat="server" />
     </div>
     <asp:Literal ID="TaskTable" runat="server" />

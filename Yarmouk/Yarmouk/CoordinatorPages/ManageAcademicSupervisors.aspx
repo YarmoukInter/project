@@ -1,7 +1,7 @@
 <%@ Page Async="true" Title="Academic supervisors" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="ManageAcademicSupervisors.aspx.cs" Inherits="Yarmouk.CoordinatorPages.ManageAcademicSupervisors" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageAcademicSupervisors.css") %>?v=backend-1' rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=backend-1' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=onboarding-1' defer></script>
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageAcademicSupervisors.js") %>' defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -25,7 +25,7 @@
   </section>
   <dialog class="yr-dialog" data-roster-dialog aria-labelledby="editor-title" aria-describedby="editor-description">
     <div class="yr-dialog-heading"><h2 id="editor-title">Register supervisor</h2><button class="yr-close" type="button" data-dialog-close aria-label="Close editor">×</button></div>
-    <p id="editor-description">Save account details to Firebase. New accounts require a temporary password.</p>
+    <p id="editor-description">Save account details to Firebase. New users receive a password setup link by email.</p>
     <div class="yr-editor-fields" data-editor-fields></div>
     <p class="yr-editor-error" data-editor-error role="alert"></p>
     <div class="yr-dialog-actions"><button class="yr-button" type="button" data-dialog-close>Cancel</button><button class="yr-button yr-primary" type="button" data-editor-save>Save supervisor</button></div>

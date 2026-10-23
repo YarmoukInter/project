@@ -1,7 +1,7 @@
 <%@ Page Title="Manage Opportunities" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ManageOpportunities.aspx.cs" Inherits="Yarmouk.CompanyPages.ManageOpportunities" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
     <link href='<%= ResolveUrl("~/Content/CompanyPages/ManageOpportunities.css") %>' rel="stylesheet" />
-    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ManageOpportunities.js") %>?v=3' defer="defer"></script>
+    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ManageOpportunities.js") %>?v=4' defer="defer"></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="co-page co-opportunities" aria-labelledby="opportunitiesTitle" data-api-url='<%= ResolveUrl("~/CompanyPages/ManageOpportunities.aspx") %>'>
@@ -49,7 +49,7 @@
                 <div id="opportunityForm">
                     <div class="co-form-grid">
                         <label class="co-field co-field-wide">Internship title<input id="opportunityTitleInput" name="title" maxlength="120" required="required" placeholder="e.g. Software Developer Intern" /></label>
-                        <label class="co-field">Application deadline<input id="opportunityDeadlineInput" name="deadline" type="date" required="required" /></label>
+                        <label class="co-field">Application deadline (optional)<input id="opportunityDeadlineInput" name="deadline" type="date" /></label>
                         <label class="co-field">Available seats<input id="opportunitySeatsInput" name="seats" type="number" min="1" max="500" required="required" value="1" /></label>
                         <label class="co-field">Duration<input id="opportunityDurationInput" name="duration" maxlength="80" placeholder="e.g. 8 weeks" /></label>
                         <label class="co-field">Required training hours<input id="opportunityHoursInput" name="hours" type="number" min="0" max="10000" value="0" /></label>
@@ -59,7 +59,7 @@
                         <label class="co-field co-field-wide">Requirements<textarea id="opportunityRequirementsInput" name="requirements" rows="2" maxlength="1000" placeholder="Skills, prerequisites, or other requirements."></textarea></label>
                         <label class="co-field co-field-wide">Application questions<textarea id="opportunityQuestionsInput" name="questions" rows="3" placeholder="One question per line"></textarea><small>Students will answer these questions when they apply.</small></label>
                     </div>
-                    <div class="co-modal-actions"><button class="co-button co-button-quiet" type="button" data-close-opportunity-modal>Cancel</button><button class="co-button co-button-primary" type="button" id="saveOpportunityButton">Save opportunity</button></div>
+                    <p id="opportunityModalFeedback" class="co-modal-feedback" role="alert" hidden></p><div class="co-modal-actions"><button class="co-button co-button-quiet" type="button" data-close-opportunity-modal>Cancel</button><button class="co-button co-button-primary" type="button" id="saveOpportunityButton">Save opportunity</button></div>
                 </div>
             </section>
         </div>

@@ -50,9 +50,10 @@
                 <div class="mp-panel-head"><div><h2 id="mp-list-title">Student placements</h2><p>Search, filter, and review training progress at a glance.</p></div></div>
                 <div class="mp-filters"><label class="mp-search">${icon('search')}<input type="search" id="mp-search" placeholder="Search student, ID, company or supervisor" autocomplete="off" aria-label="Search placements"></label><select class="mp-select" id="mp-company" aria-label="Filter by training provider"><option value="">All training providers</option>${Array.from(new Set(rows.map(row => row.company))).sort().map(company => `<option value="${escapeHtml(company)}">${escapeHtml(company)}</option>`).join('')}</select><span class="mp-filter-count" id="mp-result-count" aria-live="polite"></span></div>
                 <div class="mp-status-tabs" role="group" aria-label="Filter by placement status"><button class="mp-status-tab" type="button" data-filter="all" aria-pressed="true">All placements <span class="mp-tab-count">${rows.length}</span></button><button class="mp-status-tab" type="button" data-filter="active" aria-pressed="false">On track <span class="mp-tab-count">${totals.active}</span></button><button class="mp-status-tab" type="button" data-filter="attention" aria-pressed="false">Needs attention <span class="mp-tab-count">${totals.attention}</span></button><button class="mp-status-tab" type="button" data-filter="complete" aria-pressed="false">Completed <span class="mp-tab-count">${totals.complete}</span></button></div>
-                <div class="mp-table-wrap"><table><caption class="visually-hidden">Student placements, task and evaluation status, and approved training hours</caption><thead><tr><th scope="col">Student</th><th scope="col">Training role</th><th scope="col">Training provider</th><th scope="col">Academic supervisor</th><th scope="col">Progress</th><th scope="col">Tasks</th><th scope="col">Evaluations</th><th scope="col">Approved hours</th><th scope="col">Status</th><th scope="col">Last update</th></tr></thead><tbody id="mp-rows"></tbody></table><div class="mp-empty" id="mp-empty" hidden><span class="mp-empty-icon">${icon('search')}</span><h3>No matching placements</h3><p>Try changing the search term or clearing the selected filters.</p></div></div>
+                <div class="mp-table-wrap"><table><caption class="visually-hidden">Student placements and progress. Open details for the full record.</caption><thead><tr><th scope="col">Student</th><th scope="col">Training provider</th><th scope="col">Progress</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead><tbody id="mp-rows"></tbody></table><div class="mp-empty" id="mp-empty" hidden><span class="mp-empty-icon">${icon('search')}</span><h3>No matching placements</h3><p>Try changing the search term or clearing the selected filters.</p></div></div>
                 <div class="mp-table-footer"><span id="mp-footer-count"></span><span class="mp-updated-label">${icon('check')}Live coordinator data</span></div>
-            </section>`;
+            </section>
+            <dialog class="mp-details-dialog" id="mp-details" aria-labelledby="mp-details-title"><div class="mp-details-head"><div><p>PLACEMENT RECORD</p><h2 id="mp-details-title"></h2><span id="mp-details-subtitle"></span></div><button type="button" class="mp-details-close" id="mp-details-close" aria-label="Close details">×</button></div><div class="mp-details-grid" id="mp-details-grid"></div><div class="mp-details-actions"><button type="button" class="mp-button mp-button-primary" id="mp-details-done">Done</button></div></dialog>`;
 
         const messageNode = page.querySelector('#mp-data-message');
         messageNode.textContent = loadMessage || (rows.length + ' placement record' + (rows.length === 1 ? '' : 's') + ' loaded from Firebase.');
@@ -65,6 +66,21 @@
         const resultCount = page.querySelector('#mp-result-count');
         const footerCount = page.querySelector('#mp-footer-count');
         const empty = page.querySelector('#mp-empty');
+        const dialog = page.querySelector('#mp-details');
+        const detail = (label, value) => `<div class="mp-details-item"><span>${label}</span><strong>${escapeHtml(value || 'Not recorded')}</strong></div>`;
+        function showDetails(row) {
+            const status = statusInfo[row.status] || statusInfo.active;
+            page.querySelector('#mp-details-title').textContent = row.name || 'Placement details';
+            page.querySelector('#mp-details-subtitle').textContent = row.id || '';
+            page.querySelector('#mp-details-grid').innerHTML = [
+                detail('Training role', row.role), detail('Training provider', row.company),
+                detail('Location', row.city), detail('Academic supervisor', row.supervisor),
+                detail('Training progress', `${row.progress}%`), detail('Tasks', row.tasks),
+                detail('Evaluations', row.evaluations), detail('Approved hours', row.hours),
+                detail('Status', status.label), detail('Last update', row.updated)
+            ].join('');
+            dialog.showModal();
+        }
         function render() {
             const term = search.value.trim().toLocaleLowerCase();
             const visible = rows.filter(row => {
@@ -75,13 +91,14 @@
             });
             body.innerHTML = visible.map(row => {
                 const status = statusInfo[row.status] || statusInfo.active;
-                return `<tr><td><div class="mp-person"><span class="mp-avatar" aria-hidden="true">${escapeHtml(row.initials)}</span><span class="mp-person-copy"><strong>${escapeHtml(row.name)}</strong><span>${escapeHtml(row.id)}</span></span></div></td><td><span class="mp-role">${escapeHtml(row.role)}</span></td><td><span class="mp-company-copy"><strong>${escapeHtml(row.company)}</strong><span>${escapeHtml(row.city)}</span></span></td><td><span class="mp-supervisor">${escapeHtml(row.supervisor)}</span></td><td><div class="mp-progress"><span class="mp-progress-label"><span>Training plan</span><strong>${row.progress}%</strong></span><span class="mp-progress-track" role="progressbar" aria-label="${escapeHtml(row.name)} training plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${row.progress}"><span style="--progress:${row.progress}%"></span></span></div></td><td><span class="mp-monitor-tasks">${escapeHtml(row.tasks)}</span></td><td><span class="mp-monitor-evaluations">${escapeHtml(row.evaluations)}</span></td><td><span class="mp-monitor-hours">${escapeHtml(row.hours)}</span></td><td><span class="mp-badge mp-badge-${status.className}">${status.label}</span></td><td><span class="mp-updated">${escapeHtml(row.updated)}</span></td></tr>`;
+                return `<tr><td><div class="mp-person"><span class="mp-avatar" aria-hidden="true">${escapeHtml(row.initials)}</span><span class="mp-person-copy"><strong>${escapeHtml(row.name)}</strong><span>${escapeHtml(row.id)}</span></span></div></td><td><span class="mp-company-copy"><strong>${escapeHtml(row.company)}</strong><span>${escapeHtml(row.city)}</span></span></td><td><div class="mp-progress"><span class="mp-progress-label"><span>Training plan</span><strong>${row.progress}%</strong></span><span class="mp-progress-track" role="progressbar" aria-label="${escapeHtml(row.name)} training plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${row.progress}"><span style="--progress:${row.progress}%"></span></span></div></td><td><span class="mp-badge mp-badge-${status.className}">${status.label}</span></td><td><button type="button" class="mp-details-button" data-detail-index="${rows.indexOf(row)}">View details</button></td></tr>`;
             }).join('');
             page.querySelector('#mp-empty').hidden = visible.length !== 0;
             page.querySelector('.mp-table-wrap table').hidden = visible.length === 0;
             page.querySelector('#mp-empty p').textContent = rows.length
                 ? 'Try changing the search term or clearing the selected filters.'
-                : (loadMessage || 'No placements are currently available.');            resultCount.textContent = `${visible.length} of ${rows.length} placements`;
+                : (loadMessage || 'No placements are currently available.');
+            resultCount.textContent = `${visible.length} of ${rows.length} placements`;
             footerCount.innerHTML = `Showing <strong>${visible.length}</strong> of <strong>${rows.length}</strong> placements`;
         }
         page.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
@@ -91,6 +108,13 @@
         }));
         search.addEventListener('input', render);
         company.addEventListener('change', render);
+        body.addEventListener('click', event => {
+            const button = event.target.closest('[data-detail-index]');
+            if (button && rows[Number(button.dataset.detailIndex)]) showDetails(rows[Number(button.dataset.detailIndex)]);
+        });
+        page.querySelector('#mp-details-close').addEventListener('click', () => dialog.close());
+        page.querySelector('#mp-details-done').addEventListener('click', () => dialog.close());
+        dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
         render();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });

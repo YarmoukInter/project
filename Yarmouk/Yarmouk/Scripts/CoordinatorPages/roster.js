@@ -46,7 +46,6 @@ window.CoordinatorBackend = {
             }
             const department = config.fields.find(f => f.key === 'department');
             if (department && state.data?.departments?.length) department.options = state.data.departments;
-            config.fields.push({key:'temporaryPassword',label:'Temporary password (8–128 characters)',type:'password',required:true,createOnly:true});
             let editingId = null, pendingDelete = null, opener = null;
             const tbody = root.querySelector('[data-roster-body]');
             const feedback = root.querySelector('[data-roster-feedback]');
@@ -54,6 +53,9 @@ window.CoordinatorBackend = {
             const fields = root.querySelector('[data-editor-fields]');
             const error = root.querySelector('[data-editor-error]');
             const deleteDialog = root.querySelector('[data-delete-dialog]');
+            const accessDialog = root.querySelector('[data-access-dialog]');
+            const permanentDialog = root.querySelector('[data-permanent-dialog]');
+            let accountRecord = null;
 
             function cell(column, record) {
                 const value = record[column.key];
@@ -69,7 +71,7 @@ window.CoordinatorBackend = {
             }
 
             function render() {
-                tbody.innerHTML = records.length ? records.map(record => `<tr>${config.columns.map((column, index) => `<${index === 0 ? 'th scope="row"' : 'td'} class="yr-column-${column.key}">${cell(column, record)}</${index === 0 ? 'th' : 'td'}>`).join('')}<td class="yr-actions-cell"><div class="yr-row-actions"><button class="yr-button" type="button" data-edit="${escape(record.id)}" aria-label="Edit ${escape(record.name)}">Edit details</button><button class="yr-button yr-danger" type="button" data-delete="${escape(record.id)}" aria-label="${record.isActive ? 'Deactivate' : 'Reactivate'} ${escape(record.name)}">${record.isActive ? 'Deactivate' : 'Reactivate'}</button></div></td></tr>`).join('') : `<tr><td class="yr-empty" colspan="${config.columns.length + 1}"><strong>No ${config.plural} yet.</strong><span>Register a ${config.singular} to begin.</span></td></tr>`;
+                tbody.innerHTML = records.length ? records.map(record => `<tr>${config.columns.map((column, index) => `<${index === 0 ? 'th scope="row"' : 'td'} class="yr-column-${column.key}">${cell(column, record)}</${index === 0 ? 'th' : 'td'}>`).join('')}<td class="yr-actions-cell"><div class="yr-row-actions"><button class="yr-button" type="button" data-edit="${escape(record.id)}" aria-label="Edit ${escape(record.name)}">Edit details</button>${config.accountAccess ? `<button class="yr-button" type="button" data-access="${escape(record.id)}">Sign-in settings</button>` : ''}<button class="yr-button yr-danger" type="button" data-delete="${escape(record.id)}" aria-label="${record.isActive ? 'Deactivate' : 'Reactivate'} ${escape(record.name)}">${record.isActive ? 'Deactivate' : 'Reactivate'}</button>${config.permanentDelete ? `<button class="yr-button yr-danger" type="button" data-permanent="${escape(record.id)}">Delete permanently</button>` : ''}</div></td></tr>`).join('') : `<tr><td class="yr-empty" colspan="${config.columns.length + 1}"><strong>No ${config.plural} yet.</strong><span>Register a ${config.singular} to begin.</span></td></tr>`;
             }
 
             function openEditor(record = null) {
@@ -112,18 +114,7 @@ window.CoordinatorBackend = {
                     if (!input.reportValidity()) return;
                 }
                 const next = {id:editingId};
-                inputs.forEach(input => {
-                    if (!clientFields.some(field => field.key === input.dataset.field)) next[input.dataset.field] = input.value.trim();
-                });
-                if (clientFields.length) {
-                    const display = {};
-                    clientFields.forEach(field => { display[field.key] = fields.querySelector(`[data-field="${field.key}"]`).value.trim(); });
-                    clientValues[editingId || next.email] = display;
-                    try { sessionStorage.setItem(clientStorageKey, JSON.stringify(clientValues)); } catch (_) { }
-                }
-                // Passwords are submitted once to ASP.NET and never kept in the roster data.
-                const password = inputs.find(input => input.dataset.field === 'temporaryPassword');
-                if (password) next.temporaryPassword = password.value;
+                inputs.forEach(input => { next[input.dataset.field] = input.value.trim(); });
                 submit('save', next);
             }
 
@@ -136,6 +127,24 @@ window.CoordinatorBackend = {
             tbody.addEventListener('click', event => {
                 const edit = event.target.closest('[data-edit]');
                 if (edit) { const record = records.find(item => item.id === edit.dataset.edit); if (record) openEditor(record); return; }
+                const access = event.target.closest('[data-access]');
+                if (access && accessDialog) {
+                    accountRecord = records.find(item => item.id === access.dataset.access);
+                    if (!accountRecord) return;
+                    opener = access;
+                    accessDialog.querySelector('#access-email').value = accountRecord.email || '';
+                    accessDialog.querySelector('#access-password').value = '';
+                    accessDialog.querySelector('[data-access-error]').textContent = '';
+                    accessDialog.showModal(); accessDialog.querySelector('#access-email').focus(); return;
+                }
+                const permanent = event.target.closest('[data-permanent]');
+                if (permanent && permanentDialog) {
+                    accountRecord = records.find(item => item.id === permanent.dataset.permanent);
+                    if (!accountRecord) return;
+                    opener = permanent;
+                    permanentDialog.querySelector('[data-permanent-description]').textContent = `Permanently delete ${accountRecord.name} (${accountRecord.email})?`;
+                    permanentDialog.showModal(); return;
+                }
                 const remove = event.target.closest('[data-delete]');
                 if (!remove) return;
                 pendingDelete = records.find(item => item.id === remove.dataset.delete);
@@ -159,7 +168,26 @@ window.CoordinatorBackend = {
                 if (!pendingDelete) return;
                 submit('active', {id:pendingDelete.id,value:!pendingDelete.isActive});
             });
-            [dialog, deleteDialog].forEach(modal => modal.addEventListener('close', () => {
+            if (accessDialog) {
+                root.querySelectorAll('[data-access-close]').forEach(button => button.addEventListener('click', () => accessDialog.close()));
+                root.querySelector('[data-access-save]').addEventListener('click', () => {
+                    if (!accountRecord) return;
+                    const email = accessDialog.querySelector('#access-email');
+                    const password = accessDialog.querySelector('#access-password');
+                    if (!email.reportValidity() || (password.value && !password.reportValidity())) return;
+                    if (!password.value && email.value.trim() === accountRecord.email) {
+                        accessDialog.querySelector('[data-access-error]').textContent = 'Change the email or enter a temporary password.'; return;
+                    }
+                    submit('credentials', {id:accountRecord.id,email:email.value.trim(),password:password.value});
+                });
+            }
+            if (permanentDialog) {
+                root.querySelectorAll('[data-permanent-close]').forEach(button => button.addEventListener('click', () => permanentDialog.close()));
+                root.querySelector('[data-permanent-confirm]').addEventListener('click', () => {
+                    if (accountRecord) submit('deleteStudent', {id:accountRecord.id});
+                });
+            }
+            [dialog, deleteDialog, accessDialog, permanentDialog].filter(Boolean).forEach(modal => modal.addEventListener('close', () => {
                 if (opener && document.contains(opener)) opener.focus();
                 else root.querySelector('[data-roster-add]').focus();
             }));

@@ -119,12 +119,30 @@
 .rejection-reason { grid-column:1/-1; }
 .application-modal[hidden] { display:none; }
 .application-modal { position:fixed;inset:0;z-index:1500;display:grid;place-items:center;padding:18px;background:#07271db8;backdrop-filter:blur(5px); }
-.application-modal-card { position:relative;width:min(540px,100%);padding:30px;border:1px solid #e0eae3;border-radius:18px;background:#fff;box-shadow:0 25px 80px #00190f66;animation:application-appear .24s ease both; }
+.application-modal-card { position:relative;width:min(680px,100%);max-height:min(88vh,820px);overflow-y:auto;padding:30px;border:1px solid #e0eae3;border-radius:18px;background:#fff;box-shadow:0 25px 80px #00190f66;animation:application-appear .24s ease both; }
 .application-modal-card h2 { margin:7px 35px 5px 0;color:#173d2c;font-size:25px; }
 .application-modal-card>div p { color:#697a70;font-size:13px;line-height:1.75; }
 .application-modal-card .modal-company { margin:0 0 15px;color:#3d7255;font-weight:700; }
 .application-modal-card .modal-date { padding-top:12px;border-top:1px solid #eaf0eb; }
 .application-modal-close { position:absolute;top:14px;right:15px;width:34px;height:34px;border:0;border-radius:50%;color:#486254;background:#edf5ef;font-size:23px;cursor:pointer; }
+.application-modal-summary { display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:11px 0 22px;color:#587161;font-size:13px;font-weight:650; }
+.application-modal-section { padding:18px 0;border-top:1px solid #e7eee9; }
+.application-modal-section h3 { margin:0 0 13px;color:#183e2b;font-size:14px;font-weight:750; }
+.application-details-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;margin:0; }
+.application-detail { min-width:0; }
+.application-detail dt { margin-bottom:3px;color:#7a8980;font-size:11px;font-weight:600; }
+.application-detail dd { margin:0;color:#254936;font-size:13px;font-weight:650;overflow-wrap:anywhere; }
+.application-long-text { margin:0;color:#566f60;font-size:13px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere; }
+.application-skill-list { display:flex;flex-wrap:wrap;gap:7px; }
+.application-skill-list span { padding:6px 10px;border:1px solid #d9e9dd;border-radius:999px;background:#f1f8f2;color:#2d704b;font-size:11px;font-weight:650; }
+.application-answer { padding:12px 14px;margin-top:9px;border:1px solid #e5ede7;border-radius:10px;background:#f9fbf9; }
+.application-answer strong { display:block;color:#214a33;font-size:12px; }
+.application-answer p { margin:6px 0 0;color:#5f7467;font-size:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere; }
+.application-rejection { padding-inline:14px;border:1px solid #f0e3e0;border-radius:10px;background:#fdf6f4; }
+.application-modal-footer { display:flex;justify-content:flex-end;padding-top:18px;border-top:1px solid #e7eee9; }
+.application-modal-footer button { min-height:40px;padding:0 15px;border:1px solid #cee2d3;border-radius:9px;background:#f0f7f1;color:#236c45;font-size:12px;font-weight:750;cursor:pointer; }
+.application-modal-footer button:hover { background:#e3f1e6; }
 body.application-modal-open { overflow:hidden; }
+@media(max-width:560px) { .application-modal { padding:10px; }.application-modal-card { max-height:92vh;padding:24px 19px; }.application-details-grid { grid-template-columns:1fr; } }
 @media(max-width:1000px) { .application-card { grid-template-columns:minmax(0,1fr) minmax(220px,.7fr); }.application-actions { grid-column:1/-1;grid-template-columns:1fr 1fr;padding:12px 0 0;border:0;border-top:1px solid #edf1ee; }.application-status-column { padding-left:18px; } }
 @media(max-width:700px) { .applications-hero { align-items:flex-start;flex-direction:column;padding:28px 23px; }.applications-hero>.explore-shortcut { order:2; }.one-placement-note { width:100%; }.applications-toolbar { align-items:stretch; }.application-filters { flex-basis:100%; }.application-search { flex:1 1 auto; }.application-sort { flex:1; }.application-card { grid-template-columns:1fr;gap:16px;padding:20px; }.application-status-column { min-height:0;padding:0;border:0; }.application-actions { grid-column:auto; }.application-summary { max-width:none; } }

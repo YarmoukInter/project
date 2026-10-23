@@ -4,6 +4,7 @@
     const supervisors = [{value:'',label:'Unassigned'},];
     window.YarmoukRoster.mount({
         page:'ManageStudents', title:'Students', singular:'student', plural:'students',
+        accountAccess:true, permanentDelete:true,
         columns:[{key:'name',type:'identity'},{key:'department'},{key:'gpa',type:'gpa'},{key:'college'},{key:'supervisor',type:'supervisor',options:supervisors}],
         fields:[
             {key:'name',label:'Name (Arabic)',required:true}, {key:'email',label:'Email address',type:'email',required:true},

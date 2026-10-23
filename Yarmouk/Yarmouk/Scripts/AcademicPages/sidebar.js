@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const menus = {
-    supervisor: [['dashboard','Academic Dashboard','grid'],['progress','Student Progress Monitor','chart'],['evaluations','Final Academic Evaluation','check']]
+    supervisor: [['dashboard','Academic Dashboard','grid'],['progress','Student Progress Monitor','chart'],['tasks','Student Tasks','tasks'],['evaluations','Final Academic Evaluation','check']]
   };
   function initialize() {
     document.querySelectorAll('[data-dashboard-sidebar]').forEach(root => {
@@ -13,7 +13,7 @@
       const base = new URL(root.dataset.baseUrl || './', document.baseURI);
       const pages = {
         supervisor: {
-          dashboard:'Dashboard.aspx', progress:'StudentProgress.aspx', evaluations:'FinalEvaluation.aspx', account:'Account.aspx'
+          dashboard:'Dashboard.aspx', progress:'StudentProgress.aspx', tasks:'Tasks.aspx', evaluations:'FinalEvaluation.aspx', account:'Account.aspx'
         }
       };
       const folder = 'AcademicPages';

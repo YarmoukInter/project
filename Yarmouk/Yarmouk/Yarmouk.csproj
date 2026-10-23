@@ -100,8 +100,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="About.aspx" />
-    <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -202,6 +200,9 @@
     <Content Include="Content\AcademicPages\Dashboard.css" />
     <Content Include="Scripts\AcademicPages\Dashboard.js" />
     <Content Include="AcademicPages\StudentProgress.aspx" />
+    <Content Include="AcademicPages\Tasks.aspx" />
+    <Content Include="Content\AcademicPages\Tasks.css" />
+    <Content Include="Scripts\AcademicPages\Tasks.js" />
     <Content Include="Content\AcademicPages\StudentProgress.css" />
     <Content Include="Scripts\AcademicPages\StudentProgress.js" />
     <Content Include="AcademicPages\FinalEvaluation.aspx" />
@@ -354,6 +355,7 @@
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Services\CompanySupervisorService.cs" />
+    <Compile Include="Services\FirebaseAdminAccountService.cs" />
     <Compile Include="StudentPages\Section.Master.cs">
       <DependentUpon>Section.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -494,6 +496,13 @@
     <Compile Include="AcademicPages\StudentProgress.aspx.designer.cs">
       <DependentUpon>StudentProgress.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AcademicPages\Tasks.aspx.cs">
+      <DependentUpon>Tasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AcademicPages\Tasks.aspx.designer.cs">
+      <DependentUpon>Tasks.aspx</DependentUpon>
+    </Compile>
     <Compile Include="AcademicPages\FinalEvaluation.aspx.cs">
       <DependentUpon>FinalEvaluation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -599,21 +608,7 @@
     <Compile Include="Helpers\FirebaseHelper.cs" />
     <Compile Include="Helpers\DatabasePaths.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="About.aspx.cs">
-      <DependentUpon>About.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="About.aspx.designer.cs">
-      <DependentUpon>About.aspx</DependentUpon>
-    </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Contact.aspx.cs">
-      <DependentUpon>Contact.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Contact.aspx.designer.cs">
-      <DependentUpon>Contact.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

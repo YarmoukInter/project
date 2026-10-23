@@ -29,22 +29,13 @@ namespace Yarmouk.StudentPages
 
             try
             {
-                var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
                 var studentTask = firebase.GetAsync<Student>(DatabasePaths.Students + "/" + auth.Uid, auth.IdToken);
-                var tasksTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Tasks, auth.IdToken);
-                var submissionsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TaskSubmissions, auth.IdToken);
                 var logsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TrainingLogs, auth.IdToken);
-                await Task.WhenAll(studentTask, tasksTask, submissionsTask, logsTask);
+                var notesTask = firebase.GetAsync<Dictionary<string, JObject>>(
+                    DatabasePaths.StudentProgressNotes + "/" + auth.Uid, auth.IdToken);
+                await Task.WhenAll(studentTask, logsTask, notesTask);
 
                 var student = await studentTask;
-                var tasks = (await tasksTask ?? new Dictionary<string, JObject>())
-                    .Where(x => Text(x.Value, "studentUid") == auth.Uid && !string.IsNullOrEmpty(activeOpportunityId)
-                        && Text(x.Value, "opportunityId") == activeOpportunityId).ToList();
-                var visibleTaskIds = new HashSet<string>(tasks.Select(x => Text(x.Value, "id", x.Key)), StringComparer.Ordinal);
-                var submissions = (await submissionsTask ?? new Dictionary<string, JObject>())
-                    .Where(x => Text(x.Value, "studentUid") == auth.Uid && visibleTaskIds.Contains(Text(x.Value, "taskId")))
-                    .GroupBy(x => Text(x.Value, "taskId")).Where(x => x.Key != "")
-                    .ToDictionary(x => x.Key, x => x.OrderByDescending(y => Number(y.Value, "submittedAtUnixMs")).First().Value);
                 var logs = (await logsTask ?? new Dictionary<string, JObject>()).Values
                     .Where(x => Text(x, "studentUid") == auth.Uid).ToList();
 
@@ -65,29 +56,19 @@ namespace Yarmouk.StudentPages
                 hoursProgressBar.Attributes["aria-valuemax"] = Math.Max(0, required).ToString(CultureInfo.InvariantCulture);
                 hoursTrack.Style["width"] = percent + "%";
 
-                var rows = tasks.OrderBy(x => Number(x.Value, "dueAtUnixMs")).Select(x =>
-                {
-                    var taskId = Text(x.Value, "id", x.Key);
-                    JObject submission;
-                    submissions.TryGetValue(taskId, out submission);
-                    var status = TaskStatus(x.Value, submission);
-                    var grade = Text(submission, "grade", Text(submission, "score"));
-                    return new
+                var notes = (await notesTask ?? new Dictionary<string, JObject>()).Values
+                    .Where(x => Text(x, "studentUid") == auth.Uid && !string.IsNullOrWhiteSpace(Text(x, "body")))
+                    .OrderByDescending(x => Number(x, "createdAtUnixMs"))
+                    .Select(x => new
                     {
-                        Title = Text(x.Value, "title", "Task"), Status = status,
-                        Grade = string.IsNullOrWhiteSpace(grade) ? "" : " · Grade: " + grade,
-                        Feedback = Text(submission, "feedback", Text(submission, "reviewFeedback", Text(submission, "companyFeedback", "No feedback provided yet."))),
-                        Submitted = submission != null || status == "Under review" || status == "Completed" || status == "Revision requested",
-                        Revision = Normalize(status) == "revisionrequested"
-                    };
-                }).ToList();
-
-                int submitted = rows.Count(x => x.Submitted);
-                int revisions = rows.Count(x => x.Revision);
-                TaskSummary.Text = rows.Count + " tasks · " + submitted + " submitted · " + revisions + " revisions requested";
-                TaskUpdates.DataSource = rows.Take(8).ToList();
-                TaskUpdates.DataBind();
-                NoTaskUpdates.Visible = rows.Count == 0;
+                        Author = Text(x, "academicSupervisorName", "Academic supervisor"),
+                        Body = Text(x, "body"),
+                        Date = FormatNoteDate(Number(x, "createdAtUnixMs")),
+                        DateIso = FormatNoteIso(Number(x, "createdAtUnixMs"))
+                    }).ToList();
+                ProgressNotes.DataSource = notes;
+                ProgressNotes.DataBind();
+                NoProgressNotes.Visible = notes.Count == 0;
                 MilestoneRepeater.DataSource = BuildMilestones(approved, required);
                 MilestoneRepeater.DataBind();
 
@@ -134,15 +115,15 @@ namespace Yarmouk.StudentPages
             if (bool.TryParse(Text(log, "isApproved"), out approved)) return approved;
             return Normalize(Text(log, "status")) == "approved";
         }
-        private static string TaskStatus(JObject task, JObject submission)
+        private static string FormatNoteDate(long value)
         {
-            var status = Normalize(submission == null ? Text(task, "status") : Text(submission, "reviewStatus", Text(submission, "status", Text(task, "status"))));
-            if (submission == null && (status == "pending" || status == "assigned" || status == "notsubmitted")) return "Not started";
-            if (status == "completed" || status == "complete" || status == "done" || status == "approved") return "Completed";
-            if (status == "revisionrequested" || status == "needsrevision" || status == "resubmit") return "Revision requested";
-            if (status == "submitted" || status == "underreview" || status == "inreview" || status == "pendingreview" || status == "pending") return "Under review";
-            if (status == "inprogress" || status == "started") return "In progress";
-            return "Not started";
+            try { return value <= 0 ? "Date unavailable" : DateTimeOffset.FromUnixTimeMilliseconds(value).LocalDateTime.ToString("dd MMM yyyy", CultureInfo.InvariantCulture); }
+            catch (ArgumentOutOfRangeException) { return "Date unavailable"; }
+        }
+        private static string FormatNoteIso(long value)
+        {
+            try { return value <= 0 ? "" : DateTimeOffset.FromUnixTimeMilliseconds(value).UtcDateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture); }
+            catch (ArgumentOutOfRangeException) { return ""; }
         }
         private static string Text(JToken value, string key, string fallback = "")
         {

@@ -1,0 +1,85 @@
+'use strict';
+
+const path = require('node:path');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
+const { getDatabase } = require('firebase-admin/database');
+
+const credentialPath = process.env.YARMOUK_FIREBASE_SERVICE_ACCOUNT
+  || path.resolve(__dirname, '..', 'yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json');
+
+initializeApp({
+  credential: cert(require(credentialPath)),
+  databaseURL: 'https://yarmouk-uims-default-rtdb.firebaseio.com'
+});
+
+const auth = getAuth();
+const db = getDatabase();
+const studentCollections = [
+  'applications', 'placements', 'tasks', 'taskSubmissions',
+  'trainingLogs', 'evaluations'
+];
+
+async function readInput() {
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  return JSON.parse(input || '{}');
+}
+
+async function requireStudent(uid) {
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid || '')) throw new Error('Invalid student UID.');
+  const snapshot = await db.ref(`users/${uid}`).get();
+  const profile = snapshot.val();
+  if (!profile || String(profile.role || '').toLowerCase() !== 'student')
+    throw new Error('The selected account is not a student.');
+  return profile;
+}
+
+async function updateCredentials(request) {
+  const profile = await requireStudent(request.uid);
+  const email = String(request.email || '').trim();
+  const password = String(request.password || '');
+  if (!email && !password) throw new Error('Enter a new email or password.');
+  const changes = {};
+  if (email) changes.email = email;
+  if (password) {
+    if (password.length < 8 || password.length > 128) throw new Error('Password must be between 8 and 128 characters.');
+    changes.password = password;
+  }
+  await auth.updateUser(request.uid, changes);
+  const databaseChanges = {};
+  if (email && email !== profile.email) databaseChanges[`users/${request.uid}/email`] = email;
+  if (password) databaseChanges[`users/${request.uid}/mustChangePassword`] = true;
+  if (Object.keys(databaseChanges).length) await db.ref().update(databaseChanges);
+  return { message: password
+    ? 'Student sign-in details updated. The student must change the new temporary password at next sign-in.'
+    : 'Student sign-in email updated.' };
+}
+
+async function deleteStudent(request) {
+  await requireStudent(request.uid);
+  const root = (await db.ref().get()).val() || {};
+  const updates = { [`users/${request.uid}`]: null, [`students/${request.uid}`]: null,
+    [`studentCvFiles/${request.uid}`]: null, [`studentProgressNotes/${request.uid}`]: null };
+  for (const collection of studentCollections) {
+    for (const [key, value] of Object.entries(root[collection] || {})) {
+      if (key === request.uid || (value && String(value.studentUid || '') === request.uid))
+        updates[`${collection}/${key}`] = null;
+    }
+  }
+  await auth.deleteUser(request.uid);
+  await db.ref().update(updates);
+  return { message: 'Student Authentication account and related database records deleted.' };
+}
+
+(async () => {
+  const request = await readInput();
+  const result = request.action === 'health' ? { message: `Firebase Admin connected; users readable: ${(await db.ref('users').limitToFirst(1).get()).exists()}` }
+    : request.action === 'credentials' ? await updateCredentials(request)
+    : request.action === 'deleteStudent' ? await deleteStudent(request)
+    : (() => { throw new Error('Unknown admin operation.'); })();
+  process.stdout.write(JSON.stringify({ ok: true, ...result }));
+})().catch(error => {
+  process.stdout.write(JSON.stringify({ ok: false, error: error.message || 'Admin operation failed.' }));
+  process.exitCode = 1;
+});

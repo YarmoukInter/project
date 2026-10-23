@@ -1,7 +1,7 @@
 <%@ Page Title="My Applications" Language="C#" MasterPageFile="~/StudentPages/Section.Master" AutoEventWireup="true" Async="true" CodeBehind="MyApplications.aspx.cs" Inherits="Yarmouk.StudentPages.MyApplications" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href="<%= ResolveUrl("~/Content/StudentPages/MyApplications.css") %>" rel="stylesheet" />
-    <script src="<%= ResolveUrl("~/Scripts/StudentPages/MyApplications.js") %>" defer></script>
+    <link href="<%= ResolveUrl("~/Content/StudentPages/MyApplications.css?v=details-2") %>" rel="stylesheet" />
+    <script src="<%= ResolveUrl("~/Scripts/StudentPages/MyApplications.js?v=details-2") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="my-applications-page">

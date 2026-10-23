@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -79,6 +80,7 @@ namespace Yarmouk.CoordinatorPages
                     Status = role == "company" ? (company != null && company.IsApproved ? "Approved" : "Pending review") : (user.IsActive ? "Active" : "Inactive"),
                     Industry = company == null ? "" : company.Industry,
                     Location = company == null ? "" : company.Location,
+                    CompanyEmail = company == null ? "" : company.CompanyEmail,
                     ContactName = role == "company" ? user.FullName : ""
                 };
                 if (role == "student" && student != null)
@@ -104,6 +106,8 @@ namespace Yarmouk.CoordinatorPages
                 throw new ArgumentException("This account is unavailable in this roster.");
             return user;
         }
+        public Task<CoordinatorUser> EnsureManagedStudentAsync(string uid, AuthSession session)
+        { return ManagedUserAsync(uid, "student", session); }
         private async Task ValidateSupervisorAsync(string uid, AuthSession session)
         {
             if (string.IsNullOrEmpty(uid)) return;
@@ -122,8 +126,6 @@ namespace Yarmouk.CoordinatorPages
             CoordinatorUser existing = creating ? null : await ManagedUserAsync(entry.Id, role, session);
             if (!creating && !string.Equals(entry.Email, existing.Email, StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The sign-in email cannot be changed here. It must also be updated in Firebase Authentication.");
-            if (creating && (string.IsNullOrEmpty(entry.TemporaryPassword) || entry.TemporaryPassword.Length < 8 || entry.TemporaryPassword.Length > 128))
-                throw new ArgumentException("Enter a temporary password between 8 and 128 characters.");
             var changes = new Dictionary<string, object>();
             var studentDetails = role == "student" && entry.ProfileFields != null ? JObject.FromObject(entry.ProfileFields).ToObject<Student>() : null;
             string majorId = null;
@@ -146,6 +148,8 @@ namespace Yarmouk.CoordinatorPages
             if (role == "company")
             {
                 entry.ContactName = Text(entry.ContactName, "Contact person", 120);
+                entry.CompanyEmail = string.IsNullOrWhiteSpace(entry.CompanyEmail) ? "" : Text(entry.CompanyEmail, "Company email", 254);
+                if (entry.CompanyEmail.Length > 0 && !AuthPolicy.ValidEmail(entry.CompanyEmail)) throw new ArgumentException("Enter a valid company email address.");
                 entry.Industry = Text(entry.Industry, "Industry", 120);
                 entry.Location = Text(entry.Location, "Location", 200);
                 if (entry.Status != "Approved" && entry.Status != "Pending review") throw new ArgumentException("Choose an approval status.");
@@ -158,8 +162,9 @@ namespace Yarmouk.CoordinatorPages
                 ? await ReadAsync<Placement>(DatabasePaths.Placements, session) ?? new Dictionary<string, Placement>() : new Dictionary<string, Placement>();
             var existingCompanies = role == "company"
                 ? await ReadAsync<Company>(DatabasePaths.Companies, session) ?? new Dictionary<string, Company>() : new Dictionary<string, Company>();
-            // Authentication first supplies the real UID. Never make up an Authentication UID.
-            AuthSession newAccount = creating ? await authentication.CreateUserAsync(entry.Email, entry.TemporaryPassword) : null;
+            // Generate a one-time temporary password for the coordinator to pass to the new user.
+            string temporaryPassword = creating ? NewOnboardingPassword() : null;
+            AuthSession newAccount = creating ? await authentication.CreateUserAsync(entry.Email, temporaryPassword) : null;
             string uid = creating ? newAccount.Uid : entry.Id;
             string userPath = DatabasePaths.Users + "/" + uid + "/";
             changes[userPath + "fullName"] = role == "company" ? entry.ContactName : entry.Name;
@@ -169,6 +174,7 @@ namespace Yarmouk.CoordinatorPages
                 changes[userPath + "email"] = entry.Email;
                 changes[userPath + "role"] = role;
                 changes[userPath + "mustChangePassword"] = true;
+                changes[userPath + "onboardingRequestedAtUnixMs"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             }
             changes[userPath + "isActive"] = role == "academic" ? entry.Status == "Active" : creating || existing.IsActive;
             if (role != "company")
@@ -205,6 +211,7 @@ namespace Yarmouk.CoordinatorPages
                     string path = DatabasePaths.Companies + "/" + companyId + "/";
                     changes[path + "id"] = companyId; changes[path + "name"] = entry.Name;
                     changes[path + "contactEmail"] = entry.Email; changes[path + "supervisorUid"] = uid;
+                    changes[path + "companyEmail"] = entry.CompanyEmail;
                     changes[path + "industry"] = entry.Industry; changes[path + "location"] = entry.Location;
                     changes[path + "isApproved"] = entry.Status == "Approved";
                 }
@@ -225,7 +232,16 @@ namespace Yarmouk.CoordinatorPages
                     throw new InvalidOperationException("Registration could not be confirmed. Check Authentication and users/" + uid + " before retrying.");
                 throw;
             }
-            return creating ? "Account registered. Share its temporary password with the user securely." : "Account details saved.";
+            return creating ? "Account registered. Temporary password: " + temporaryPassword + ". Give it to the user; they must change it at first sign-in. A Firebase setup email will also be requested." : "Account details saved.";
+        }
+        private static string NewOnboardingPassword()
+        {
+            var bytes = new byte[32];
+            using (var random = RandomNumberGenerator.Create())
+            {
+                random.GetBytes(bytes);
+            }
+            return Convert.ToBase64String(bytes).Replace('+', 'A').Replace('/', 'B').TrimEnd('=') + "aA1!";
         }
         public async Task<string> SetActiveAsync(string uid, string role, bool active, AuthSession session)
         {
@@ -329,7 +345,6 @@ namespace Yarmouk.CoordinatorPages
         public string Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public string TemporaryPassword { get; set; }
         public string Department { get; set; }
         public string College { get; set; }
         public string Gpa { get; set; }
@@ -340,6 +355,6 @@ namespace Yarmouk.CoordinatorPages
         public string Industry { get; set; }
         public string Location { get; set; }
         public string ContactName { get; set; }
-        [JsonExtensionData] public IDictionary<string, JToken> ProfileFields { get; set; }
+        public string CompanyEmail { get; set; }
     }
 }
