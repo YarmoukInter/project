@@ -166,6 +166,7 @@
     <Content Include="StudentPages\Profile.aspx" />
     <Content Include="Content\StudentPages\Profile.css" />
     <Content Include="Scripts\StudentPages\Profile.js" />
+    <Content Include="Uploads\StudentProfileImages\.gitkeep" />
     <Content Include="StudentPages\Opportunities.aspx" />
     <Content Include="Content\StudentPages\Opportunities.css" />
     <Content Include="Scripts\StudentPages\Opportunities.js" />

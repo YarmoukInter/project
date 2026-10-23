@@ -1,9 +1,9 @@
 <%@ Page Title="My Tasks" Language="C#" MasterPageFile="~/StudentPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="MyTasks.aspx.cs" Inherits="Yarmouk.StudentPages.MyTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css?v=task-details-1") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js?v=organized-board-3") %>" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js?v=organized-board-4") %>" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css?v=dark-task-board-2") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="my-tasks-page" aria-labelledby="tasks-heading">

@@ -67,9 +67,6 @@ namespace Yarmouk.StudentPages
                 int completed = taskRows.Count(x => TaskStatus(x.Data, x.Submission) == "Completed");
                 int reviewed = submissions.Values.Count(IsReviewed);
 
-                var studentName = auth.User == null ? "Student" : auth.User.FullName;
-                StudentName.Text = HttpUtility.HtmlEncode(studentName);
-                StudentInitials.Text = HttpUtility.HtmlEncode(Initials(studentName));
                 ApplicationsCount.Text = apps.Count.ToString(CultureInfo.InvariantCulture);
                 ApplicationsSummary.Text = CountStatus(apps, "pending") + " pending · " + CountStatus(apps, "accepted") + " accepted · " + CountStatus(apps, "rejected") + " rejected";
                 TasksCount.Text = taskRows.Count.ToString(CultureInfo.InvariantCulture);
@@ -253,12 +250,6 @@ namespace Yarmouk.StudentPages
         {
             try { return value <= 0 ? "" : DateTimeOffset.FromUnixTimeMilliseconds(value).UtcDateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture); }
             catch (ArgumentOutOfRangeException) { return ""; }
-        }
-        private static string Initials(string name)
-        {
-            var parts = (name ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            return parts.Length == 0 ? "ST" : parts.Length == 1 ? parts[0].Substring(0, 1).ToUpperInvariant()
-                : (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpperInvariant();
         }
         private void ShowNotice(string message)
         {

@@ -43,7 +43,8 @@
       });
       root.querySelector('[data-sidebar-profile]').href = route('account');
       if (activePage === 'account') root.querySelector('[data-sidebar-profile]').setAttribute('aria-current','page');
-      root.querySelector('[data-sidebar-role]').textContent = role === 'student' ? 'Student' : 'Academic supervisor';
+      const sidebarRole = root.querySelector('[data-sidebar-role]');
+      if (sidebarRole) sidebarRole.textContent = role === 'student' ? 'Student' : 'Academic supervisor';
       root.querySelector('[data-sidebar-home]').href = new URL(role === 'student' ? 'StudentPages/Dashboard.aspx' : 'PublicPages/Home.aspx',base).href;
       root.classList.add('is-enhanced'); menu.hidden = false;
       function render() {
@@ -52,7 +53,14 @@
         aside.classList.toggle('is-collapsed',!open && !small.matches); aside.classList.toggle('is-mobile-open',small.matches && mobileOpen);
         aside.inert = small.matches && !mobileOpen;
         toggle.setAttribute('aria-expanded',String(open)); toggle.setAttribute('aria-label',open?'Collapse navigation':'Expand navigation');
-        pin.setAttribute('aria-checked',String(pinned)); menu.setAttribute('aria-expanded',String(small.matches && mobileOpen));
+        pin.setAttribute('aria-checked',String(pinned));
+        const menuOpen = small.matches && mobileOpen;
+        menu.setAttribute('aria-expanded',String(menuOpen));
+        menu.setAttribute('aria-label',menuOpen?'Close menu':'Open menu');
+        menu.querySelector('svg').innerHTML = menuOpen
+          ? '<path d="M6 6l12 12M18 6 6 18"></path>'
+          : '<path d="M3 6h18M3 12h18M3 18h18"></path>';
+        menu.querySelector('span').textContent = menuOpen ? 'Close' : 'Menu';
         shade.hidden = !(small.matches && mobileOpen);
       }
       function save() { try { sessionStorage.setItem(storageKey,String(pinned)); } catch (_) {} }
@@ -60,7 +68,7 @@
       aside.addEventListener('pointerenter',event=>{if(small.matches || event.pointerType==='touch')return;clearTimeout(timer);hovering=true;suppressed=false;render();});
       aside.addEventListener('pointerleave',()=>{if(small.matches)return;timer=setTimeout(()=>{hovering=false;manual=false;suppressed=false;render();},220);});
       aside.addEventListener('focusin',event=>{if(!small.matches && event.target.matches(':focus-visible')){focused=true;suppressed=false;render();}});
-      aside.addEventListener('focusout',event=>{if(!aside.contains(event.relatedTarget)){focused=false;if(small.matches)closeMobile(false);else render();}});
+      aside.addEventListener('focusout',event=>{if(!aside.contains(event.relatedTarget)){focused=false;if(small.matches&&event.relatedTarget!==menu)closeMobile(false);else render();}});
       toggle.addEventListener('click',()=>{
         if(small.matches){closeMobile(true);return;}
         if(rail.classList.contains('is-open')){pinned=false;manual=false;hovering=false;focused=false;suppressed=true;save();}

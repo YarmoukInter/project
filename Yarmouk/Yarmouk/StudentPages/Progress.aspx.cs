@@ -31,12 +31,11 @@ namespace Yarmouk.StudentPages
             {
                 var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
                 var tasksTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Tasks, auth.IdToken);
-                var submissionsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TaskSubmissions, auth.IdToken);
                 var studentTask = firebase.GetAsync<Student>(DatabasePaths.Students + "/" + auth.Uid, auth.IdToken);
                 var logsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TrainingLogs, auth.IdToken);
                 var notesTask = firebase.GetAsync<Dictionary<string, JObject>>(
                     DatabasePaths.StudentProgressNotes + "/" + auth.Uid, auth.IdToken);
-                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask, submissionsTask);
+                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask);
 
                 var student = await studentTask;
                 var logs = (await logsTask ?? new Dictionary<string, JObject>()).Values
@@ -45,13 +44,11 @@ namespace Yarmouk.StudentPages
                 int required = student == null ? 0 : Math.Max(0, student.RequiredTrainingHours);
                 int approved = logs.Count == 0 && student != null ? Math.Max(0, student.ApprovedTrainingHours)
                     : logs.Where(IsApproved).Sum(x => Math.Max(0, ReadInt(x, "hours")));
-                var tasks = (await tasksTask ?? new Dictionary<string, JObject>())
-                    .Where(t => !string.IsNullOrEmpty(activeOpportunityId) && Text(t.Value, "opportunityId") == activeOpportunityId);
-                int submitted = TrainingProgress.CountSubmitted(tasks,
-                    (await submissionsTask ?? new Dictionary<string, JObject>()).Values, auth.Uid);
-                int percent = TrainingProgress.Percent(submitted);
+                var tasks = await tasksTask ?? new Dictionary<string, JObject>();
+                int completedTasks = CountCompletedTasks(tasks, auth.Uid, activeOpportunityId);
+                int percent = TrainingProgress.Percent(completedTasks);
 
-                ApprovedHours.Text = submitted.ToString(CultureInfo.InvariantCulture);
+                CompletedTaskCount.Text = completedTasks.ToString(CultureInfo.InvariantCulture);
                 RequiredHours.Text = TrainingProgress.RequiredTasks.ToString(CultureInfo.InvariantCulture);
                 TargetHours.Text = RequiredHours.Text;
                 TrackTarget.Text = RequiredHours.Text;
@@ -61,7 +58,7 @@ namespace Yarmouk.StudentPages
                 progressRing.Style["--progress"] = percent + "%";
                 progressRing.Attributes["aria-valuenow"] = percent.ToString(CultureInfo.InvariantCulture);
                 hoursProgressBar.Attributes["aria-valuemax"] = RequiredHours.Text;
-                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(submitted, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
+                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(completedTasks, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
                 hoursTrack.Style["width"] = percent + "%";
 
                 var notes = (await notesTask ?? new Dictionary<string, JObject>()).Values
@@ -77,7 +74,7 @@ namespace Yarmouk.StudentPages
                 ProgressNotes.DataSource = notes;
                 ProgressNotes.DataBind();
                 NoProgressNotes.Visible = notes.Count == 0;
-                MilestoneRepeater.DataSource = BuildMilestones(submitted, TrainingProgress.RequiredTasks);
+                MilestoneRepeater.DataSource = BuildMilestones(completedTasks, TrainingProgress.RequiredTasks);
                 MilestoneRepeater.DataBind();
 
                 if (student == null) ShowNotice("Your student training record has not been created yet.");
@@ -85,15 +82,35 @@ namespace Yarmouk.StudentPages
             }
             catch (Exception error)
             {
-                System.Diagnostics.Trace.TraceWarning("Student progress load failed: " + error.GetType().Name);
-                CompletionPercent.Text = "—";
-                ApprovedHours.Text = "—";
-                RequiredHours.Text = "—";
+                try { System.Diagnostics.Trace.TraceError("Student progress load failed: " + error); }
+                catch { /* Diagnostics must never interrupt page error handling. */ }
+                SetLiteral(CompletionPercent, "—");
+                SetLiteral(CompletedTaskCount, "—");
+                SetLiteral(RequiredHours, "—");
                 ShowNotice("Progress data could not be loaded. Please refresh the page and try again.");
             }
         }
 
-        private static List<ProgressMilestone> BuildMilestones(int approved, int required)
+        private static int CountCompletedTasks(Dictionary<string, JObject> tasks, string studentUid, string opportunityId)
+        {
+            if (tasks == null || string.IsNullOrWhiteSpace(studentUid) || string.IsNullOrWhiteSpace(opportunityId)) return 0;
+            return tasks
+                .Where(item => item.Value != null
+                    && Text(item.Value, "studentUid") == studentUid
+                    && Text(item.Value, "opportunityId") == opportunityId
+                    && IsCompletedTaskStatus(Text(item.Value, "status")))
+                .Select(item => string.IsNullOrWhiteSpace(Text(item.Value, "id")) ? item.Key : Text(item.Value, "id"))
+                .Distinct(StringComparer.Ordinal)
+                .Count();
+        }
+
+        private static bool IsCompletedTaskStatus(string value)
+        {
+            var status = Normalize(value);
+            return status == "completed" || status == "complete" || status == "approved";
+        }
+
+        private static List<ProgressMilestone> BuildMilestones(int completedTasks, int required)
         {
             var result = new List<ProgressMilestone>();
             if (required <= 0) return result;
@@ -102,8 +119,8 @@ namespace Yarmouk.StudentPages
                 int start = (required * (i - 1) + StageCount - 1) / StageCount;
                 int end = (required * i + StageCount - 1) / StageCount;
                 int target = end - start;
-                int hours = Math.Min(target, Math.Max(0, approved - start));
-                bool complete = approved >= end;
+                int hours = Math.Min(target, Math.Max(0, completedTasks - start));
+                bool complete = completedTasks >= end;
                 result.Add(new ProgressMilestone
                 {
                     Week = i.ToString("00", CultureInfo.InvariantCulture),
@@ -151,8 +168,13 @@ namespace Yarmouk.StudentPages
         private static string Normalize(string value) { return (value ?? "").Trim().Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant(); }
         private void ShowNotice(string message)
         {
-            NoticeText.Text = HttpUtility.HtmlEncode(message);
-            ProgressNotice.Visible = true;
+            if (NoticeText != null) NoticeText.Text = HttpUtility.HtmlEncode(message);
+            if (ProgressNotice != null) ProgressNotice.Visible = true;
+        }
+
+        private static void SetLiteral(System.Web.UI.WebControls.Literal control, string value)
+        {
+            if (control != null) control.Text = value;
         }
 
         public sealed class ProgressMilestone

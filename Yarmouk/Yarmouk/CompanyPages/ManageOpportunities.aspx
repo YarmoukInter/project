@@ -1,8 +1,8 @@
 <%@ Page Title="Manage Opportunities" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ManageOpportunities.aspx.cs" Inherits="Yarmouk.CompanyPages.ManageOpportunities" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href='<%= ResolveUrl("~/Content/CompanyPages/ManageOpportunities.css") %>' rel="stylesheet" />
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+    <link href='<%= ResolveUrl("~/Content/CompanyPages/ManageOpportunities.css?v=responsive-cards-1") %>' rel="stylesheet" />
 <script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -26,18 +26,22 @@
                 <asp:DropDownList ID="OpportunityStatusFilter" runat="server" CssClass="co-select"><asp:ListItem Value="all">All statuses</asp:ListItem><asp:ListItem Value="active">Active</asp:ListItem><asp:ListItem Value="draft">Draft</asp:ListItem><asp:ListItem Value="closed">Closed</asp:ListItem></asp:DropDownList>
                 <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" OnClick="ApplyFiltersButton_Click" />
             </div>
-            <div class="co-table-wrap"><table class="co-table">
-                <thead><tr><th scope="col">Internship title</th><th scope="col">Eligible majors</th><th scope="col">Seats</th><th scope="col">Deadline</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
-                <tbody><asp:Repeater ID="OpportunitiesRepeater" runat="server" OnItemCommand="OpportunitiesRepeater_ItemCommand"><ItemTemplate>
-                    <tr>
-                        <td><span class="co-opportunity-title"><%# Encode(Eval("Title")) %></span><span class="co-opportunity-subtitle"><%# Encode(Eval("Id")) %> · <%# Eval("Applications") %> applications</span></td>
-                        <td><span class="co-major-list"><%# RenderMajors(Eval("Majors")) %></span></td>
-                        <td><span class="co-seat-value"><%# Eval("Seats") %> seats</span></td><td><%# FormatDeadline(Eval("Deadline")) %></td>
-                        <td><span class='<%# StatusCss(Eval("Status")) %>'><%# StatusLabel(Eval("Status")) %></span></td>
-                        <td><span class="co-row-actions"><asp:LinkButton runat="server" CssClass="co-text-action" Text="Edit" CommandName="EditOpportunity" CommandArgument='<%# Eval("Id") %>' CausesValidation="false" /><asp:LinkButton runat="server" CssClass='<%# ToggleCss(Eval("Status")) %>' Text='<%# ToggleLabel(Eval("Status")) %>' CommandName="ToggleStatus" CommandArgument='<%# Eval("Id") %>' CausesValidation="false" /></span></td>
-                    </tr>
-                </ItemTemplate></asp:Repeater></tbody>
-            </table></div>
+            <div class="co-opportunity-grid" aria-label="Your opportunities">
+                <asp:Repeater ID="OpportunitiesRepeater" runat="server" OnItemCommand="OpportunitiesRepeater_ItemCommand"><ItemTemplate>
+                    <article class="co-opportunity-card">
+                        <div class="co-opportunity-card-top">
+                            <div class="co-opportunity-heading"><span class="co-opportunity-mark" aria-hidden="true">▣</span><div class="co-opportunity-heading-copy"><span class="co-opportunity-title"><%# Encode(Eval("Title")) %></span><span class="co-opportunity-subtitle"><%# Encode(Eval("Id")) %> <span aria-hidden="true">·</span> <%# Eval("Applications") %> applications</span></div></div>
+                            <span class='<%# StatusCss(Eval("Status")) %>'><%# StatusLabel(Eval("Status")) %></span>
+                        </div>
+                        <div class="co-opportunity-details">
+                            <div class="co-opportunity-detail"><span class="co-detail-label">Eligible majors</span><span class="co-major-list"><%# RenderMajors(Eval("Majors")) %></span></div>
+                            <div class="co-opportunity-detail"><span class="co-detail-label">Available seats</span><span class="co-seat-value"><span aria-hidden="true">♙</span> <%# Eval("Seats") %></span></div>
+                            <div class="co-opportunity-detail"><span class="co-detail-label">Deadline</span><span class="co-deadline-value"><span aria-hidden="true">▦</span> <%# FormatDeadline(Eval("Deadline")) %></span></div>
+                        </div>
+                        <div class="co-opportunity-card-actions"><asp:LinkButton runat="server" CssClass="co-text-action co-edit-action" Text="✎ Edit" CommandName="EditOpportunity" CommandArgument='<%# Eval("Id") %>' CausesValidation="false" /><asp:LinkButton runat="server" CssClass='<%# ToggleCss(Eval("Status")) %>' Text='<%# ToggleLabel(Eval("Status")) %>' CommandName="ToggleStatus" CommandArgument='<%# Eval("Id") %>' CausesValidation="false" /></div>
+                    </article>
+                </ItemTemplate></asp:Repeater>
+            </div>
             <asp:Panel ID="EmptyStatePanel" runat="server" CssClass="co-empty-state" Visible="false">No opportunities match these filters.</asp:Panel>
         </section>
         <asp:Label ID="PageFeedbackLabel" runat="server" CssClass="co-demo-note" role="status" />

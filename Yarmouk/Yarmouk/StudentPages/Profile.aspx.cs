@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 using System.Web;
@@ -14,6 +16,7 @@ namespace Yarmouk.StudentPages
     public partial class Profile : AuthPage
     {
         private const int MaxCvBytes = 2 * 1024 * 1024;
+        private const int MaxProfileImageBytes = 3 * 1024 * 1024;
 
         private readonly StudentService studentService = new StudentService();
 
@@ -40,8 +43,84 @@ namespace Yarmouk.StudentPages
                     litMessage.Text = "Your CV was uploaded and saved.";
                     pnlMessage.Visible = true;
                 }
+                if (Request.QueryString["profileImageUploaded"] == "1")
+                {
+                    litMessage.Text = "Your profile photo has been uploaded and saved.";
+                    pnlMessage.Visible = true;
+                }
                 RegisterAsyncTask(new PageAsyncTask(LoadProfileAsync));
             }
+        }
+
+        protected void UploadProfileImage_Click(object sender, EventArgs e)
+        {
+            RegisterAsyncTask(new PageAsyncTask(UploadProfileImageAsync));
+        }
+
+        private async Task UploadProfileImageAsync()
+        {
+            var session = Session[AuthGuard.SessionKey] as AuthSession;
+            if (session == null) { Go("~/PublicPages/Login"); return; }
+            if (!profileImageUpload.HasFile || profileImageUpload.PostedFile == null)
+            { ShowError("Choose a JPG or PNG photo first."); return; }
+            var file = profileImageUpload.PostedFile;
+            var extension = Path.GetExtension(profileImageUpload.FileName);
+            if (file.ContentLength <= 0 || file.ContentLength > MaxProfileImageBytes
+                || (!string.Equals(extension, ".jpg", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".jpeg", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase)))
+            { ShowError("Choose a JPG or PNG photo up to 3 MB."); return; }
+
+            string destination = null;
+            bool databaseSaved = false;
+            try
+            {
+                using (var source = Image.FromStream(file.InputStream, false, true))
+                {
+                    if ((source.RawFormat.Guid != ImageFormat.Jpeg.Guid && source.RawFormat.Guid != ImageFormat.Png.Guid)
+                        || source.Width <= 0 || source.Height <= 0 || source.Width > 4096 || source.Height > 4096
+                        || (long)source.Width * source.Height > 16000000L)
+                    { ShowError("The selected file is not a supported photo or its dimensions are too large."); return; }
+
+                    var folder = Server.MapPath("~/Uploads/StudentProfileImages");
+                    Directory.CreateDirectory(folder);
+                    var fileName = Guid.NewGuid().ToString("N") + ".png";
+                    destination = Path.Combine(folder, fileName);
+                    using (var normalized = new Bitmap(source.Width, source.Height))
+                    using (var graphics = Graphics.FromImage(normalized))
+                    {
+                        graphics.DrawImage(source, 0, 0, source.Width, source.Height);
+                        normalized.Save(destination, ImageFormat.Png);
+                    }
+
+                    var student = await studentService.GetStudentAsync(session.Uid, session.IdToken);
+                    await studentService.UpdateProfileImageFileNameAsync(session.Uid, fileName, session.IdToken);
+                    databaseSaved = true;
+                    RemovePreviousProfileImage(student == null ? null : student.ProfileImageFileName, fileName, folder);
+                }
+
+                Response.Redirect(ResolveUrl("~/StudentPages/Profile.aspx?profileImageUploaded=1"), false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                if (!databaseSaved && !string.IsNullOrWhiteSpace(destination) && File.Exists(destination))
+                { try { File.Delete(destination); } catch (IOException) { } catch (UnauthorizedAccessException) { } }
+                System.Diagnostics.Trace.TraceWarning("Could not upload student profile photo: " + ex.GetType().Name);
+                ShowError("Could not save the profile photo. Please try again.");
+            }
+        }
+
+        private static void RemovePreviousProfileImage(string oldFileName, string newFileName, string folder)
+        {
+            if (string.IsNullOrWhiteSpace(oldFileName) || string.Equals(oldFileName, newFileName, StringComparison.Ordinal)) return;
+            var safeName = Path.GetFileName(oldFileName);
+            if (!string.Equals(safeName, oldFileName, StringComparison.Ordinal)
+                || !string.Equals(Path.GetExtension(safeName), ".png", StringComparison.OrdinalIgnoreCase)) return;
+            var previousPath = Path.Combine(folder, safeName);
+            try { if (File.Exists(previousPath)) File.Delete(previousPath); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
 
         protected void UploadCv_Click(object sender, EventArgs e)
@@ -280,6 +359,17 @@ namespace Yarmouk.StudentPages
 
             litFullName.Text = SafeText(fullName);
             lblInitials.Text = SafeText(GetInitials(fullName));
+            var profileImageFileName = student == null ? null : student.ProfileImageFileName;
+            var safeProfileImageFileName = string.IsNullOrWhiteSpace(profileImageFileName) ? null : Path.GetFileName(profileImageFileName);
+            var profileImagePath = safeProfileImageFileName == null ? null : Server.MapPath("~/Uploads/StudentProfileImages/" + safeProfileImageFileName);
+            var hasProfileImage = !string.IsNullOrWhiteSpace(safeProfileImageFileName)
+                && string.Equals(safeProfileImageFileName, profileImageFileName, StringComparison.Ordinal)
+                && string.Equals(Path.GetExtension(safeProfileImageFileName), ".png", StringComparison.OrdinalIgnoreCase)
+                && File.Exists(profileImagePath);
+            imgProfileImage.Visible = true;
+            profileInitialAvatar.Visible = !hasProfileImage;
+            if (hasProfileImage) imgProfileImage.ImageUrl = ResolveUrl("~/Uploads/StudentProfileImages/" + safeProfileImageFileName);
+            imgProfileImage.Style["display"] = hasProfileImage ? "" : "none";
             txtFullName.Text = fullName;
             txtPhone.Text = user.Phone ?? "";
             txtCvLink.Text = user.CvLink ?? "";

@@ -32,6 +32,7 @@ namespace Yarmouk.Models
         public int CompletedCredits { get; set; }
         public int RequiredHours { get; set; }
         public string CvUrl { get; set; }
+        public string ProfileImageFileName { get; set; }
 
     }
 }

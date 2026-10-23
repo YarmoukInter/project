@@ -24,6 +24,26 @@ namespace Yarmouk.StudentPages
         protected global::System.Web.UI.WebControls.Label lblInitials;
 
         /// <summary>
+        /// imgProfileImage control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Image imgProfileImage;
+
+        /// <summary>
+        /// profileInitialAvatar control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel profileInitialAvatar;
+
+        /// <summary>
+        /// profileImageUpload control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.FileUpload profileImageUpload;
+
+        /// <summary>
+        /// btnUploadProfileImage control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnUploadProfileImage;
+
+        /// <summary>
         /// litFullName control.
         /// </summary>
         /// <remarks>

@@ -6,7 +6,7 @@ namespace Yarmouk.StudentPages
         protected global::System.Web.UI.WebControls.Literal NoticeText;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl progressRing;
         protected global::System.Web.UI.WebControls.Literal CompletionPercent;
-        protected global::System.Web.UI.WebControls.Literal ApprovedHours;
+        protected global::System.Web.UI.WebControls.Literal CompletedTaskCount;
         protected global::System.Web.UI.WebControls.Literal RequiredHours;
         protected global::System.Web.UI.WebControls.Literal TrackTarget;
         protected global::System.Web.UI.WebControls.Literal TargetHours;

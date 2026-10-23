@@ -94,8 +94,6 @@
       var id = text(task.id) || ('task-' + (index + 1));
       var statusName = normalizedStatus(task.status);
       var canDrag = statusName === 'todo' || statusName === 'inProgress';
-      var taskPdfUrl = safeTaskPdfUrl(task.taskPdfUrl);
-      var taskPdfAction = taskPdfUrl ? '<a class="task-pdf-card-link" href="' + escapeHtml(taskPdfUrl) + '" target="_blank" rel="noopener">' + 'Task' + '</a>' : '';
       return '<article class="task-card' + (canDrag ? ' task-card--draggable' : '') + '"' + (canDrag ? ' draggable="true"' : '') + ' data-task-id="' + escapeHtml(id) + '">' +
         '<div class="task-card-top"><span class="task-card-id">INTERNSHIP TASK</span>' + statusMarkup(task) + '</div>' +
         '<h3>' + escapeHtml(title) + '</h3>' +
@@ -104,7 +102,7 @@
         '<span>Submitted <strong>' + escapeHtml(task.submittedAtUnixMs ? dateFromUnix(task.submittedAtUnixMs) : 'Not submitted') + '</strong></span>' +
 
         '</div>' +
-        '<div class="task-card-bottom"><span class="task-card-actions">' + taskPdfAction + '</span><button class="task-open-button" type="button" data-task-index="' + index + '">View task →</button></div>' +
+        '<div class="task-card-bottom"><button class="task-open-button" type="button" data-task-index="' + index + '">View task →</button></div>' +
         '</article>';
       }).join('');
       if (items.length > limit) columnList.insertAdjacentHTML('beforeend', '<button type="button" class="task-board-more" data-more-status="' + status + '">Show ' + Math.min(5,items.length-limit) + ' more <span>(' + (items.length-limit) + ' remaining)</span></button>');

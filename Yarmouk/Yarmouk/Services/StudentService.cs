@@ -50,6 +50,18 @@ namespace Yarmouk.Services
             }, idToken);
         }
 
+        public Task UpdateProfileImageFileNameAsync(string verifiedUid, string fileName, string idToken)
+        {
+            if (string.IsNullOrWhiteSpace(verifiedUid))
+                throw new ArgumentException("Student UID is required.");
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException("Profile image file name is required.");
+            return firebase.UpdateAsync(DatabasePaths.Students + "/" + verifiedUid, new
+            {
+                profileImageFileName = fileName
+            }, idToken);
+        }
+
         public async Task SetAcceptedApplicationAsync(string verifiedUid, string applicationId, string idToken)
         {
             if (string.IsNullOrWhiteSpace(verifiedUid) || string.IsNullOrWhiteSpace(applicationId))

@@ -3,7 +3,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="<%= ResolveUrl("~/Content/StudentPages/Progress.css?v=academic-notes-1") %>" rel="stylesheet" />
+    <link href="<%= ResolveUrl("~/Content/StudentPages/Progress.css?v=progress-ux-2") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/StudentPages/Progress.js") %>" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
@@ -15,7 +15,7 @@
             <div>
                 <p class="eyebrow">STUDENT TRAINING</p>
                 <h1 id="progress-title">My Progress</h1>
-                <p class="heading-copy">Submit 10 tasks to reach 100% internship progress.</p>
+                <p class="heading-copy">Complete 10 tasks to reach 100% internship progress.</p>
             </div>
             <div class="program-pill"><span class="status-dot"></span> Internship journey</div>
         </header>
@@ -42,15 +42,15 @@
                         </div>
                     </div>
                     <div class="completion-summary">
-                        <p class="hours-total"><asp:Literal ID="ApprovedHours" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks submitted</span></p>
-                        <p class="summary-copy">Each submitted task adds 10% toward your internship progress.</p>
-                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Submitted tasks" aria-valuemin="0" aria-valuemax="0">
+                        <p class="hours-total"><asp:Literal ID="CompletedTaskCount" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks completed</span></p>
+                        <p class="summary-copy">Each completed task adds 10% toward your internship progress.</p>
+                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Completed tasks" aria-valuemin="0" aria-valuemax="0">
                             <span id="hoursTrack" runat="server"></span>
                         </div>
                         <div class="track-labels"><span>0 tasks</span><span><asp:Literal ID="TrackTarget" runat="server" /> tasks</span></div>
                     </div>
                 </div>
-                <div class="completion-footnote"><span class="gold-dot"></span> Required submission target: <strong><asp:Literal ID="TargetHours" runat="server" /> tasks</strong></div>
+                <div class="completion-footnote"><span class="gold-dot"></span> Required completion target: <strong><asp:Literal ID="TargetHours" runat="server" /> tasks</strong></div>
             </article>
 
             <article class="progress-card target-card">
@@ -67,8 +67,8 @@
                 </div>
                 <div class="plan-divider"></div>
                 <div class="plan-detail"><span class="detail-icon calendar-icon" aria-hidden="true">✓</span><span><strong><asp:Literal ID="PlanApprovedHours" runat="server" /></strong><small>Approved hours so far</small></span></div>
-                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each submission adds 10%</small></span></div>
-                <p class="plan-note">Your progress updates when you submit a task.</p>
+                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each completed task adds 10%</small></span></div>
+                <p class="plan-note">Only tasks marked Completed count toward your progress.</p>
             </article>
         </div>
 
@@ -77,7 +77,7 @@
                 <div>
                     <p class="card-kicker">TASK MILESTONES</p>
                     <h2>Your training milestones</h2>
-                    <p class="section-description">Submit each of the 10 required tasks to reach the next milestone.</p>
+                    <p class="section-description">Complete each of the 10 required tasks to reach the next milestone.</p>
                 </div>
                 <div class="milestone-legend"><span class="legend-complete"></span> Reached <span class="legend-upcoming"></span> Ahead</div>
             </div>
@@ -87,12 +87,12 @@
                         <div class='milestone <%# Eval("CssClass") %>'>
                             <div class="milestone-top"><span class="milestone-check"><%# Eval("Marker") %></span><span class="milestone-week">TASK <%# Eval("Week") %></span></div>
                             <div class="milestone-bar"><span style='width:<%# Eval("Fill") %>%'></span></div>
-                            <div class="milestone-hours"><strong><%# Eval("HoursLabel") %></strong><span>/ <%# Eval("TargetHours") %> submitted</span></div>
+                            <div class="milestone-hours"><strong><%# Eval("HoursLabel") %></strong><span>/ <%# Eval("TargetHours") %> completed</span></div>
                         </div>
                     </ItemTemplate>
                 </asp:Repeater>
             </div>
-            <div class="milestone-caption"><span class="caption-line"></span><span>Each distinct submitted task counts once, including tasks awaiting review.</span></div>
+            <div class="milestone-caption"><span class="caption-line"></span><span>Only distinct tasks marked Completed count toward milestones.</span></div>
         </article>
 
         <article class="progress-card milestones-card academic-notes-card">
@@ -113,7 +113,7 @@
                 <div class="next-step-copy">
                     <p class="card-kicker">KEEP GOING</p>
                     <h2>Small steps add up</h2>
-                    <p>Check task feedback and requested revisions while you work toward your 10 required submissions.</p>
+                    <p>Check task feedback and requested revisions while you work toward completing your 10 required tasks.</p>
                 </div>
                 <a class="tasks-link" href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>">View my tasks <span aria-hidden="true">→</span></a>
             </article>
