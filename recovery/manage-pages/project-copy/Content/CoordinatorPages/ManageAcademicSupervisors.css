@@ -1,0 +1,7 @@
+/* Supervisor-specific column sizing; common roster design is in shared.css. */
+[data-roster-page="ManageAcademicSupervisors"] { --yr-table-width: 1050px; }
+[data-roster-page="ManageAcademicSupervisors"] .yr-column-name { width: 23%; }
+[data-roster-page="ManageAcademicSupervisors"] .yr-column-department { width: 19%; }
+[data-roster-page="ManageAcademicSupervisors"] .yr-column-college { width: 20%; }
+[data-roster-page="ManageAcademicSupervisors"] .yr-column-assignedStudents { width: 12%; }
+[data-roster-page="ManageAcademicSupervisors"] .yr-column-status { width: 11%; }

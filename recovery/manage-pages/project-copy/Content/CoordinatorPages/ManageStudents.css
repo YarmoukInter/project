@@ -1,0 +1,7 @@
+/* Student-specific column sizing; common roster design is in shared.css. */
+[data-roster-page="ManageStudents"] { --yr-table-width: 1080px; }
+[data-roster-page="ManageStudents"] .yr-column-name { width: 22%; }
+[data-roster-page="ManageStudents"] .yr-column-department { width: 17%; }
+[data-roster-page="ManageStudents"] .yr-column-gpa { width: 7%; }
+[data-roster-page="ManageStudents"] .yr-column-college { width: 18%; }
+[data-roster-page="ManageStudents"] .yr-column-supervisor { width: 20%; }

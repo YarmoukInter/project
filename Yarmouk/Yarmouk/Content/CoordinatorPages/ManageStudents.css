@@ -5,8 +5,3 @@
 [data-roster-page="ManageStudents"] .yr-column-gpa { width: 7%; }
 [data-roster-page="ManageStudents"] .yr-column-college { width: 18%; }
 [data-roster-page="ManageStudents"] .yr-column-supervisor { width: 20%; }
-[data-roster-page="ManageStudents"] .yr-dialog:not(.yr-delete-dialog) { width: min(760px, calc(100vw - 32px)); box-sizing: border-box; }
-[data-roster-page="ManageStudents"] .yr-editor-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
-[data-roster-page="ManageStudents"] .yr-editor-field { min-width: 0; }
-[data-roster-page="ManageStudents"] .yr-editor-field input,
-[data-roster-page="ManageStudents"] .yr-editor-field select { box-sizing: border-box; min-height: 48px; font-size: 16px; }

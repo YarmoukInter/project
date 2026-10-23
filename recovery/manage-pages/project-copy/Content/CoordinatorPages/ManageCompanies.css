@@ -1,0 +1,7 @@
+/* Company-specific column sizing; common roster design is in shared.css. */
+[data-roster-page="ManageCompanies"] { --yr-table-width: 1050px; }
+[data-roster-page="ManageCompanies"] .yr-column-name { width: 25%; }
+[data-roster-page="ManageCompanies"] .yr-column-industry { width: 19%; }
+[data-roster-page="ManageCompanies"] .yr-column-location { width: 15%; }
+[data-roster-page="ManageCompanies"] .yr-column-contactName { width: 15%; }
+[data-roster-page="ManageCompanies"] .yr-column-status { width: 13%; }

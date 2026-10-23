@@ -1,0 +1,130 @@
+/* Shared coordinator roster styles. Sidebar styles remain in sidebar.css. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.co-roster-page {
+    --yr-green: #075f3d;
+    --yr-green-hover: #06492f;
+    --yr-gold: #b58b43;
+    --yr-ink: #132b21;
+    --yr-muted: #61746a;
+    --yr-border: #dce7df;
+    --yr-page: #f5f8f6;
+    --yr-white: #fff;
+    --yr-hover: #f7faf8;
+    --yr-head: #f1f5f2;
+    --yr-positive: #eaf3ed;
+    --yr-pending: #fbf4e5;
+    --yr-pending-ink: #82601f;
+    --yr-neutral: #edf0ee;
+    --yr-red: #b72e38;
+    --yr-red-hover: #9e222c;
+    --yr-red-tint: #fff3f3;
+    --yr-font: 'DM Sans', 'Segoe UI', sans-serif;
+    --yr-radius: 10px;
+    --yr-title: 30px;
+    --yr-heading: 21px;
+    --yr-text: 14px;
+    --yr-small: 12px;
+    --yr-tiny: 11px;
+    --yr-space-1: 4px;
+    --yr-space-2: 8px;
+    --yr-space-3: 12px;
+    --yr-space-4: 16px;
+    --yr-space-5: 20px;
+    --yr-space-6: 24px;
+    --yr-space-7: 32px;
+    --yr-panel-inset: clamp(20px, 2vw, 30px);
+    color: var(--yr-ink);
+    background: var(--yr-page);
+    font: 400 var(--yr-text)/1.5 var(--yr-font);
+    -webkit-font-smoothing: antialiased;
+}
+.co-roster-page *, .co-roster-page *::before, .co-roster-page *::after { box-sizing: border-box; }
+.co-roster-page .yu-dashboard { font: inherit; }
+.co-roster-page .yu-dashboard-main > header { justify-content: space-between; gap: var(--yr-space-4); border-color: var(--yr-border) !important; }
+.yr-header-brand { display: flex; flex-direction: column; gap: var(--yr-space-1); color: var(--yr-ink); }
+.yr-header-brand strong { font-size: var(--yr-small); font-weight: 600; }
+.yr-header-brand > span { font-size: var(--yr-tiny); color: var(--yr-muted); }
+.yr-header-account { display: flex; align-items: center; gap: var(--yr-space-2); color: var(--yr-ink); font-size: var(--yr-small); }
+.yr-header-account > span:first-child { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--yr-positive); color: var(--yr-green); font-weight: 600; font-size: var(--yr-tiny); }
+.co-roster-page .yu-dashboard-main > main { padding-block: var(--yr-space-6) var(--yr-space-7) !important; }
+.co-roster-page .yu-dashboard-main > footer { color: var(--yr-muted); border-color: var(--yr-border) !important; font-size: var(--yr-tiny); }
+.yu-roster { min-width: 0; }
+.yu-roster h1, .yu-roster h2, .yu-roster p { margin: 0; }
+.yr-page-title { display: flex; align-items: center; flex-wrap: wrap; gap: var(--yr-space-3); margin-bottom: var(--yr-space-6); }
+.yr-page-title h1 { font-size: var(--yr-title); font-weight: 500; letter-spacing: -.8px; line-height: 1.3; }
+.yr-sample { padding: var(--yr-space-1) var(--yr-space-2); border: 1px solid var(--yr-border); border-radius: 6px; color: var(--yr-muted); font-size: var(--yr-tiny); }
+.yr-panel { min-width: 0; padding: var(--yr-panel-inset); border: 1px solid var(--yr-border); border-radius: var(--yr-radius); background: var(--yr-white); }
+.yr-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--yr-space-5); padding-bottom: var(--yr-space-5); border-bottom: 1px solid var(--yr-border); }
+.yr-panel-heading h2 { display: flex; align-items: center; gap: var(--yr-space-2); font-size: var(--yr-heading); font-weight: 500; letter-spacing: -.4px; line-height: 1.4; }
+.yr-panel-heading h2 svg { flex: none; width: 24px; height: 24px; fill: none; stroke: var(--yr-green); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.yr-button { display: inline-flex; align-items: center; justify-content: center; gap: var(--yr-space-2); min-height: 44px; padding: 10px var(--yr-space-4); border: 1px solid var(--yr-border); border-radius: 8px; color: var(--yr-ink); background: var(--yr-white); font: 400 var(--yr-text)/1.4 var(--yr-font); white-space: nowrap; cursor: pointer; transition: background-color 180ms ease-out, border-color 180ms ease-out; }
+.yr-button:hover { background: var(--yr-hover); border-color: var(--yr-muted); }
+.yr-primary { min-height: 46px; padding-inline: var(--yr-space-5); border-color: var(--yr-green); background: var(--yr-green); color: #fff; font-weight: 600; box-shadow: 0 3px 7px #075f3d15; }
+.yr-primary:hover { background: var(--yr-green-hover); border-color: var(--yr-green-hover); }
+.yr-primary > span { font-size: 22px; line-height: 1; font-weight: 400; }
+.yr-danger { color: var(--yr-red); }
+.yr-danger:hover { color: var(--yr-red); background: var(--yr-red-tint); border-color: var(--yr-red); }
+.yr-danger-solid { background: var(--yr-red); color: #fff; border-color: var(--yr-red); }
+.yr-danger-solid:hover { background: var(--yr-red-hover); border-color: var(--yr-red-hover); }
+.yu-roster :is(button,input,select):focus-visible, .yr-table-region:focus-visible { outline: 2px solid var(--yr-gold); outline-offset: 3px; }
+.yr-table-region { width: 100%; margin-top: var(--yr-space-5); overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: var(--yr-border) transparent; }
+.yr-table { width: 100%; min-width: var(--yr-table-width, 1000px); border-collapse: collapse; font-size: var(--yr-text); }
+.yr-table thead { background: var(--yr-head); color: var(--yr-muted); }
+.yr-table thead th { padding: var(--yr-space-4); border-bottom: 1px solid var(--yr-border); text-align: left; font-weight: 500; line-height: 1.4; white-space: nowrap; }
+.yr-table tbody td, .yr-table tbody th { padding: var(--yr-space-5) var(--yr-space-4); border-bottom: 1px solid var(--yr-border); text-align: left; vertical-align: middle; font-weight: 400; line-height: 1.5; }
+.yr-table tbody tr:last-child > * { border-bottom: 0; }
+.yr-table tbody tr { transition: background-color 180ms ease-out; }
+.yr-table tbody tr:hover { background: var(--yr-hover); }
+.yr-person-name { display: block; font-size: var(--yr-text); font-weight: 600; }
+.yr-person-email { display: block; margin-top: var(--yr-space-1); color: var(--yr-muted); font-size: var(--yr-small); overflow-wrap: anywhere; }
+.yr-number { font-variant-numeric: tabular-nums; }
+.yr-cell-note { display: block; margin-top: 2px; font-size: var(--yr-tiny); color: var(--yr-muted); }
+.yr-assignment { width: 100%; min-width: 170px; min-height: 44px; border: 1px solid var(--yr-border); border-radius: 8px; padding: 10px var(--yr-space-3); color: var(--yr-ink); background: var(--yr-white); font: inherit; }
+.yr-row-actions { display: flex; align-items: center; gap: var(--yr-space-2); }
+.yr-row-actions .yr-button { font-size: var(--yr-small); padding-inline: var(--yr-space-3); }
+.yr-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 6px; background: var(--yr-positive); color: var(--yr-green); white-space: nowrap; font-size: var(--yr-small); }
+.yr-status > span { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.yr-status-pending { color: var(--yr-pending-ink); background: var(--yr-pending); }
+.yr-status-neutral { color: var(--yr-muted); background: var(--yr-neutral); }
+.yu-roster .yr-notice { padding-top: var(--yr-space-4); margin-top: var(--yr-space-2); border-top: 1px solid var(--yr-border); color: var(--yr-muted); font-size: var(--yr-tiny); }
+.yr-table tbody .yr-empty { padding: 52px var(--yr-space-5); text-align: center; }
+.yr-empty strong { display: block; margin-bottom: var(--yr-space-2); font-size: var(--yr-text); font-weight: 500; }
+.yr-empty > span { display: block; color: var(--yr-muted); font-size: var(--yr-small); }
+.yr-empty .yr-button { margin-top: var(--yr-space-4); }
+.yu-roster .yr-scroll-hint { display: none; color: var(--yr-muted); font-size: var(--yr-tiny); margin-bottom: var(--yr-space-3); }
+.yr-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.yr-dialog { width: min(600px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; padding: var(--yr-space-6); border: 1px solid var(--yr-border); border-radius: var(--yr-radius); background: var(--yr-white); color: var(--yr-ink); font: 400 var(--yr-text)/1.5 var(--yr-font); box-shadow: 0 24px 80px #09291c30; }
+.yr-dialog::backdrop { background: #09291c66; backdrop-filter: blur(3px); }
+.yr-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--yr-space-4); }
+.yr-dialog-heading h2 { font-size: var(--yr-heading); font-weight: 500; letter-spacing: -.35px; }
+.yr-close { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border: 1px solid var(--yr-border); border-radius: 8px; background: var(--yr-white); color: var(--yr-muted); font-size: 24px; line-height: 1; cursor: pointer; }
+.yr-close:hover { background: var(--yr-hover); }
+.yr-dialog > p { color: var(--yr-muted); font-size: var(--yr-small); margin-top: var(--yr-space-3); }
+.yr-editor-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--yr-space-4); margin-top: var(--yr-space-6); }
+.yr-editor-field label { display: block; margin-bottom: var(--yr-space-2); font-size: var(--yr-small); font-weight: 500; }
+.yr-editor-field label > span { color: var(--yr-muted); }
+.yr-editor-field input, .yr-editor-field select { width: 100%; min-width: 0; min-height: 44px; padding: 10px var(--yr-space-3); border: 1px solid var(--yr-border); border-radius: 8px; background: var(--yr-white); color: var(--yr-ink); font: inherit; }
+.yr-field-wide { grid-column: 1 / -1; }
+.yr-dialog .yr-editor-error { color: var(--yr-red); min-height: 18px; margin-top: var(--yr-space-3); }
+.yr-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--yr-space-2); border-top: 1px solid var(--yr-border); margin-top: var(--yr-space-5); padding-top: var(--yr-space-4); }
+.yr-delete-dialog { width: min(450px, calc(100vw - 32px)); }
+[data-theme="dark"] .co-roster-page { color-scheme: dark; --yr-ink: #e3eee6; --yr-muted: #b2c6b8; --yr-border: #3c5344; --yr-page: #101c16; --yr-white: #18251d; --yr-hover: #203226; --yr-head: #203226; --yr-positive: #204331; --yr-green: #70d09f; --yr-green-hover: #06492f; --yr-pending: #403623; --yr-pending-ink: #e4c98c; --yr-neutral: #2c3b31; --yr-red: #ffabb0; --yr-red-tint: #44272d; --yr-red-hover: #9e222c; }
+[data-theme="dark"] .yr-primary { background: #075f3d; border-color: #408a63; color: #fff; }
+[data-theme="dark"] .yr-danger-solid { background: #a82935; border-color: #a82935; color: #fff; }
+@media (max-width: 1200px) { .yu-roster .yr-scroll-hint { display: block; } }
+@media (max-width: 760px) {
+    .co-roster-page { --yr-title: 27px; --yr-heading: 19px; --yr-panel-inset: 20px; }
+    .yr-panel-heading { align-items: flex-start; flex-direction: column; gap: var(--yr-space-4); }
+    .yr-header-account > span:last-child { display: none; }
+}
+@media (max-width: 480px) {
+    .co-roster-page { --yr-panel-inset: 16px; }
+    .yr-page-title { margin-bottom: var(--yr-space-5); }
+    .yr-panel-heading .yr-primary { width: 100%; }
+    .yr-panel-heading h2 { align-items: flex-start; }
+    .yr-editor-fields { grid-template-columns: minmax(0, 1fr); }
+    .yr-dialog { padding: var(--yr-space-5); }
+    .yr-dialog-actions .yr-button { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .yu-roster *, .yu-roster *::before { transition: none !important; } }
