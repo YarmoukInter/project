@@ -1,8 +1,8 @@
 <%@ Page Async="true" Title="Academic supervisors" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="ManageAcademicSupervisors.aspx.cs" Inherits="Yarmouk.CoordinatorPages.ManageAcademicSupervisors" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageAcademicSupervisors.css") %>?v=account-actions-2' rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=account-actions-2' defer></script>
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageAcademicSupervisors.js") %>' defer></script>
+<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageAcademicSupervisors.css") %>?v=manage-restore-20261023' rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=manage-restore-20261023' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageAcademicSupervisors.js?v=manage-restore-20261023") %>' defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>
@@ -25,7 +25,7 @@
   </section>
   <dialog class="yr-dialog" data-roster-dialog aria-labelledby="editor-title" aria-describedby="editor-description">
     <div class="yr-dialog-heading"><h2 id="editor-title">Register supervisor</h2><button class="yr-close" type="button" data-dialog-close aria-label="Close editor">×</button></div>
-    <p id="editor-description">New accounts start with the email address as a temporary password and must change it at first sign-in. Firebase also sends a password setup link.</p>
+    <p id="editor-description">Save account details to Firebase. New accounts start with their email address as a temporary password and must change it at first sign-in.</p>
     <div class="yr-editor-fields" data-editor-fields></div>
     <p class="yr-editor-error" data-editor-error role="alert"></p>
     <div class="yr-dialog-actions"><button class="yr-button" type="button" data-dialog-close>Cancel</button><button class="yr-button yr-primary" type="button" data-editor-save>Save supervisor</button></div>
