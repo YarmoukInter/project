@@ -52,7 +52,7 @@ namespace Yarmouk.StudentPages
         private async Task UploadCvAsync()
         {
             var session = Session[AuthGuard.SessionKey] as AuthSession;
-            if (session == null) { Go("~/PublicPages/Login.aspx"); return; }
+            if (session == null) { Go("~/PublicPages/Login"); return; }
             if (!cvUpload.HasFile || cvUpload.PostedFile == null)
             { ShowError("Choose a PDF file to upload."); return; }
             var file = cvUpload.PostedFile;
@@ -92,7 +92,7 @@ namespace Yarmouk.StudentPages
         private async Task DownloadCvAsync()
         {
             var session = Session[AuthGuard.SessionKey] as AuthSession;
-            if (session == null) { Go("~/PublicPages/Login.aspx"); return; }
+            if (session == null) { Go("~/PublicPages/Login"); return; }
             try
             {
                 var document = await new FirebaseHelper().GetAsync<CvDocument>(
@@ -123,7 +123,7 @@ namespace Yarmouk.StudentPages
             AuthSession session = Session[AuthGuard.SessionKey] as AuthSession;
             if (session == null)
             {
-                Go("~/PublicPages/Login.aspx");
+                Go("~/PublicPages/Login");
                 return;
             }
 
@@ -188,7 +188,7 @@ namespace Yarmouk.StudentPages
             AuthSession session = Session[AuthGuard.SessionKey] as AuthSession;
             if (session == null)
             {
-                Go("~/PublicPages/Login.aspx");
+                Go("~/PublicPages/Login");
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace Yarmouk.StudentPages
             AuthSession session = Session[AuthGuard.SessionKey] as AuthSession;
             if (session == null)
             {
-                Go("~/PublicPages/Login.aspx");
+                Go("~/PublicPages/Login");
                 return;
             }
 

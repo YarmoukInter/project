@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-    <link href="<%= ResolveUrl("~/Content/StudentPages/Dashboard.css") %>" rel="stylesheet" />
+    <link href="<%= ResolveUrl("~/Content/StudentPages/Dashboard.css?v=tasks-supervisors-1") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/StudentPages/Dashboard.js") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -144,7 +144,7 @@
                                     <ItemTemplate>
                                         <tr>
                                             <td><span class="cell-title"><%#: Eval("Title") %></span><span class="cell-subtitle"><%#: Eval("Description") %></span></td>
-                                            <td><time datetime='<%# Eval("DeadlineIso") %>'><%#: Eval("Deadline") %></time></td>
+                                            <td><time datetime='<%# Eval("DeadlineIso") %>'><%#: Eval("Deadline") %></time><span class="task-deadline-note"><%#: Eval("DeadlineNote") %></span></td>
                                             <td><span class='badge <%# Eval("BadgeClass") %>'><span class="status-dot"></span><%#: Eval("Status") %></span></td>
                                             <td><a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>" class="text-link">Open <i class="bi bi-arrow-right" aria-hidden="true"></i></a></td>
                                         </tr>
@@ -154,7 +154,7 @@
 
                         </table>
                     </div>
-                    <asp:Panel ID="NoUpcomingTasks" runat="server" Visible="false"><p class="muted">No tasks are due within the next seven days.</p></asp:Panel>
+                    <asp:Panel ID="NoUpcomingTasks" runat="server" Visible="false"><p class="muted">No tasks have been assigned to your current placement yet.</p></asp:Panel>
 
                 </section>
 

@@ -3,7 +3,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="<%= ResolveUrl("~/Content/StudentPages/Progress.css") %>" rel="stylesheet" />
+    <link href="<%= ResolveUrl("~/Content/StudentPages/Progress.css?v=academic-notes-1") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/StudentPages/Progress.js") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -92,18 +92,14 @@
             <div class="milestone-caption"><span class="caption-line"></span><span>Only approved training hours count toward these milestones.</span></div>
         </article>
 
-        <article class="progress-card milestones-card task-updates-card">
-            <div class="card-heading"><div><p class="card-kicker">TASK ACTIVITY</p><h2>Submissions and feedback</h2></div></div>
-            <p class="task-count-summary"><asp:Literal ID="TaskSummary" runat="server" /></p>
-            <asp:Repeater ID="TaskUpdates" runat="server">
+        <article class="progress-card milestones-card academic-notes-card">
+            <div class="card-heading"><div><p class="card-kicker">ACADEMIC GUIDANCE</p><h2>Notes from your academic supervisor</h2><p class="section-description">Feedback about your training progress and next steps.</p></div></div>
+            <asp:Repeater ID="ProgressNotes" runat="server">
                 <ItemTemplate>
-                    <div class="task-update-row">
-                        <div><strong><%#: Eval("Title") %></strong><span><%#: Eval("Status") %><%#: Eval("Grade") %></span></div>
-                        <p><%#: Eval("Feedback") %></p>
-                    </div>
+                    <div class="academic-note"><div class="academic-note-header"><strong><%#: Eval("Author") %></strong><time datetime='<%# Eval("DateIso") %>'><%#: Eval("Date") %></time></div><p><%#: Eval("Body") %></p></div>
                 </ItemTemplate>
             </asp:Repeater>
-            <asp:Panel ID="NoTaskUpdates" runat="server" Visible="false"><p class="plan-note">No tasks have been assigned yet.</p></asp:Panel>
+            <asp:Panel ID="NoProgressNotes" runat="server" Visible="false"><p class="plan-note">Your academic supervisor has not added a progress note yet.</p></asp:Panel>
         </article>
 
         <div class="progress-bottom-grid">

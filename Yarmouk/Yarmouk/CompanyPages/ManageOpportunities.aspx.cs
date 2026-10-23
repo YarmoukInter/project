@@ -353,7 +353,7 @@ namespace Yarmouk.CompanyPages
             if (input.Seats < 1 || input.Seats > 500) throw new System.ArgumentException("Available seats must be between 1 and 500.");
             if (input.Hours < 0 || input.Hours > 10000) throw new System.ArgumentException("Training hours must be between 0 and 10000.");
             System.DateTime deadline;
-            if (!System.DateTime.TryParseExact(input.Deadline ?? string.Empty, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out deadline)) throw new System.ArgumentException("Choose a valid application deadline.");
+            if (!string.IsNullOrWhiteSpace(input.Deadline) && !System.DateTime.TryParseExact(input.Deadline, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out deadline)) throw new System.ArgumentException("Choose a valid application deadline.");
             if (input.Majors == null || input.Majors.Count == 0) throw new System.ArgumentException("Select at least one eligible major.");
             if (input.Questions != null && input.Questions.Count > 20) throw new System.ArgumentException("Use no more than 20 application questions.");
         }

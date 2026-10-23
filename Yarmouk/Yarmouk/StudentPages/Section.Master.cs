@@ -10,7 +10,7 @@ namespace Yarmouk.StudentPages
         {
             Session.Clear();
             Session.Abandon();
-            Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"), false);
+            Response.Redirect(ResolveUrl("~/PublicPages/Login"), false);
             Context.ApplicationInstance.CompleteRequest();
         }
     }

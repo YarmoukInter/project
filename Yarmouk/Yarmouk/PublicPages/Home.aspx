@@ -11,18 +11,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=emblem-reveal-21" />
-  <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=emblem-reveal-21' defer></script>
+  <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=home-restore-20261023" />
+  <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=home-restore-20261023' defer></script>
 </head>
 <body data-scene="discover" data-home-root='<%= ResolveUrl("~/") %>'>
   <form id="form1" runat="server">
   <a class="skip-link" href="#chapter-discover">Skip to main content</a>
   <header class="yu-public-navbar" data-public-navbar="true">
     <div class="yu-nav-body">
-      <a class="yu-nav-brand" href="Home.aspx" data-replay="true" aria-label="Yarmouk University home"><img src='<%= ResolveUrl("~/assets/yarmouk-logo-on-light.svg") %>' width="140" height="51" alt="Yarmouk University"></a>
+      <a class="yu-nav-brand" href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' data-replay="true" aria-label="Yarmouk University home"><img src='<%= ResolveUrl("~/assets/yarmouk-logo-on-light.svg") %>' width="140" height="51" alt="Yarmouk University"></a>
       <button class="yu-nav-toggle" type="button" aria-expanded="false" aria-controls="yu-public-links" aria-label="Open navigation" hidden><span></span><span></span></button>
       <nav class="yu-nav-links" id="yu-public-links" aria-label="Main navigation">
-        <a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' aria-current="page" data-replay="true">Home</a><a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'  >About Us</a><a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'  >Contact Us</a>
+        <a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>' aria-current="page" data-replay="true">Home</a><a href='<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>'  >About Us</a><a href='<%= ResolveUrl("~/PublicPages/Team.aspx") %>'>Team</a><a href='<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>'  >Contact Us</a>
 
       </nav>
       <a class="yu-nav-login" href='<%= ResolveUrl("~/PublicPages/Login.aspx") %>' >Log in <span aria-hidden="true">↗</span></a>
@@ -211,3 +211,5 @@
   </form>
 </body>
 </html>
+
+<!-- H -->

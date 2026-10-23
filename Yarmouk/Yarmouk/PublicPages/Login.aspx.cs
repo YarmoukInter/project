@@ -64,7 +64,7 @@ namespace Yarmouk.PublicPages
             auth.User = user;
             Session.Clear();
             Session[AuthGuard.SessionKey] = auth;
-            Go(user.Role == "student" && user.MustChangePassword ? "~/StudentPages/ChangePassword.aspx" : AuthPolicy.Home(user.Role));
+            Go(user.MustChangePassword ? "~/StudentPages/ChangePassword.aspx" : AuthPolicy.Home(user.Role));
         }
         protected void Recover_Click(object sender, EventArgs e)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
@@ -286,15 +287,19 @@ namespace Yarmouk.Services
                 bool submitted = ReadBool(record, "companySubmitted");
                 bool locked = submitted || ReadBool(record, "coordinatorApproved");
                 var criteria = new Dictionary<string, string>(StringComparer.Ordinal);
-                var savedCriteria = record == null ? null : record["companyCriteria"] as JObject;
-                if (savedCriteria != null)
-                    foreach (var criterion in savedCriteria.Properties())
+                var savedCriteria = record == null ? null : record["companyCriteria"];
+                var criteriaEntries = savedCriteria is JObject criteriaObject
+                    ? criteriaObject.Properties().Select(x => new KeyValuePair<string, JToken>(x.Name, x.Value))
+                    : savedCriteria is JArray criteriaArray
+                        ? criteriaArray.Select((value, index) => new KeyValuePair<string, JToken>(index.ToString(CultureInfo.InvariantCulture), value))
+                        : Enumerable.Empty<KeyValuePair<string, JToken>>();
+                foreach (var criterion in criteriaEntries)
                     {
                         int number;
-                        string value = criterion.Value.ToString();
+                        string value = criterion.Value == null || criterion.Value.Type == JTokenType.Null ? string.Empty : criterion.Value.ToString();
                         if (Levels.Contains(value, StringComparer.Ordinal)
-                            || (int.TryParse(criterion.Name, out number) && (number == 11 || number == 12 || number == 13) && value == "N/A"))
-                            criteria[criterion.Name] = value;
+                            || (int.TryParse(criterion.Key, out number) && (number == 11 || number == 12 || number == 13) && value == "N/A"))
+                            criteria[criterion.Key] = value;
                     }
 
                 result.Add(new CompanyEvaluationRow

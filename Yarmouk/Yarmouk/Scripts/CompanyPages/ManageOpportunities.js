@@ -9,6 +9,8 @@
     var page = document.querySelector(".co-opportunities");
     var apiUrl = page.getAttribute("data-api-url");
     var feedback = document.getElementById("opportunityFeedback");
+    var modalFeedback = document.getElementById("opportunityModalFeedback");
+    function showModalError(message) { if (modalFeedback) { modalFeedback.textContent = message; modalFeedback.hidden = false; } }
 
     var modal = document.getElementById("opportunityModal");
     var form = document.getElementById("opportunityForm");
@@ -24,7 +26,10 @@
             options.body = JSON.stringify(Object.assign({ action: action }, payload));
         }
         return fetch(apiUrl + "?action=" + encodeURIComponent(action), options).then(function(response) {
-            return response.json().then(function(data) {
+            return response.text().then(function(body) {
+                var data;
+                try { data = JSON.parse(body); }
+                catch (_) { throw new Error(response.status === 401 || response.redirected ? "Your session expired. Sign in again and retry." : "The server returned an unexpected response. Refresh and retry."); }
                 if (!response.ok || !data.success) throw new Error(data.message || "The request could not be completed.");
                 return data;
             });
@@ -87,6 +92,7 @@
         renderStats();
     }
     function openModal(item) {
+        if (modalFeedback) { modalFeedback.hidden = true; modalFeedback.textContent = ""; }
         document.getElementById("opportunityTitleInput").value = "";
         document.getElementById("opportunityDeadlineInput").value = "";
         document.getElementById("opportunitySeatsInput").value = "1";
@@ -152,7 +158,8 @@
             }
         }
         var selectedMajors = Array.prototype.map.call(form.querySelectorAll('input[name="major"]:checked'), function(checkbox) { return checkbox.value; });
-        if (!selectedMajors.length) { window.alert("Select at least one eligible major."); return; }
+        if (!selectedMajors.length) { showModalError("Select at least one eligible major."); return; }
+        if (modalFeedback) modalFeedback.hidden = true;
         var item = editingId ? opportunities.find(function(entry) { return entry.id === editingId; }) : null;
         var values = {
             id: editingId,
@@ -177,6 +184,7 @@
             return loadOpportunities();
         }).catch(function(error) {
             feedback.textContent = "Could not save the opportunity: " + error.message;
+            showModalError(error.message);
         }).then(function() {
             saveButton.disabled = false;
             saveButton.textContent = editingId ? "Save changes" : "Save opportunity";

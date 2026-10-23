@@ -18,7 +18,7 @@ namespace Yarmouk.CompanyPages
             if (Request.Form["sidebarCsrf"] != SidebarCsrf) throw new HttpException(403, "Please reload the page and try again.");
             Session.Clear();
             Session.Abandon();
-            Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"));
+            Response.Redirect(ResolveUrl("~/PublicPages/Login"));
         }
     }
 }

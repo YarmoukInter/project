@@ -7,7 +7,11 @@ bin/
 obj/
 **/bin/
 **/obj/
+onboarding-worker/state.json
+onboarding-worker/node_modules/
+onboarding-worker/*.log
 
 # User-specific files
 *.user
 *.suo
+/yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json

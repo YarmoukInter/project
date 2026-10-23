@@ -27,6 +27,7 @@ namespace Yarmouk.CoordinatorPages
     {
         private readonly CoordinatorDatabase firebase;
         private readonly CoordinatorAccounts authentication;
+        private readonly FirebaseAdminAccountService adminAccounts = new FirebaseAdminAccountService();
         public CoordinatorService() : this(new CoordinatorDatabase(), new CoordinatorAccounts()) { }
         public CoordinatorService(CoordinatorDatabase firebase, CoordinatorAccounts authentication)
         { this.firebase = firebase; this.authentication = authentication; }
@@ -68,7 +69,7 @@ namespace Yarmouk.CoordinatorPages
                 Major major = null;
                 if (student != null && !string.IsNullOrEmpty(student.MajorId)) majors.TryGetValue(student.MajorId, out major);
                 var company = companies.Values.FirstOrDefault(c => c != null && c.SupervisorUid == pair.Key);
-                rows.Add(new DirectoryEntry {
+                var row = new DirectoryEntry {
                     Id = pair.Key, Name = role == "company" ? (company == null ? user.FullName : company.Name) : user.FullName,
                     Email = user.Email, IsActive = user.IsActive,
                     Department = major == null ? user.Department : major.Name,
@@ -79,8 +80,16 @@ namespace Yarmouk.CoordinatorPages
                     Status = role == "company" ? (company != null && company.IsApproved ? "Approved" : "Pending review") : (user.IsActive ? "Active" : "Inactive"),
                     Industry = company == null ? "" : company.Industry,
                     Location = company == null ? "" : company.Location,
+                    CompanyEmail = company == null ? "" : company.CompanyEmail,
                     ContactName = role == "company" ? user.FullName : ""
-                });
+                };
+                if (role == "student" && student != null)
+                {
+                    student.StudentNumber = string.IsNullOrWhiteSpace(student.StudentNumber) ? student.StudentId : student.StudentNumber;
+                    student.CompletedCredits = student.CompletedCredits > 0 ? student.CompletedCredits : student.CompletedCreditHours;
+                    JsonConvert.PopulateObject(JsonConvert.SerializeObject(student, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }), row);
+                }
+                rows.Add(row);
             }
             return new {
                 records = rows.OrderBy(r => r.Name).ToList(),
@@ -97,6 +106,8 @@ namespace Yarmouk.CoordinatorPages
                 throw new ArgumentException("This account is unavailable in this roster.");
             return user;
         }
+        public Task<CoordinatorUser> EnsureManagedStudentAsync(string uid, AuthSession session)
+        { return ManagedUserAsync(uid, "student", session); }
         private async Task ValidateSupervisorAsync(string uid, AuthSession session)
         {
             if (string.IsNullOrEmpty(uid)) return;
@@ -113,11 +124,9 @@ namespace Yarmouk.CoordinatorPages
             entry.Email = Text(entry.Email, "Email", 254);
             if (!AuthPolicy.ValidEmail(entry.Email)) throw new ArgumentException("Enter a valid email address.");
             CoordinatorUser existing = creating ? null : await ManagedUserAsync(entry.Id, role, session);
-            if (!creating && !string.Equals(entry.Email, existing.Email, StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("The sign-in email cannot be changed here. It must also be updated in Firebase Authentication.");
-            if (creating && (string.IsNullOrEmpty(entry.TemporaryPassword) || entry.TemporaryPassword.Length < 8 || entry.TemporaryPassword.Length > 128))
-                throw new ArgumentException("Enter a temporary password between 8 and 128 characters.");
+            bool emailChanged = !creating && !string.Equals(entry.Email, existing.Email, StringComparison.OrdinalIgnoreCase);
             var changes = new Dictionary<string, object>();
+            var studentDetails = role == "student" && entry.ProfileFields != null ? JObject.FromObject(entry.ProfileFields).ToObject<Student>() : null;
             string majorId = null;
             if (role != "company")
             {
@@ -127,8 +136,8 @@ namespace Yarmouk.CoordinatorPages
             if (role == "student")
             {
                 decimal gpa;
-                if (!decimal.TryParse(entry.Gpa, NumberStyles.Number, CultureInfo.InvariantCulture, out gpa) || gpa < 0 || gpa > 4)
-                    throw new ArgumentException("GPA must be between 0 and 4.");
+                if (!decimal.TryParse(entry.Gpa, NumberStyles.Number, CultureInfo.InvariantCulture, out gpa) || gpa < 0 || gpa > 100)
+                    throw new ArgumentException("GPA must be between 0 and 100.");
                 entry.Gpa = gpa.ToString("0.00", CultureInfo.InvariantCulture);
                 var majors = await ReadAsync<Major>(DatabasePaths.Majors, session) ?? new Dictionary<string, Major>();
                 majorId = majors.Where(m => m.Value != null && m.Value.Name == entry.Department && m.Value.Faculty == entry.College).Select(m => m.Key).FirstOrDefault();
@@ -138,6 +147,8 @@ namespace Yarmouk.CoordinatorPages
             if (role == "company")
             {
                 entry.ContactName = Text(entry.ContactName, "Contact person", 120);
+                entry.CompanyEmail = string.IsNullOrWhiteSpace(entry.CompanyEmail) ? "" : Text(entry.CompanyEmail, "Company email", 254);
+                if (entry.CompanyEmail.Length > 0 && !AuthPolicy.ValidEmail(entry.CompanyEmail)) throw new ArgumentException("Enter a valid company email address.");
                 entry.Industry = Text(entry.Industry, "Industry", 120);
                 entry.Location = Text(entry.Location, "Location", 200);
                 if (entry.Status != "Approved" && entry.Status != "Pending review") throw new ArgumentException("Choose an approval status.");
@@ -150,8 +161,10 @@ namespace Yarmouk.CoordinatorPages
                 ? await ReadAsync<Placement>(DatabasePaths.Placements, session) ?? new Dictionary<string, Placement>() : new Dictionary<string, Placement>();
             var existingCompanies = role == "company"
                 ? await ReadAsync<Company>(DatabasePaths.Companies, session) ?? new Dictionary<string, Company>() : new Dictionary<string, Company>();
-            // Authentication first supplies the real UID. Never make up an Authentication UID.
-            AuthSession newAccount = creating ? await authentication.CreateUserAsync(entry.Email, entry.TemporaryPassword) : null;
+            if (emailChanged) await adminAccounts.UpdateAccountCredentialsAsync(entry.Id, role, entry.Email, "");
+            // The initial password is the new user's email; the account must replace it at first sign-in.
+            string temporaryPassword = creating ? entry.Email : null;
+            AuthSession newAccount = creating ? await authentication.CreateUserAsync(entry.Email, temporaryPassword) : null;
             string uid = creating ? newAccount.Uid : entry.Id;
             string userPath = DatabasePaths.Users + "/" + uid + "/";
             changes[userPath + "fullName"] = role == "company" ? entry.ContactName : entry.Name;
@@ -161,7 +174,9 @@ namespace Yarmouk.CoordinatorPages
                 changes[userPath + "email"] = entry.Email;
                 changes[userPath + "role"] = role;
                 changes[userPath + "mustChangePassword"] = true;
+                changes[userPath + "onboardingRequestedAtUnixMs"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             }
+            else if (emailChanged) changes[userPath + "email"] = entry.Email;
             changes[userPath + "isActive"] = role == "academic" ? entry.Status == "Active" : creating || existing.IsActive;
             if (role != "company")
             {
@@ -174,6 +189,14 @@ namespace Yarmouk.CoordinatorPages
                 changes[path + "uid"] = uid;
                 changes[path + "majorId"] = majorId;
                 changes[path + "gpa"] = entry.Gpa;
+                if (studentDetails != null)
+                {
+                    var fields = JObject.FromObject(studentDetails, JsonSerializer.Create(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+                    foreach (string field in new[] { "englishName", "studentNumber", "nationalId", "gender", "nationality", "birthPlace", "birthDate", "academicStatus", "completedCredits", "expectedGraduation" })
+                        if (entry.ProfileFields.ContainsKey(field)) changes[path + field] = fields[field];
+                    if (entry.ProfileFields.ContainsKey("studentNumber")) changes[path + "studentId"] = studentDetails.StudentNumber;
+                    if (entry.ProfileFields.ContainsKey("completedCredits")) changes[path + "completedCreditHours"] = studentDetails.CompletedCredits;
+                }
                 changes[path + "academicSupervisorId"] = entry.Supervisor ?? "";
                 changes[path + "academicSupervisorName"] = supervisorUser == null ? "" : supervisorUser.FullName;
                 foreach (var placement in existingPlacements.Where(p => p.Value != null && p.Value.StudentUid == uid
@@ -189,6 +212,7 @@ namespace Yarmouk.CoordinatorPages
                     string path = DatabasePaths.Companies + "/" + companyId + "/";
                     changes[path + "id"] = companyId; changes[path + "name"] = entry.Name;
                     changes[path + "contactEmail"] = entry.Email; changes[path + "supervisorUid"] = uid;
+                    changes[path + "companyEmail"] = entry.CompanyEmail;
                     changes[path + "industry"] = entry.Industry; changes[path + "location"] = entry.Location;
                     changes[path + "isApproved"] = entry.Status == "Approved";
                 }
@@ -209,7 +233,7 @@ namespace Yarmouk.CoordinatorPages
                     throw new InvalidOperationException("Registration could not be confirmed. Check Authentication and users/" + uid + " before retrying.");
                 throw;
             }
-            return creating ? "Account registered. Share its temporary password with the user securely." : "Account details saved.";
+            return creating ? "Account registered. Initial temporary password: " + temporaryPassword + " (same as the email). The user must change it at first sign-in. A Firebase password setup email will also be requested." : "Account details saved.";
         }
         public async Task<string> SetActiveAsync(string uid, string role, bool active, AuthSession session)
         {
@@ -313,7 +337,6 @@ namespace Yarmouk.CoordinatorPages
         public string Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public string TemporaryPassword { get; set; }
         public string Department { get; set; }
         public string College { get; set; }
         public string Gpa { get; set; }
@@ -324,5 +347,7 @@ namespace Yarmouk.CoordinatorPages
         public string Industry { get; set; }
         public string Location { get; set; }
         public string ContactName { get; set; }
+        public string CompanyEmail { get; set; }
+        public Dictionary<string, object> ProfileFields { get; set; }
     }
 }

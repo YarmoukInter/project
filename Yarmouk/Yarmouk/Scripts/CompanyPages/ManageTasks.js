@@ -23,6 +23,8 @@
     if (!trigger || !reviewModal) return;
     reviewFocus = trigger;
     var id = trigger.dataset.reviewId;
+    var studentSelector = document.getElementById('StudentSelector');
+    if (studentSelector && trigger.dataset.reviewStudentUid) studentSelector.value = trigger.dataset.reviewStudentUid;
     var solution = trigger.dataset.reviewSolution || '';
     document.getElementById('task-review-title').textContent = trigger.dataset.reviewTitle || 'Review task';
     document.getElementById('task-review-status').textContent = trigger.dataset.reviewStatusLabel || '';

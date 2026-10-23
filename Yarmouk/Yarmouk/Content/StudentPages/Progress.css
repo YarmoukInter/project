@@ -103,13 +103,12 @@
 .milestone.is-current .milestone-check { border-color: var(--progress-gold); background: #fffaf0; color: #9b7937; }
 .milestone.is-current .milestone-bar span { background: var(--progress-gold); }
 .milestone-caption { display: flex; align-items: center; gap: 9px; margin-top: 18px; color: #849188; font-size: 10px; }
-.task-updates-card { margin-top: 16px; }
-.task-count-summary { margin: 14px 0; color: var(--progress-muted); font-size: 12px; }
-.task-update-row { padding: 13px 0; border-top: 1px solid var(--progress-line); }
-.task-update-row > div { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.task-update-row strong { color: var(--progress-ink); font-size: 13px; }
-.task-update-row span, .task-update-row p { color: var(--progress-muted); font-size: 11px; }
-.task-update-row p { margin: 7px 0 0; line-height: 1.5; }
+.academic-notes-card { margin-top:16px; }
+.academic-note { margin-top:14px; padding:16px 18px; border:1px solid var(--progress-line); border-left:3px solid var(--progress-green); border-radius:10px; background:var(--bg-2); }
+.academic-note-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:5px 16px; }
+.academic-note-header strong { color:var(--progress-ink); font-size:13px; }
+.academic-note-header time { color:var(--progress-muted); font-size:11px; }
+.academic-note p { margin:9px 0 0; color:var(--progress-muted); font-size:12px; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
 .caption-line { width: 20px; height: 1px; background: var(--progress-gold); }
 .progress-bottom-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .next-step-card { display: flex; align-items: flex-start; gap: 14px; padding: 20px; }

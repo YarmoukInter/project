@@ -28,6 +28,16 @@ window.CoordinatorBackend = {
 
             const state = window.CoordinatorBackend.state();
             let records = state.data?.records || [];
+            const clientFields = config.fields.filter(field => field.clientOnly);
+            const clientStorageKey = `coordinatorRoster:${config.page}:display`;
+            let clientValues = {};
+            if (clientFields.length) {
+                try { clientValues = JSON.parse(sessionStorage.getItem(clientStorageKey) || '{}') || {}; } catch (_) { }
+                records.forEach(record => {
+                    const saved = clientValues[record.id] || clientValues[record.email] || {};
+                    clientFields.forEach(field => { record[field.key] = saved[field.key] || ''; });
+                });
+            }
             const submit = window.CoordinatorBackend.submit;
             if (state.data?.supervisors) {
                 const options = [{value:'',label:'Unassigned'}, ...state.data.supervisors];
@@ -36,7 +46,6 @@ window.CoordinatorBackend = {
             }
             const department = config.fields.find(f => f.key === 'department');
             if (department && state.data?.departments?.length) department.options = state.data.departments;
-            config.fields.push({key:'temporaryPassword',label:'Temporary password (8–128 characters)',type:'password',required:true,createOnly:true});
             let editingId = null, pendingDelete = null, opener = null;
             const tbody = root.querySelector('[data-roster-body]');
             const feedback = root.querySelector('[data-roster-feedback]');
@@ -44,10 +53,13 @@ window.CoordinatorBackend = {
             const fields = root.querySelector('[data-editor-fields]');
             const error = root.querySelector('[data-editor-error]');
             const deleteDialog = root.querySelector('[data-delete-dialog]');
+            const accessDialog = root.querySelector('[data-access-dialog]');
+            const permanentDialog = root.querySelector('[data-permanent-dialog]');
+            let accountRecord = null;
 
             function cell(column, record) {
                 const value = record[column.key];
-                if (column.type === 'identity') return `<strong class="yr-person-name">${escape(value)}</strong><span class="yr-person-email">${escape(record.email)}${record.isActive ? '' : ' · Inactive'}</span>`;
+                if (column.type === 'identity') return `<strong class="yr-person-name">${escape(value)}</strong><span class="yr-person-email">${escape(record[column.detailKey || 'email'] || '—')}${record.isActive ? '' : ' · Inactive'}</span>`;
                 if (column.type === 'gpa') return `<span class="yr-number">${(value == null || value === '' ? '—' : Number(value).toFixed(2))}</span>`;
                 if (column.type === 'count') return `<span class="yr-number">${escape(value)}</span><span class="yr-cell-note">students</span>`;
                 if (column.type === 'status') {
@@ -70,13 +82,14 @@ window.CoordinatorBackend = {
                 root.querySelector('[data-editor-save]').textContent = record ? 'Save changes' : `Register ${config.singular}`;
                 fields.innerHTML = config.fields.filter(field => !field.createOnly || !record).map(field => {
                     const id = `editor-${field.key}`;
-                    const value = (record ? record[field.key] : field.default) ?? '';
-                    const readonly = record && field.key === 'email' ? ' readonly title="Update sign-in emails in Firebase Authentication"' : '';
+                    let value = (record ? record[field.key] : field.default) ?? '';
+                    if (field.type === 'date') value = String(value).replace(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, (_, day, month, year) => `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
                     if (field.options && value && !field.options.some(o => o.value === value)) field.options = [...field.options, {value,label:value}];
                     let input;
                     if (field.options) input = `<select id="${id}" data-field="${field.key}"${field.required ? ' required' : ''}>${field.options.map(option => `<option value="${escape(option.value)}"${option.value === value ? ' selected' : ''}${option.disabled ? ' disabled' : ''}>${escape(option.label)}</option>`).join('')}</select>`;
-                    else input = `<input id="${id}" data-field="${field.key}" type="${field.type || 'text'}" value="${escape(value)}"${field.required ? ' required' : ''}${field.type === 'number' ? ` min="${field.min ?? 0}"${field.max != null ? ` max="${field.max}"` : ''} step="${field.step || 1}"` : field.type === 'password' ? '' : ' maxlength="254"'} ${readonly} autocomplete="${field.type === 'password' ? 'new-password' : 'off'}"${field.type === 'password' ? ' minlength="8" maxlength="128"' : ''} />`;
-                    return `<div class="yr-editor-field${field.wide ? ' yr-field-wide' : ''}"><label for="${id}">${escape(field.label)}${field.required ? ' <span aria-hidden="true">*</span>' : ''}</label>${input}</div>`;
+                    else input = `<input id="${id}" data-field="${field.key}" type="${field.type || 'text'}" value="${escape(value)}"${field.required ? ' required' : ''}${field.description ? ` aria-describedby="${id}-description"` : ''}${field.type === 'number' ? ` min="${field.min ?? 0}"${field.max != null ? ` max="${field.max}"` : ''} step="${field.step || 1}"` : field.type === 'password' ? '' : ' maxlength="254"'} autocomplete="${field.type === 'password' ? 'new-password' : 'off'}"${field.type === 'password' ? ' minlength="8" maxlength="128"' : ''} />`;
+                    if (!field.options) input = input.replace(' />', `${field.inputMode ? ` inputmode="${escape(field.inputMode)}"` : ''}${field.pattern ? ` pattern="${escape(field.pattern)}"` : ''}${field.type === 'date' && field.max ? ` max="${escape(field.max)}"` : ''} />`);
+                    return `<div class="yr-editor-field${field.wide ? ' yr-field-wide' : ''}"><label for="${id}">${escape(field.label)}${field.required ? ' <span aria-hidden="true">*</span>' : ''}</label>${input}${field.description ? `<small class="yr-field-note" id="${id}-description">${escape(field.description)}</small>` : ''}</div>`;
                 }).join('');
                 const departmentInput = fields.querySelector('[data-field="department"]');
                 const collegeInput = fields.querySelector('[data-field="college"]');
@@ -101,9 +114,6 @@ window.CoordinatorBackend = {
                 }
                 const next = {id:editingId};
                 inputs.forEach(input => { next[input.dataset.field] = input.value.trim(); });
-                // Passwords are submitted once to ASP.NET and never kept in the roster data.
-                const password = inputs.find(input => input.dataset.field === 'temporaryPassword');
-                if (password) next.temporaryPassword = password.value;
                 submit('save', next);
             }
 
@@ -116,6 +126,24 @@ window.CoordinatorBackend = {
             tbody.addEventListener('click', event => {
                 const edit = event.target.closest('[data-edit]');
                 if (edit) { const record = records.find(item => item.id === edit.dataset.edit); if (record) openEditor(record); return; }
+                const access = event.target.closest('[data-access]');
+                if (access && accessDialog) {
+                    accountRecord = records.find(item => item.id === access.dataset.access);
+                    if (!accountRecord) return;
+                    opener = access;
+                    accessDialog.querySelector('#access-email').value = accountRecord.email || '';
+                    accessDialog.querySelector('#access-password').value = '';
+                    accessDialog.querySelector('[data-access-error]').textContent = '';
+                    accessDialog.showModal(); accessDialog.querySelector('#access-email').focus(); return;
+                }
+                const permanent = event.target.closest('[data-permanent]');
+                if (permanent && permanentDialog) {
+                    accountRecord = records.find(item => item.id === permanent.dataset.permanent);
+                    if (!accountRecord) return;
+                    opener = permanent;
+                    permanentDialog.querySelector('[data-permanent-description]').textContent = `Permanently delete ${accountRecord.name} (${accountRecord.email})?`;
+                    permanentDialog.showModal(); return;
+                }
                 const remove = event.target.closest('[data-delete]');
                 if (!remove) return;
                 pendingDelete = records.find(item => item.id === remove.dataset.delete);
@@ -139,15 +167,39 @@ window.CoordinatorBackend = {
                 if (!pendingDelete) return;
                 submit('active', {id:pendingDelete.id,value:!pendingDelete.isActive});
             });
-            [dialog, deleteDialog].forEach(modal => modal.addEventListener('close', () => {
+            if (accessDialog) {
+                root.querySelectorAll('[data-access-close]').forEach(button => button.addEventListener('click', () => accessDialog.close()));
+                root.querySelector('[data-access-save]').addEventListener('click', () => {
+                    if (!accountRecord) return;
+                    const email = accessDialog.querySelector('#access-email');
+                    const password = accessDialog.querySelector('#access-password');
+                    if (!email.reportValidity() || (password.value && !password.reportValidity())) return;
+                    if (!password.value && email.value.trim() === accountRecord.email) {
+                        accessDialog.querySelector('[data-access-error]').textContent = 'Change the email or enter a temporary password.'; return;
+                    }
+                    submit('credentials', {id:accountRecord.id,email:email.value.trim(),password:password.value});
+                });
+            }
+            if (permanentDialog) {
+                root.querySelectorAll('[data-permanent-close]').forEach(button => button.addEventListener('click', () => permanentDialog.close()));
+                root.querySelector('[data-permanent-confirm]').addEventListener('click', () => {
+                    if (accountRecord) submit('deleteStudent', {id:accountRecord.id});
+                });
+            }
+            [dialog, deleteDialog, accessDialog, permanentDialog].filter(Boolean).forEach(modal => modal.addEventListener('close', () => {
                 if (opener && document.contains(opener)) opener.focus();
                 else root.querySelector('[data-roster-add]').focus();
             }));
             feedback.textContent = state.error || state.notice || '';
             if (!state.data) {
                 root.querySelector('[data-roster-add]').disabled = true;
-                tbody.innerHTML = '<tr><td colspan="6">Unable to load records. Check the error below and reload.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="${config.columns.length + 1}">Unable to load records. Check the error below and reload.</td></tr>`;
             } else render();
+            if (state.error) {
+                feedback.setAttribute('role', 'alert');
+                feedback.tabIndex = -1;
+                feedback.focus();
+            }
         }
     };
 })();

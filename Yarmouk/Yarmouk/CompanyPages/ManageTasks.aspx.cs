@@ -22,6 +22,8 @@ namespace Yarmouk.CompanyPages
         private sealed class StudentOption { public string Uid; public string Name; }
         private sealed class TaskRow
         {
+            public string StudentUid;
+            public string StudentName;
             public string Id;
             public string Number;
             public string Title;
@@ -107,26 +109,28 @@ namespace Yarmouk.CompanyPages
                 var users = await usersTask;
                 var taskData = await tasksTask;
                 var submissionData = await submissionsTask;
-                var companyId = GetCompanyIdBySupervisorUid(auth.Uid, companies);
-                if (companyId.Length == 0) { ShowError("Your signed-in account is not linked to a company in Firebase."); return; }
-                var assignedUids = GetAssignedStudentUids(companyId, students);
+                var trainees = await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken);
+                var assignedUids = new HashSet<string>(trainees.Select(x => x.StudentUid), StringComparer.Ordinal);
                 var options = GetStudentOptions(assignedUids, students, users);
                 StudentChoices.Text = RenderStudentChoices(options);
 
                 StudentSelector.Items.Clear();
-                StudentSelector.Items.Add(new ListItem(options.Count == 0 ? "No assigned students" : "Choose a student", ""));
+                StudentSelector.Items.Add(new ListItem(options.Count == 0 ? "No assigned students" : "All trainees", ""));
                 foreach (var option in options) StudentSelector.Items.Add(new ListItem(option.Name, option.Uid));
-                var selected = options.FirstOrDefault(item => item.Uid == requestedStudentUid) ?? options.FirstOrDefault();
+                var selected = options.FirstOrDefault(item => item.Uid == requestedStudentUid);
                 if (selected != null) StudentSelector.SelectedValue = selected.Uid;
 
-                if (selected == null)
+                if (options.Count == 0)
                 {
                     TaskCount.Text = "";
                     TaskTable.Text = "<p class=\"empty-state\">No trainees are currently assigned to your company.</p>";
                     return;
                 }
 
-                var rows = BuildTaskRows(selected.Uid, taskData, submissionData);
+                var rows = options.SelectMany(option => BuildTaskRows(option.Uid, taskData, submissionData)
+                    .Select(row => { row.StudentUid = option.Uid; row.StudentName = option.Name; return row; }))
+                    .Where(row => selected == null || row.StudentUid == selected.Uid)
+                    .OrderBy(row => row.CreatedAt).ThenBy(row => row.Id, StringComparer.Ordinal).ToList();
                 TaskCount.Text = "<span class=\"task-count\">" + rows.Count + (rows.Count == 1 ? " task" : " tasks") + "</span>";
                 TaskTable.Text = RenderTaskTable(rows);
             }
@@ -162,9 +166,7 @@ namespace Yarmouk.CompanyPages
                 var users = await usersTask;
                 var taskData = await tasksTask;
                 var submissionData = await submissionsTask;
-                var companyId = GetCompanyIdBySupervisorUid(auth.Uid, companies);
-                if (companyId.Length == 0) { ShowError("Your signed-in account is not linked to a company in Firebase."); return; }
-                var assignedUids = GetAssignedStudentUids(companyId, students);
+                var assignedUids = new HashSet<string>((await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken)).Select(x => x.StudentUid), StringComparer.Ordinal);
                 if (!assignedUids.Contains(selectedStudentUid)) { ShowError("You do not have access to this student's tasks."); return; }
 
                 var entry = FindRecord(taskData, taskId);
@@ -266,9 +268,7 @@ namespace Yarmouk.CompanyPages
                 var companies = await companiesTask;
                 var students = await studentsTask;
                 var users = await usersTask;
-                var companyId = GetCompanyIdBySupervisorUid(auth.Uid, companies);
-                if (companyId.Length == 0) { ShowError("Your signed-in account is not linked to a company in Firebase."); return; }
-                var assignedUids = GetAssignedStudentUids(companyId, students);
+                var assignedUids = new HashSet<string>((await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken)).Select(x => x.StudentUid), StringComparer.Ordinal);
                 if (targetUids.Any(uid => !assignedUids.Contains(uid)))
                 { ShowError("Only students assigned to your company can receive this task."); return; }
 
@@ -428,17 +428,18 @@ namespace Yarmouk.CompanyPages
 
         private static string RenderTaskTable(List<TaskRow> rows)
         {
-            if (rows.Count == 0) return "<p class=\"empty-state\">This student has no tasks yet.</p>";
-            var html = new StringBuilder("<div class=\"table-scroll\"><table class=\"tasks-table\"><thead><tr><th>Task</th><th>Deadline</th><th>Status</th><th>Evaluation / 10</th><th>Review decision</th></tr></thead><tbody>");
+            if (rows.Count == 0) return "<p class=\"empty-state\">No tasks match this trainee filter.</p>";
+            var html = new StringBuilder("<div class=\"table-scroll\"><table class=\"tasks-table\"><thead><tr><th>Student</th><th>Task</th><th>Deadline</th><th>Status</th><th>Evaluation / 10</th><th>Review decision</th></tr></thead><tbody>");
             foreach (var row in rows)
             {
                 var id = HttpUtility.HtmlAttributeEncode(row.Id);
-                html.Append("<tr><td><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></td>");
+                html.Append("<tr><td>").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</td><td><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></td>");
                 html.Append("<td>").Append(row.DueAt > 0 ? HttpUtility.HtmlEncode(FormatDate(row.DueAt)) : "—").Append("</td>");
                 html.Append("<td><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></td>");
                 html.Append("<td><span class=\"task-grade\">").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : "—").Append(" <small>/ 10</small></span></td><td>");
                 if (row.Status == "done" || row.Status == "completed")
                     html.Append("<button type=\"button\" class=\"review-open-button\" data-review-id=\"").Append(id)
+                        .Append("\" data-review-student-uid=\"").Append(HttpUtility.HtmlAttributeEncode(row.StudentUid))
                         .Append("\" data-review-title=\"").Append(HttpUtility.HtmlAttributeEncode(row.Title))
                         .Append("\" data-review-status=\"").Append(HttpUtility.HtmlAttributeEncode(row.Status))
                         .Append("\" data-review-status-label=\"").Append(HttpUtility.HtmlAttributeEncode(row.StatusLabel))

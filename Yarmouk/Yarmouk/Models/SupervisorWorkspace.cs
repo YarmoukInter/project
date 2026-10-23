@@ -41,6 +41,9 @@ namespace Yarmouk.Models
         public string AcademicScoreInput { get; set; }
         public string AcademicScoreLabel { get; set; }
         public string AcademicFeedback { get; set; }
+        public string ZoomMeetingDate { get; set; }
+        public string ZoomMeetingUrl { get; set; }
+        public string ZoomMeetingAssessment { get; set; }
         public string CompanyScoreLabel { get; set; }
         public string CompanyStatusLabel { get; set; }
         public string ApprovalStatusLabel { get; set; }

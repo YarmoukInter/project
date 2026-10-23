@@ -1,7 +1,7 @@
 <%@ Page Title="My Trainees" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="MyTrainees.aspx.cs" Inherits="Yarmouk.CompanyPages.MyTrainees" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/CompanyPages/MyTrainees.css") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CompanyPages/MyTrainees.js") %>" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/CompanyPages/MyTrainees.js?v=search-2") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="company-trainees-workspace">
@@ -17,7 +17,7 @@
   <asp:Repeater ID="TraineesList" runat="server">
     <HeaderTemplate><div class="trainees-grid"></HeaderTemplate>
     <ItemTemplate>
-      <article class="trainee-card" data-trainee-status="<%#: Eval("PlacementStatus") %>">
+      <article class="trainee-card" data-trainee-status="<%#: Eval("PlacementStatus") %>" data-search='<%#: Eval("StudentName") %> <%#: Eval("StudentNumber") %> <%#: Eval("CompanyName") %>'>
         <header class="trainee-card-header"><div class="trainee-person"><span class="trainee-avatar"><%#: Eval("Initials") %></span><div><h3><%#: Eval("StudentName") %></h3><p>Student ID <%#: Eval("StudentNumber") %></p></div></div><span class="trainee-status"><i aria-hidden="true"></i><%#: Eval("PlacementStatus") %></span></header>
         <div class="trainee-company"><span class="trainee-company-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V4h11v17M15 10h5v11M2 21h20M8 8h1m3 0h1M8 12h1m3 0h1M8 16h1m3 0h1m6-2h1m-1 4h1" /></svg></span><div><small>HOST COMPANY</small><strong><%#: Eval("CompanyName") %></strong></div></div>
         <div class="trainee-progress"><div class="trainee-progress-label"><span>Approved training hours</span><strong><%#: Eval("HoursProgressLabel") %></strong><b><%#: Eval("ProgressPercent") %>%</b></div><div class="trainee-track" role="progressbar" aria-label="Approved training hours" aria-valuemin="0" aria-valuemax="100" aria-valuenow='<%# Eval("ProgressPercent") %>'><span style='width:<%# Eval("ProgressPercent") %>%'></span></div><div class="trainee-progress-foot"><span><%#: Eval("TaskProgressLabel") %></span></div></div>

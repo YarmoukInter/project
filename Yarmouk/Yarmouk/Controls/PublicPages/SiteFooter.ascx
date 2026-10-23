@@ -12,7 +12,7 @@
           <a href="<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>">About us</a>
           <a href="<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>">Contact us</a>
           <a href="https://it.yu.edu.jo/" target="_blank" rel="noopener noreferrer">Faculty website <span aria-hidden="true">↗</span></a>
-          <a class="yu-footer-login" href="<%= ResolveUrl("~/PublicPages/Login.aspx") %>">Start your journey <span aria-hidden="true">↗</span></a>
+          <a class="yu-footer-login" href="<%= ResolveUrl("~/PublicPages/Login") %>">Start your journey <span aria-hidden="true">↗</span></a>
         </nav>
         <div class="yu-footer-map">
           <div class="yu-footer-map-heading"><h3>Find the faculty</h3><a href="https://www.google.com/maps/search/?api=1&amp;query=Faculty+of+Information+Technology+and+Computer+Science+Yarmouk+University+Irbid" target="_blank" rel="noopener noreferrer">Directions <span aria-hidden="true">↗</span></a></div>

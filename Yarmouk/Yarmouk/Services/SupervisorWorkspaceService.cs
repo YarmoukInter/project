@@ -30,6 +30,42 @@ namespace Yarmouk.Services
             }).OrderBy(x => x.StudentName).ToList();
         }
 
+        public async Task SaveStudentProgressNoteAsync(string placementId, string academicUid, string idToken, string note)
+        {
+            RequireIdentity(academicUid, idToken);
+            if (!IsValidFirebaseKey(placementId))
+                throw new SupervisorWorkflowException("Select a valid student placement.");
+            note = (note ?? string.Empty).Trim();
+            if (note.Length == 0 || note.Length > 2000)
+                throw new SupervisorWorkflowException("Enter a progress note of up to 2,000 characters.");
+
+            var data = await LoadDataAsync(idToken).ConfigureAwait(false);
+            var academicUser = Find(data.Users, academicUid);
+            if (academicUser == null || AuthPolicy.NormalizeRole(Read(academicUser, "role")) != "academic")
+                throw new UnauthorizedAccessException("An academic supervisor account is required.");
+            var assigned = BuildProgressRows(data, row =>
+            {
+                var student = Find(data.Students, row.StudentUid);
+                return Same(Read(row.Placement, "academicSupervisorUid"), academicUid)
+                    || Same(Read(row.Placement, "academicSupervisorId"), academicUid)
+                    || (student != null && Same(Read(student, "academicSupervisorId"), academicUid));
+            }).FirstOrDefault(row => Same(row.PlacementId, placementId));
+            if (assigned == null)
+                throw new SupervisorWorkflowException("This student is not assigned to your academic account.");
+
+            var noteId = Guid.NewGuid().ToString("N");
+            await firebase.SaveAsync(DatabasePaths.StudentProgressNotes + "/" + assigned.StudentUid + "/" + noteId,
+                new
+                {
+                    studentUid = assigned.StudentUid,
+                    placementId = assigned.PlacementId,
+                    academicSupervisorUid = academicUid,
+                    academicSupervisorName = Read(academicUser, "fullName", "Academic supervisor"),
+                    body = note,
+                    createdAtUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                }, idToken).ConfigureAwait(false);
+        }
+
         public async Task<List<SupervisorStudentProgress>> GetCompanyTraineesAsync(string companySupervisorUid, string idToken)
         {
             RequireIdentity(companySupervisorUid, idToken);
@@ -61,7 +97,7 @@ namespace Yarmouk.Services
         }
 
         public async Task SaveAcademicEvaluationAsync(string placementId, string academicUid, string idToken,
-            int score, string feedback, bool submit)
+            int score, string feedback, bool submit, string meetingDate, string meetingUrl, string meetingAssessment)
         {
             RequireIdentity(academicUid, idToken);
             if (string.IsNullOrWhiteSpace(placementId) || placementId.Length > 128)
@@ -72,6 +108,17 @@ namespace Yarmouk.Services
             feedback = feedback.Trim();
             if (feedback.Length > 2000)
                 throw new SupervisorWorkflowException("Academic feedback must be 2,000 characters or fewer.");
+            meetingDate = (meetingDate ?? string.Empty).Trim();
+            meetingUrl = (meetingUrl ?? string.Empty).Trim();
+            meetingAssessment = (meetingAssessment ?? string.Empty).Trim();
+            DateTime parsedMeetingDate;
+            if (meetingDate.Length > 0 && !DateTime.TryParseExact(meetingDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out parsedMeetingDate))
+                throw new SupervisorWorkflowException("Enter a valid Zoom meeting date.");
+            Uri meetingUri;
+            if (meetingUrl.Length > 0 && (!Uri.TryCreate(meetingUrl, UriKind.Absolute, out meetingUri) || meetingUri.Scheme != Uri.UriSchemeHttps))
+                throw new SupervisorWorkflowException("Enter a valid HTTPS meeting link.");
+            if (meetingAssessment.Length > 2000)
+                throw new SupervisorWorkflowException("Meeting assessment must be 2,000 characters or fewer.");
 
             var data = await LoadDataAsync(idToken).ConfigureAwait(false);
             var assigned = BuildProgressRows(data, row =>
@@ -98,7 +145,7 @@ namespace Yarmouk.Services
             if (!IsValidFirebaseKey(evaluationId))
                 throw new SupervisorWorkflowException("The evaluation record key is invalid.");
             await new EvaluationService().SaveAcademicEvaluationAsync(evaluationId, placementId,
-                assigned.StudentUid, academicUid, score, feedback, submit, idToken).ConfigureAwait(false);
+                assigned.StudentUid, academicUid, score, feedback, submit, meetingDate, meetingUrl, meetingAssessment, idToken).ConfigureAwait(false);
         }
 
         private async Task<WorkspaceData> LoadDataAsync(string idToken)
@@ -255,6 +302,9 @@ namespace Yarmouk.Services
                 AcademicScoreInput = academicScore,
                 AcademicScoreLabel = hasAcademicScore ? academicScore + " / 100" : "Not entered",
                 AcademicFeedback = Read(record, "academicFeedback"),
+                ZoomMeetingDate = Read(record, "zoomMeetingDate"),
+                ZoomMeetingUrl = Read(record, "zoomMeetingUrl"),
+                ZoomMeetingAssessment = Read(record, "zoomMeetingAssessment"),
                 CompanyScoreLabel = HasNumber(record, "companyScore") ? companyScore + " / 100" : "Not received",
                 CompanyStatusLabel = companySubmitted ? "Company evaluation received" : "Waiting for company evaluation",
                 ApprovalStatusLabel = coordinatorApproved ? "University approval complete" : academicSubmitted ? "Waiting for university approval" : "Not submitted",

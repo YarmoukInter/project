@@ -305,7 +305,7 @@ namespace Yarmouk.StudentPages
 
         private void GoToLogin()
         {
-            Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"), false);
+            Response.Redirect(ResolveUrl("~/PublicPages/Login"), false);
             Context.ApplicationInstance.CompleteRequest();
         }
     }
