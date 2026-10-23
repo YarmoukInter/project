@@ -286,3 +286,11 @@
 @media(max-width:800px){.yu-intro{gap:0 10px;min-height:0;padding-top:20px}.yu-intro h1{font-size:48px;letter-spacing:-2.5px}.yu-art{height:410px}.yu-university{display:block;font-size:14px}.yu-university span{display:block;border:0;padding:4px 0 0}.yu-intro-actions{gap:12px}.yu-art-stage{width:100%}.yu-plinth{bottom:60px}.yu-intro-lead{font-size:14px}.yu-intro-foot{margin-top:25px}}
 @media(max-width:580px){.yu-intro{grid-template-columns:1fr}.yu-intro h1{font-size:54px}.yu-intro-copy{z-index:1}.yu-intro-lead{max-width:36ch}.yu-university{margin-bottom:22px}.yu-art{height:360px;margin:20px 0 0}.yu-art-stage{width:290px}.yu-watermark{font-size:280px;left:50%;transform:translateX(-50%);letter-spacing:-26px}.yu-plinth{width:270px;bottom:30px;height:30px}.yu-art-caption{bottom:-18px}.yu-intro-foot{margin-top:40px;font-size:10px}.yu-intro-foot a{gap:15px}}
 @media(prefers-reduced-motion:reduce){.yu-intro *{animation:none!important;transition:none!important}.yu-art-stage{transform:none!important}}
+
+.about-video{margin:72px 0 84px;padding:clamp(20px,3vw,36px);border:1px solid #e2dccb;border-radius:26px;background:linear-gradient(135deg,#fffefa 0%,#f5f2e9 100%);box-shadow:0 18px 44px rgba(19,57,41,.07)}
+.about-video-heading{display:grid;grid-template-columns:1fr minmax(240px,.65fr);align-items:end;gap:28px;margin:0 0 24px}
+.about-video-heading h2{max-width:18ch;margin:10px 0 0;color:#123d2b;font-size:clamp(26px,3.2vw,40px);line-height:1.18;letter-spacing:-1px}
+.about-video-heading p{max-width:48ch;margin:0;color:#64756b;font-size:15px;line-height:1.8}
+.about-video-frame{overflow:hidden;border:1px solid rgba(197,160,89,.4);border-radius:19px;background:#092f26;box-shadow:0 14px 32px rgba(12,48,38,.13)}
+.about-video-frame video{display:block;width:100%;height:auto;max-height: min(72vh,760px);aspect-ratio:16/9;background:#092f26;object-fit:contain}
+@media(max-width:800px){.about-video{margin:52px 0 60px;padding:20px;border-radius:20px}.about-video-heading{grid-template-columns:1fr;gap:10px}.about-video-heading p{font-size:14px}.about-video-frame{border-radius:14px}}

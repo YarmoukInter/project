@@ -57,6 +57,21 @@
             <article class="about-fact about-reveal"><span class="about-fact-icon about-fact-blue"><i class="fa-solid fa-people-group" aria-hidden="true"></i></span><div><strong class="about-counter" data-count="4">4</strong><span data-about-i18n="rolesFact">roles working together</span></div></article>
         </section>
 
+        <section class="about-video" aria-labelledby="aboutVideoTitle">
+            <div class="about-video-heading">
+                <div>
+                    <span class="about-section-kicker">UIMS · Yarmouk University</span>
+                    <h2 id="aboutVideoTitle">A closer look at the training journey</h2>
+                </div>
+                <p>Watch the video introduction to the university and its field training experience.</p>
+            </div>
+            <div class="about-video-frame">
+                <video controls preload="metadata" playsinline aria-label="UIMS and field training video introduction" aria-describedby="aboutVideoTitle">
+                    <source src="<%= ResolveUrl("~/Content/Videos/uims-about-introduction.mp4") %>" type="video/mp4" />
+                    Your browser does not support embedded video.
+                </video>
+            </div>
+        </section>
 
         <section class="about-campus" id="campusTour" aria-labelledby="campusTitle">
             <div class="campus-heading"><div><span class="campus-label">Yarmouk University / 360°</span><h2 id="campusTitle"><span class="campus-en">Your first step starts here.</span></h2></div><p><span class="campus-en">Step inside the Faculty of Information Technology and Computer Science with an interactive virtual walkthrough.</span></p></div>

@@ -133,6 +133,7 @@
     <Content Include="PublicPages\AboutUs.aspx" />
     <Content Include="Content\PublicPages\AboutUs.css" />
     <Content Include="Scripts\PublicPages\AboutUs.js" />
+    <Content Include="Content\Videos\uims-about-introduction.mp4" />
     <Content Include="PublicPages\Team.aspx" />
     <Content Include="Content\PublicPages\Team.css" />
     <Content Include="Scripts\PublicPages\Team.js" />
