@@ -1,6 +1,6 @@
 <%@ Page Title="Manage Tasks" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ManageTasks.aspx.cs" Inherits="Yarmouk.CompanyPages.ManageTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="../Content/CompanyPages/ManageTasks.css?v=review-modal-1" rel="stylesheet" />
+<link href="../Content/CompanyPages/ManageTasks.css?v=task-filters-3" rel="stylesheet" />
 <script src="../Scripts/CompanyPages/ManageTasks.js?v=review-modal-1" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
@@ -15,13 +15,18 @@
   </header>
   <asp:Literal ID="PageMessage" runat="server" />
   <div class="add-task-toolbar"><button id="open-add-task" class="add-task-button" type="button">+ Add task</button></div>
-  <section class="student-filter" aria-labelledby="student-filter-heading">
-    <label id="student-filter-heading" for="StudentSelector">Filter by student</label>
-    <asp:DropDownList ID="StudentSelector" runat="server" ClientIDMode="Static" AutoPostBack="true" />
+  <section class="student-filter task-filter-panel" aria-labelledby="student-filter-heading">
+    <div class="filter-heading"><div><span class="filter-icon" aria-hidden="true">⌕</span><div><strong id="student-filter-heading">Filter company tasks</strong><span>Search across every trainee task or narrow the list by student and status.</span></div></div><a href='<%= ResolveUrl("~/CompanyPages/ManageTasks") %>' class="clear-task-filters">Clear all</a></div>
+    <div class="task-filter-grid">
+      <label>Search tasks<asp:TextBox ID="TaskSearchTextBox" runat="server" TextMode="Search" placeholder="Student, task number, or title" /></label>
+      <label>Student<asp:DropDownList ID="StudentSelector" runat="server" ClientIDMode="Static" /></label>
+      <label>Status<asp:DropDownList ID="TaskStatusSelector" runat="server"><asp:ListItem Value="">All statuses</asp:ListItem><asp:ListItem Value="todo">To do</asp:ListItem><asp:ListItem Value="inProgress">In progress</asp:ListItem><asp:ListItem Value="done">Awaiting review</asp:ListItem><asp:ListItem Value="completed">Completed</asp:ListItem></asp:DropDownList></label>
+    </div>
+    <div class="task-filter-actions"><span>Filters are applied to the complete company task list.</span><button type="submit" class="apply-task-filters" name="filterTasksAction" value="1" formnovalidate>Apply filters</button></div>
   </section>
   <section class="tasks-table-panel" aria-labelledby="task-list-heading">
     <div class="table-heading">
-      <div><h2 id="task-list-heading">Trainee tasks</h2><p>All tasks are shown by default, oldest first.</p></div>
+      <div><h2 id="task-list-heading">Trainee tasks</h2><p><asp:Literal ID="TaskListContext" runat="server" /></p></div>
       <asp:Literal ID="TaskCount" runat="server" />
     </div>
     <asp:Literal ID="TaskTable" runat="server" />
@@ -79,3 +84,4 @@
   </section>
 </div>
 </asp:Content>
+

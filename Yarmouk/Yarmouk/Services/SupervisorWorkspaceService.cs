@@ -63,6 +63,7 @@ namespace Yarmouk.Services
             RequireIdentity(companySupervisorUid, idToken);
             var data = await LoadDataAsync(idToken).ConfigureAwait(false);
             var companyIds = GetCompanyIds(data, companySupervisorUid);
+            AddLegacyAcceptedApplicationsAsPlacements(data, companyIds, companySupervisorUid);
             return BuildProgressRows(data, row =>
             {
                 var placementCompanyId = Read(row.Placement, "companyId");
@@ -70,6 +71,41 @@ namespace Yarmouk.Services
                     || companyIds.ContainsKey(placementCompanyId);
             }).Where(x => IsConfirmedPlacement(data, x.PlacementId))
               .OrderBy(x => x.StudentName).ToList();
+        }
+
+        private static void AddLegacyAcceptedApplicationsAsPlacements(WorkspaceData data,
+            Dictionary<string, bool> companyIds, string companySupervisorUid)
+        {
+            var placedStudents = new Dictionary<string, bool>(StringComparer.Ordinal);
+            foreach (var item in data.Placements.Properties())
+            {
+                var placement = item.Value as JObject;
+                string studentUid = Read(placement, "studentUid");
+                if (!string.IsNullOrWhiteSpace(studentUid)) placedStudents[studentUid] = true;
+            }
+            foreach (var item in data.Applications.Properties())
+            {
+                var application = item.Value as JObject;
+                if (application == null || Normalize(Read(application, "status")) != "accepted") continue;
+                string studentUid = Read(application, "studentUid");
+                string companyId = Read(application, "companyId");
+                if (string.IsNullOrWhiteSpace(studentUid) || placedStudents.ContainsKey(studentUid)
+                    || !companyIds.ContainsKey(companyId)) continue;
+                var student = Find(data.Students, studentUid);
+                string placementId = "PLC_" + item.Name;
+                data.Placements[placementId] = new JObject
+                {
+                    ["id"] = placementId,
+                    ["applicationId"] = item.Name,
+                    ["studentUid"] = studentUid,
+                    ["companyId"] = companyId,
+                    ["opportunityId"] = Read(application, "opportunityId"),
+                    ["academicSupervisorUid"] = Read(student, "academicSupervisorId"),
+                    ["companySupervisorUid"] = companySupervisorUid,
+                    ["status"] = "confirmed"
+                };
+                placedStudents[studentUid] = true;
+            }
         }
 
         public async Task<List<AcademicEvaluationItem>> GetAcademicEvaluationQueueAsync(string academicUid, string idToken)

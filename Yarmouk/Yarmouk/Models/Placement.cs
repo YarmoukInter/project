@@ -7,8 +7,10 @@ namespace Yarmouk.Models
         public string StudentUid { get; set; }
         public string CompanyId { get; set; }
         public string OpportunityId { get; set; }
+        public string ApplicationId { get; set; }
         public string AcademicSupervisorUid { get; set; }
         public string CompanySupervisorUid { get; set; }
         public string Status { get; set; }
+        public int RequiredHours { get; set; }
     }
 }

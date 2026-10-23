@@ -20,6 +20,7 @@ namespace Yarmouk.CompanyPages
         private static readonly HttpClient FirebaseClient = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
 
         private sealed class StudentOption { public string Uid; public string Name; }
+        private sealed class PlacementOption { public string Id; public string StudentUid; public string StudentName; }
         private sealed class TaskRow
         {
             public string StudentUid;
@@ -34,27 +35,56 @@ namespace Yarmouk.CompanyPages
             public int? Grade;
             public long DueAt;
             public long CreatedAt;
+            public string PlacementId;
         }
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                RegisterAsyncTask(new PageAsyncTask(() => LoadPageAsync(null)));
+                if (Request.QueryString["placementId"] != null) { RedirectToFilters(Request.QueryString["studentUid"], Request.QueryString["status"], Request.QueryString["q"]); return; }
+                RegisterAsyncTask(new PageAsyncTask(() => LoadPageAsync(
+                    SafeFilter(Request.QueryString["studentUid"]),
+                    SafeFilter(Request.QueryString["status"]), (Request.QueryString["q"] ?? string.Empty).Trim())));
                 return;
             }
 
             var addTask = Request.Form["addTaskAction"];
             var action = Request.Form["taskAction"];
             var selectedStudentUid = Request.Form[StudentSelector.UniqueID];
+
+            var selectedStatus = Request.Form[TaskStatusSelector.UniqueID];
+            var searchText = Request.Form[TaskSearchTextBox.UniqueID];
+            if (Request.Form["filterTasksAction"] == "1")
+            {
+                RedirectToFilters(selectedStudentUid, selectedStatus, searchText);
+                return;
+            }
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
                 if (addTask == "1")
                     await CreateTaskAsync(selectedStudentUid);
                 else if (!string.IsNullOrWhiteSpace(action))
                     await ProcessDecisionAsync(action, selectedStudentUid);
-                await LoadPageAsync(selectedStudentUid);
+                await LoadPageAsync(selectedStudentUid, selectedStatus, searchText);
             }));
+        }
+
+        private void RedirectToFilters(string studentUid, string status, string search)
+        {
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            studentUid = SafeFilter(studentUid);
+
+            status = SafeFilter(status);
+            search = (search ?? string.Empty).Trim();
+            if (!string.IsNullOrWhiteSpace(studentUid)) query["studentUid"] = studentUid;
+
+            if (!string.IsNullOrWhiteSpace(status)) query["status"] = status;
+            if (!string.IsNullOrWhiteSpace(search)) query["q"] = search.Length > 120 ? search.Substring(0, 120) : search;
+            string url = ResolveUrl("~/CompanyPages/ManageTasks");
+            string encoded = query.ToString();
+            Response.Redirect(string.IsNullOrWhiteSpace(encoded) ? url : url + "?" + encoded, false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
         private string GetFirebaseUrl(string path, AuthSession auth)
@@ -91,7 +121,7 @@ namespace Yarmouk.CompanyPages
             }
         }
 
-        private async Task LoadPageAsync(string requestedStudentUid)
+        private async Task LoadPageAsync(string requestedStudentUid, string requestedStatus, string requestedSearch)
         {
             var auth = Session[AuthGuard.SessionKey] as AuthSession;
             if (auth == null) { ShowError("Your sign-in has expired. Sign in again."); return; }
@@ -112,6 +142,10 @@ namespace Yarmouk.CompanyPages
                 var trainees = await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken);
                 var assignedUids = new HashSet<string>(trainees.Select(x => x.StudentUid), StringComparer.Ordinal);
                 var options = GetStudentOptions(assignedUids, students, users);
+                var placementOptions = trainees.Where(item => !string.IsNullOrWhiteSpace(item.PlacementId))
+                    .Select(item => new PlacementOption { Id = item.PlacementId, StudentUid = item.StudentUid, StudentName = item.StudentName })
+                    .GroupBy(item => item.Id, StringComparer.Ordinal).Select(group => group.First())
+                    .OrderBy(item => item.StudentName, StringComparer.CurrentCultureIgnoreCase).ToList();
                 StudentChoices.Text = RenderStudentChoices(options);
 
                 StudentSelector.Items.Clear();
@@ -120,19 +154,40 @@ namespace Yarmouk.CompanyPages
                 var selected = options.FirstOrDefault(item => item.Uid == requestedStudentUid);
                 if (selected != null) StudentSelector.SelectedValue = selected.Uid;
 
+
+
+                string statusFilter = string.IsNullOrWhiteSpace(requestedStatus) ? string.Empty : NormalizeStatus(requestedStatus);
+                if (TaskStatusSelector.Items.FindByValue(statusFilter) != null) TaskStatusSelector.SelectedValue = statusFilter;
+                else statusFilter = string.Empty;
+                string search = (requestedSearch ?? string.Empty).Trim();
+                if (search.Length > 120) search = search.Substring(0, 120);
+                TaskSearchTextBox.Text = search;
+
                 if (options.Count == 0)
                 {
                     TaskCount.Text = "";
+                    TaskListContext.Text = "No active company placements are available.";
                     TaskTable.Text = "<p class=\"empty-state\">No trainees are currently assigned to your company.</p>";
                     return;
                 }
 
-                var rows = options.SelectMany(option => BuildTaskRows(option.Uid, taskData, submissionData)
+                var placementByStudent = placementOptions.GroupBy(item => item.StudentUid, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First().Id, StringComparer.Ordinal);
+                var rows = options.SelectMany(option => BuildTaskRows(option.Uid, taskData, submissionData,
+                        placementByStudent.ContainsKey(option.Uid) ? placementByStudent[option.Uid] : string.Empty)
                     .Select(row => { row.StudentUid = option.Uid; row.StudentName = option.Name; return row; }))
                     .Where(row => selected == null || row.StudentUid == selected.Uid)
-                    .OrderBy(row => row.CreatedAt).ThenBy(row => row.Id, StringComparer.Ordinal).ToList();
+
+                    .Where(row => string.IsNullOrWhiteSpace(statusFilter) || row.Status == statusFilter)
+                    .Where(row => string.IsNullOrWhiteSpace(search) || string.Join(" ", row.StudentName, row.Number, row.Title)
+                        .IndexOf(search, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    .OrderByDescending(row => row.CreatedAt).ThenBy(row => row.Id, StringComparer.Ordinal).ToList();
                 TaskCount.Text = "<span class=\"task-count\">" + rows.Count + (rows.Count == 1 ? " task" : " tasks") + "</span>";
-                TaskTable.Text = RenderTaskTable(rows);
+                TaskListContext.Text = selected != null || !string.IsNullOrWhiteSpace(statusFilter) || !string.IsNullOrWhiteSpace(search)
+                    ? "Showing tasks that match the selected filters."
+                    : "Showing every task assigned by this company, newest first.";
+                TaskTable.Text = RenderTaskTable(rows, selected != null ||
+                    !string.IsNullOrWhiteSpace(statusFilter) || !string.IsNullOrWhiteSpace(search));
             }
             catch (Exception)
             {
@@ -268,7 +323,11 @@ namespace Yarmouk.CompanyPages
                 var companies = await companiesTask;
                 var students = await studentsTask;
                 var users = await usersTask;
-                var assignedUids = new HashSet<string>((await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken)).Select(x => x.StudentUid), StringComparer.Ordinal);
+                var assignedTrainees = await new SupervisorWorkspaceService().GetCompanyTraineesAsync(auth.Uid, auth.IdToken);
+                var assignedUids = new HashSet<string>(assignedTrainees.Select(x => x.StudentUid), StringComparer.Ordinal);
+                var placementByStudent = assignedTrainees.Where(x => !string.IsNullOrWhiteSpace(x.PlacementId))
+                    .GroupBy(x => x.StudentUid, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First().PlacementId, StringComparer.Ordinal);
                 if (targetUids.Any(uid => !assignedUids.Contains(uid)))
                 { ShowError("Only students assigned to your company can receive this task."); return; }
 
@@ -292,6 +351,7 @@ namespace Yarmouk.CompanyPages
                         ["dueAtUnixMs"] = dueAt,
                         ["status"] = "todo",
                         ["studentUid"] = uid,
+                        ["placementId"] = placementByStudent.ContainsKey(uid) ? placementByStudent[uid] : string.Empty,
                         ["opportunityId"] = opportunityId,
                         ["studentName"] = GetStudentName(uid, students, users),
                         ["supervisorUid"] = auth.Uid,
@@ -397,7 +457,7 @@ namespace Yarmouk.CompanyPages
             });
         }
 
-        private static List<TaskRow> BuildTaskRows(string studentUid, JObject tasks, JObject submissions)
+        private static List<TaskRow> BuildTaskRows(string studentUid, JObject tasks, JObject submissions, string fallbackPlacementId)
         {
             var rows = new List<TaskRow>();
             if (tasks == null) return rows;
@@ -421,14 +481,17 @@ namespace Yarmouk.CompanyPages
                     Grade = int.TryParse(gradeText, NumberStyles.None, CultureInfo.InvariantCulture, out grade)
                         && grade >= 0 && grade <= 10 ? (int?)grade : null,
                     DueAt = TokenLong(task, "dueAtUnixMs"), CreatedAt = TokenLong(task, "createdAtUnixMs")
+                    , PlacementId = FirstNonEmpty(Value(task, "placementId"), fallbackPlacementId)
                 });
             }
             return rows.OrderBy(row => row.CreatedAt).ThenBy(row => row.Id, StringComparer.Ordinal).ToList();
         }
 
-        private static string RenderTaskTable(List<TaskRow> rows)
+        private static string RenderTaskTable(List<TaskRow> rows, bool hasFilters)
         {
-            if (rows.Count == 0) return "<p class=\"empty-state\">No tasks match this trainee filter.</p>";
+            if (rows.Count == 0) return "<div class=\"empty-state task-empty-state\"><strong>" +
+                (hasFilters ? "No tasks match these filters." : "No tasks have been created for this company yet.") +
+                "</strong><span>" + (hasFilters ? "Change a filter or use Clear all to return to the complete task list." : "Use Add task to create the first trainee assignment.") + "</span></div>";
             var html = new StringBuilder("<div class=\"table-scroll\"><table class=\"tasks-table\"><thead><tr><th>Student</th><th>Task</th><th>Deadline</th><th>Status</th><th>Evaluation / 10</th><th>Review decision</th></tr></thead><tbody>");
             foreach (var row in rows)
             {
@@ -510,6 +573,12 @@ namespace Yarmouk.CompanyPages
             return !string.IsNullOrWhiteSpace(value) && value.IndexOfAny(new[] { '.', '#', '$', '[', ']', '/', '?' }) < 0;
         }
 
+        private static string SafeFilter(string value)
+        {
+            value = (value ?? string.Empty).Trim();
+            return value.Length <= 128 && (value.Length == 0 || IsSafeKey(value)) ? value : string.Empty;
+        }
+
         private static bool IsValidTaskNumber(string value)
         {
             return !string.IsNullOrWhiteSpace(value) && value.Length <= 40
@@ -570,3 +639,4 @@ namespace Yarmouk.CompanyPages
         }
     }
 }
+

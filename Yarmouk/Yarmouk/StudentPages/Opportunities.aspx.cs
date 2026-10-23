@@ -42,7 +42,8 @@ namespace Yarmouk.StudentPages
                     try { applications = await new ApplicationService().GetForStudentAsync(auth.Uid, auth.IdToken) ?? applications; } catch (Exception ex) { System.Diagnostics.Trace.TraceWarning("Application opportunity context unavailable: " + ex.GetType().Name); }
                     bool hasStudentProfile = student != null;
                     student = student ?? new Student();
-                    bool internshipConfirmed = !string.IsNullOrWhiteSpace(student.AcceptedApplicationId);
+                    bool internshipConfirmed = !string.IsNullOrWhiteSpace(student.AcceptedApplicationId)
+                        || applications.Any(application => Normalize(application.Status) == "accepted");
                     var appliedIds = new HashSet<string>(applications.Select(application => application.OpportunityId), StringComparer.OrdinalIgnoreCase);
                     StudentData.Text = SafeJson(new { canApply = hasStudentProfile && user != null && !internshipConfirmed, fullName = user == null ? "" : user.FullName,
                         email = user == null ? auth.Email : user.Email,
@@ -119,6 +120,9 @@ namespace Yarmouk.StudentPages
                 try
                 {
                     var studentService = new StudentService();
+                    var service = new ApplicationService();
+                    if (await service.HasConfirmedInternshipAsync(auth.Uid, auth.IdToken))
+                    { ApplicationFeedback("You have already confirmed an internship. You cannot apply for another opportunity.", true); return; }
                     var student = await studentService.GetStudentAsync(auth.Uid, auth.IdToken);
                     if (student != null && !string.IsNullOrWhiteSpace(student.AcceptedApplicationId))
                     { ApplicationFeedback("You have already confirmed an internship. You cannot apply for another opportunity.", true); return; }
@@ -130,7 +134,6 @@ namespace Yarmouk.StudentPages
                         await new FirebaseHelper().GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, auth.IdToken);
                     if (company == null || !company.IsApproved)
                     { ApplicationFeedback("The company for this opportunity is unavailable.", true); return; }
-                    var service = new ApplicationService();
                     var existing = await service.GetForStudentAsync(auth.Uid, auth.IdToken);
                     if (existing.Any(application => string.Equals(application.OpportunityId, id, StringComparison.OrdinalIgnoreCase)))
                     { ApplicationFeedback("You have already applied for this opportunity.", true); return; }

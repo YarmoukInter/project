@@ -75,9 +75,16 @@ class WorkflowRegressionTests
         var company = new CompanyWorkflowService();
         var apps = await company.GetApplicationsAsync("company", "fixture-token");
         Check(apps.Single().Id == "application-key", "Approval button receives the actual application database key");
+        try {
+            await company.SetApplicationStatusAsync("company", "reviewer", apps.Single().Id, "offered", "", "fixture-token");
+            throw new Exception("A student with another confirmed placement received an offer");
+        } catch (InvalidOperationException) {
+            Check(true, "Students with another confirmed placement cannot receive another offer");
+        }
+        db["applications"]["application-key"]["studentUid"] = "unplaced";
         await company.SetApplicationStatusAsync("company", "reviewer", apps.Single().Id, "offered", "", "fixture-token");
         Check((string)db["applications"]["application-key"]["status"] == "Offered", "Accept application persists the offer on the correct record");
-        Check((await company.GetApplicationsAsync("company", "fixture-token")).Single().Status == "accepted", "Reload confirms the accepted offer");
+        Check((await company.GetApplicationsAsync("company", "fixture-token")).Single().Status == "offered", "Reload confirms the offer is awaiting student acceptance");
         var opportunities = await company.GetOpportunitiesAsync("company", "fixture-token");
         Check(opportunities.Single().Id == "opportunity-key", "Opportunity actions receive the actual database key");
         await company.SetOpportunityStatusAsync("company", opportunities.Single().Id, "active", "fixture-token");
