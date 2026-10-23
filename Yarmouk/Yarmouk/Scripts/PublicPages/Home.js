@@ -30,15 +30,15 @@
 (() => {
     'use strict';
     const current = document.documentElement.dataset.view || document.documentElement.dataset.page || 'home';
-    const items = [['home', 'Home', 'Home.aspx'], ['about', 'About Us', 'AboutUs.aspx'], ['team', 'Team', 'Team.aspx'], ['contact', 'Contact Us', 'ContactUs.aspx']];
+    const items = [['home', 'Home', 'PublicPages/Home.aspx'], ['about', 'About Us', 'PublicPages/AboutUs.aspx'], ['team', 'Team', 'PublicPages/Team.aspx'], ['contact', 'Contact Us', 'PublicPages/ContactUs.aspx']];
     const markup = () => `<header class="yu-public-navbar" data-public-navbar>
     <div class="yu-nav-body">
-      <a class="yu-nav-brand" href="Home.aspx" ${current === 'home' ? 'data-replay' : ''} aria-label="Yarmouk University home"><img src="${window.YarmoukHomeAsset('assets/yarmouk-logo-on-light.svg')}" width="140" height="51" alt="Yarmouk University"></a>
+      <a class="yu-nav-brand" href="${window.YarmoukHomeAsset('PublicPages/Home.aspx')}" ${current === 'home' ? 'data-replay' : ''} aria-label="Yarmouk University home"><img src="${window.YarmoukHomeAsset('assets/yarmouk-logo-on-light.svg')}" width="140" height="51" alt="Yarmouk University"></a>
       <button class="yu-nav-toggle" type="button" aria-expanded="false" aria-controls="yu-public-links" aria-label="Open navigation" hidden><span></span><span></span></button>
       <nav class="yu-nav-links" id="yu-public-links" aria-label="Main navigation">
-        ${items.map(([id, label, href]) => `<a href="${href}" ${id === current ? 'aria-current="page"' : ''} ${id === 'home' && current === 'home' ? 'data-replay' : ''}>${label}</a>`).join('')}
+        ${items.map(([id, label, href]) => `<a href="${window.YarmoukHomeAsset(href)}" ${id === current ? 'aria-current="page"' : ''} ${id === 'home' && current === 'home' ? 'data-replay' : ''}>${label}</a>`).join('')}
       </nav>
-        <a class="yu-nav-login" href="Login.aspx" ${current === 'login' ? 'aria-current="page"' : ''}>Log in <span aria-hidden="true">↗</span></a>
+        <a class="yu-nav-login" href="${window.YarmoukHomeAsset('PublicPages/Login')}" ${current === 'login' ? 'aria-current="page"' : ''}>Log in <span aria-hidden="true">↗</span></a>
     </div>
   </header>`;
     let dispose = () => { };
@@ -1196,7 +1196,7 @@
         const query = search.value.trim().toLocaleLowerCase();
         const matches = Object.values(data.opportunities).filter(o => o.status === 'Open' && (!major.value || o.majorIds?.includes(major.value)) && (!query || [o.title, o.location, data.companies[o.companyId]?.name].join(' ').toLocaleLowerCase().includes(query)));
         document.getElementById('public-opportunity-count').textContent = matches.length + ' ' + (matches.length === 1 ? 'opening' : 'openings');
-        const card = (o, i, duplicate = false) => '<article class="opportunity-card' + (duplicate ? ' is-duplicate' : '') + '"' + (duplicate ? ' aria-hidden="true"' : '') + '><div class="opportunity-card-top"><span class="opportunity-monogram" aria-hidden="true">' + escape((data.companies[o.companyId]?.name || 'YU').replace(/^شركة\s+/, '').trim().split(/\s+/).slice(0, 2).map(word => word[0]).join('')) + '</span><span class="opportunity-location">' + escape(o.location) + '</span></div><p class="opportunity-company">' + escape(data.companies[o.companyId]?.name || 'Company') + '</p><h3>' + escape(o.title) + '</h3><p class="opportunity-majors">' + escape(o.majorIds.map(id => data.university.majors[id]?.name).filter(Boolean).join(' · ')) + '</p><a class="opportunity-action" href="Login.aspx"' + (duplicate ? ' tabindex="-1"' : '') + ' aria-label="Log in to view ' + escape(o.title) + '">View role <span aria-hidden="true">↗</span></a></article>';
+        const card = (o, i, duplicate = false) => '<article class="opportunity-card' + (duplicate ? ' is-duplicate' : '') + '"' + (duplicate ? ' aria-hidden="true"' : '') + '><div class="opportunity-card-top"><span class="opportunity-monogram" aria-hidden="true">' + escape((data.companies[o.companyId]?.name || 'YU').replace(/^شركة\s+/, '').trim().split(/\s+/).slice(0, 2).map(word => word[0]).join('')) + '</span><span class="opportunity-location">' + escape(o.location) + '</span></div><p class="opportunity-company">' + escape(data.companies[o.companyId]?.name || 'Company') + '</p><h3>' + escape(o.title) + '</h3><p class="opportunity-majors">' + escape(o.majorIds.map(id => data.university.majors[id]?.name).filter(Boolean).join(' · ')) + '</p><a class="opportunity-action" href="/PublicPages/Login"' + (duplicate ? ' tabindex="-1"' : '') + ' aria-label="Log in to view ' + escape(o.title) + '">View role <span aria-hidden="true">↗</span></a></article>';
         if (matches.length) {
             let cards = matches.map((o, i) => card(o, i)).join('');
             // Fill a full viewport before duplicating the track for a seamless loop.
@@ -1220,7 +1220,7 @@
     new ResizeObserver(measure).observe(list);
     reduced.addEventListener('change', render);
     document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
-    fetch(window.YarmoukHomeAsset('assets/home-opportunities.json')).then(r => { if (!r.ok) throw Error('Unavailable'); return r.json(); }).then(d => { data = d; render(); }).catch(() => { list.innerHTML = '<p>Opportunity summaries are unavailable. <a class="section-link" href="Login.aspx">Log in to explore opportunities ↗</a></p>'; list.setAttribute('aria-busy', 'false'); previous.disabled = next.disabled = true; motion.hidden = true; document.getElementById('public-opportunity-count').textContent = 'Unavailable'; });
+    fetch(window.YarmoukHomeAsset('assets/home-opportunities.json')).then(r => { if (!r.ok) throw Error('Unavailable'); return r.json(); }).then(d => { data = d; render(); }).catch(() => { list.innerHTML = '<p>Opportunity summaries are unavailable. <a class="section-link" href="/PublicPages/Login">Log in to explore opportunities ↗</a></p>'; list.setAttribute('aria-busy', 'false'); previous.disabled = next.disabled = true; motion.hidden = true; document.getElementById('public-opportunity-count').textContent = 'Unavailable'; });
     major.addEventListener('change', render);
     search.addEventListener('input', render);
     document.querySelectorAll('[data-major]').forEach(link => link.addEventListener('click', () => { major.value = link.dataset.major; search.value = ''; render(); requestAnimationFrame(() => major.focus({ preventScroll: true })); }));

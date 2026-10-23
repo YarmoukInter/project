@@ -106,6 +106,6 @@ namespace Yarmouk.StudentPages
             ApplicationsMessage.Text = "<p class=\"page-feedback " + (error ? "error" : "success") + "\" role=\"status\">" +
                 System.Web.HttpUtility.HtmlEncode(message) + "</p>";
         }
-        private void GoToLogin() { Response.Redirect(ResolveUrl("~/PublicPages/Login.aspx"), false); Context.ApplicationInstance.CompleteRequest(); }
+        private void GoToLogin() { Response.Redirect(ResolveUrl("~/PublicPages/Login"), false); Context.ApplicationInstance.CompleteRequest(); }
     }
 }

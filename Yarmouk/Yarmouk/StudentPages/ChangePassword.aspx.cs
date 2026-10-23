@@ -14,7 +14,7 @@ namespace Yarmouk.StudentPages
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
                 var session = Session[AuthGuard.SessionKey] as AuthSession;
-                if (session == null) { Go("~/PublicPages/Login.aspx"); return; }
+                if (session == null) { Go("~/PublicPages/Login"); return; }
                 bool passwordAlreadyChanged = Session[PendingSetupKey] as bool? == true;
                 try
                 {

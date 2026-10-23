@@ -21,7 +21,7 @@ namespace Yarmouk.Helpers
             try
             {
                 if (session == null)
-                { Redirect(context, "~/PublicPages/Login.aspx"); return; }
+                { Redirect(context, "~/PublicPages/Login"); return; }
                 var user = await new StudentService().GetUserAsync(session.Uid, session.IdToken);
                 if (!AuthPolicy.ValidUser(user, session.Uid)) throw new AuthException("Account unavailable.");
                 user.Role = AuthPolicy.NormalizeRole(user.Role);
@@ -33,7 +33,7 @@ namespace Yarmouk.Helpers
             catch (Exception)
             {
                 context.Session.Remove(SessionKey);
-                Redirect(context, "~/PublicPages/Login.aspx?expired=1");
+                Redirect(context, "~/PublicPages/Login?expired=1");
             }
         }
         private static void Redirect(HttpContext context, string path)

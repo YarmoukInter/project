@@ -12,7 +12,7 @@
       <nav class="yu-nav-links" id="yu-public-links" aria-label="Main navigation">
         ${items.map(([id, label, href]) => `<a href="${href}" ${id === current ? 'aria-current="page"' : ''} ${id === 'home' && current === 'home' ? 'data-replay' : ''}>${label}</a>`).join('')}
       </nav>
-        <a class="yu-nav-login" href="Login.aspx" ${current === 'login' ? 'aria-current="page"' : ''}>Log in <span aria-hidden="true">↗</span></a>
+        <a class="yu-nav-login" href="/PublicPages/Login" ${current === 'login' ? 'aria-current="page"' : ''}>Log in <span aria-hidden="true">↗</span></a>
     </div>
   </header>`;
     let dispose = () => { };

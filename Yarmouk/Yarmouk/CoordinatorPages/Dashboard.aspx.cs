@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -28,6 +27,7 @@ namespace Yarmouk.CoordinatorPages
     {
         private readonly CoordinatorDatabase firebase;
         private readonly CoordinatorAccounts authentication;
+        private readonly FirebaseAdminAccountService adminAccounts = new FirebaseAdminAccountService();
         public CoordinatorService() : this(new CoordinatorDatabase(), new CoordinatorAccounts()) { }
         public CoordinatorService(CoordinatorDatabase firebase, CoordinatorAccounts authentication)
         { this.firebase = firebase; this.authentication = authentication; }
@@ -124,7 +124,8 @@ namespace Yarmouk.CoordinatorPages
             entry.Email = Text(entry.Email, "Email", 254);
             if (!AuthPolicy.ValidEmail(entry.Email)) throw new ArgumentException("Enter a valid email address.");
             CoordinatorUser existing = creating ? null : await ManagedUserAsync(entry.Id, role, session);
-            if (!creating && !string.Equals(entry.Email, existing.Email, StringComparison.OrdinalIgnoreCase))
+            bool emailChanged = !creating && !string.Equals(entry.Email, existing.Email, StringComparison.OrdinalIgnoreCase);
+            if (emailChanged && role != "student")
                 throw new ArgumentException("The sign-in email cannot be changed here. It must also be updated in Firebase Authentication.");
             var changes = new Dictionary<string, object>();
             var studentDetails = role == "student" && entry.ProfileFields != null ? JObject.FromObject(entry.ProfileFields).ToObject<Student>() : null;
@@ -162,8 +163,9 @@ namespace Yarmouk.CoordinatorPages
                 ? await ReadAsync<Placement>(DatabasePaths.Placements, session) ?? new Dictionary<string, Placement>() : new Dictionary<string, Placement>();
             var existingCompanies = role == "company"
                 ? await ReadAsync<Company>(DatabasePaths.Companies, session) ?? new Dictionary<string, Company>() : new Dictionary<string, Company>();
-            // Generate a one-time temporary password for the coordinator to pass to the new user.
-            string temporaryPassword = creating ? NewOnboardingPassword() : null;
+            if (emailChanged) await adminAccounts.UpdateStudentCredentialsAsync(entry.Id, entry.Email, "");
+            // The initial password is the new user's email; the account must replace it at first sign-in.
+            string temporaryPassword = creating ? entry.Email : null;
             AuthSession newAccount = creating ? await authentication.CreateUserAsync(entry.Email, temporaryPassword) : null;
             string uid = creating ? newAccount.Uid : entry.Id;
             string userPath = DatabasePaths.Users + "/" + uid + "/";
@@ -176,6 +178,7 @@ namespace Yarmouk.CoordinatorPages
                 changes[userPath + "mustChangePassword"] = true;
                 changes[userPath + "onboardingRequestedAtUnixMs"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             }
+            else if (emailChanged) changes[userPath + "email"] = entry.Email;
             changes[userPath + "isActive"] = role == "academic" ? entry.Status == "Active" : creating || existing.IsActive;
             if (role != "company")
             {
@@ -232,16 +235,7 @@ namespace Yarmouk.CoordinatorPages
                     throw new InvalidOperationException("Registration could not be confirmed. Check Authentication and users/" + uid + " before retrying.");
                 throw;
             }
-            return creating ? "Account registered. Temporary password: " + temporaryPassword + ". Give it to the user; they must change it at first sign-in. A Firebase setup email will also be requested." : "Account details saved.";
-        }
-        private static string NewOnboardingPassword()
-        {
-            var bytes = new byte[32];
-            using (var random = RandomNumberGenerator.Create())
-            {
-                random.GetBytes(bytes);
-            }
-            return Convert.ToBase64String(bytes).Replace('+', 'A').Replace('/', 'B').TrimEnd('=') + "aA1!";
+            return creating ? "Account registered. Initial temporary password: " + temporaryPassword + " (same as the email). The user must change it at first sign-in. A Firebase password setup email will also be requested." : "Account details saved.";
         }
         public async Task<string> SetActiveAsync(string uid, string role, bool active, AuthSession session)
         {
@@ -356,5 +350,6 @@ namespace Yarmouk.CoordinatorPages
         public string Location { get; set; }
         public string ContactName { get; set; }
         public string CompanyEmail { get; set; }
+        public Dictionary<string, object> ProfileFields { get; set; }
     }
 }

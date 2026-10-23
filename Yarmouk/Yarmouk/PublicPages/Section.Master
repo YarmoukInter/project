@@ -23,7 +23,7 @@
       <a href="<%= ResolveUrl("~/PublicPages/AboutUs.aspx") %>">About Us</a>
       <a href="<%= ResolveUrl("~/PublicPages/Team.aspx") %>">Team</a>
       <a href="<%= ResolveUrl("~/PublicPages/ContactUs.aspx") %>">Contact Us</a>
-      <a class="yu-nav-login" href="<%= ResolveUrl("~/PublicPages/Login.aspx") %>">Log in <span aria-hidden="true">↗</span></a>
+      <a class="yu-nav-login" href="<%= ResolveUrl("~/PublicPages/Login") %>">Log in <span aria-hidden="true">↗</span></a>
     </nav>
   </div>
 </header>

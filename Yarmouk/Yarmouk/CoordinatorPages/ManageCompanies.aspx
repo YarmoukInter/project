@@ -25,7 +25,7 @@
   </section>
   <dialog class="yr-dialog" data-roster-dialog aria-labelledby="editor-title" aria-describedby="editor-description">
     <div class="yr-dialog-heading"><h2 id="editor-title">Register company</h2><button class="yr-close" type="button" data-dialog-close aria-label="Close editor">×</button></div>
-    <p id="editor-description">Save account details to Firebase. New users receive a password setup link by email.</p>
+    <p id="editor-description">New accounts start with the email address as a temporary password and must change it at first sign-in. Firebase also sends a password setup link.</p>
     <div class="yr-editor-fields" data-editor-fields></div>
     <p class="yr-editor-error" data-editor-error role="alert"></p>
     <div class="yr-dialog-actions"><button class="yr-button" type="button" data-dialog-close>Cancel</button><button class="yr-button yr-primary" type="button" data-editor-save>Save company</button></div>

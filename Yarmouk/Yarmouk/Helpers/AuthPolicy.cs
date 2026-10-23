@@ -56,7 +56,7 @@ namespace Yarmouk.Helpers
         {
             string role = RequiredRole(path);
             if (role == null) return null;
-            if (user == null || !user.IsActive || Home(user.Role) == null) return "~/PublicPages/Login.aspx";
+            if (user == null || !user.IsActive || Home(user.Role) == null) return "~/PublicPages/Login";
             bool setup = path.Equals("~/StudentPages/ChangePassword.aspx", StringComparison.OrdinalIgnoreCase)
                 || path.Equals("~/StudentPages/ChangePassword", StringComparison.OrdinalIgnoreCase);
             string userRole = NormalizeRole(user.Role);

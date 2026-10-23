@@ -5,6 +5,24 @@
 [data-roster-page="ManageStudents"] .yr-column-gpa { width: 7%; }
 [data-roster-page="ManageStudents"] .yr-column-college { width: 18%; }
 [data-roster-page="ManageStudents"] .yr-column-supervisor { width: 20%; }
+[data-roster-page="ManageStudents"] .yr-row-actions { gap: 7px; }
+[data-roster-page="ManageStudents"] .yr-icon-button { position: relative; width: 38px; min-width: 38px; min-height: 38px; height: 38px; padding: 8px; border-radius: 10px; color: #28445f; }
+[data-roster-page="ManageStudents"] .yr-icon-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+[data-roster-page="ManageStudents"] .yr-icon-button:hover { background: #edf4fa; border-color: #8ba7bf; transform: translateY(-1px); }
+[data-roster-page="ManageStudents"] .yr-icon-button.yr-danger { color: #a5313b; }
+[data-roster-page="ManageStudents"] .yr-icon-button.yr-danger:hover { background: #fff0f0; border-color: #d88d94; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete] { color: #9a6611; background: #fffaf0; border-color: #ead8b4; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete]:hover { color: #79500c; background: #fff3d9; border-color: #d9b86f; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete] svg { visibility: hidden; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete]::after { content: "−"; position: absolute; inset: 0; display: grid; place-items: center; font: 700 25px/1 Arial, sans-serif; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete][aria-label^="Reactivate"] { color: #27714f; background: #f0faf4; border-color: #b8dcc8; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete][aria-label^="Reactivate"]::after { content: "+"; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-delete][aria-label^="Reactivate"]:hover { background: #e4f5eb; border-color: #80c19e; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-tooltip]::after { content: attr(data-tooltip); position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 9px); padding: 6px 9px; border-radius: 6px; background: #172b40; color: #fff; font: 600 11px/1.2 Arial, sans-serif; white-space: nowrap; opacity: 0; visibility: hidden; transform: translate(-50%, 4px); transition: opacity .16s ease, transform .16s ease, visibility .16s; pointer-events: none; }
+[data-roster-page="ManageStudents"] .yr-icon-button[data-tooltip]::before { content: ""; position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 3px); border: 5px solid transparent; border-top-color: #172b40; opacity: 0; visibility: hidden; transition: opacity .16s ease, visibility .16s; pointer-events: none; }
+[data-roster-page="ManageStudents"] .yr-icon-button:hover::after, [data-roster-page="ManageStudents"] .yr-icon-button:focus-visible::after { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+[data-roster-page="ManageStudents"] .yr-icon-button:hover::before, [data-roster-page="ManageStudents"] .yr-icon-button:focus-visible::before { opacity: 1; visibility: visible; }
+@media (prefers-reduced-motion: reduce) { [data-roster-page="ManageStudents"] .yr-icon-button, [data-roster-page="ManageStudents"] .yr-icon-button::before, [data-roster-page="ManageStudents"] .yr-icon-button::after { transition: none; } }
 [data-roster-page="ManageStudents"] .yr-dialog:not(.yr-delete-dialog) { width: min(760px, calc(100vw - 32px)); box-sizing: border-box; }
 [data-roster-page="ManageStudents"] .yr-editor-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
 [data-roster-page="ManageStudents"] .yr-editor-field { min-width: 0; }

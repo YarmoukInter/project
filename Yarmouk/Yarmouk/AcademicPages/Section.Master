@@ -36,7 +36,7 @@
   <button type="button" class="yu-sidebar-menu" data-sidebar-menu aria-controls="dashboard-navigation" aria-expanded="false" hidden><svg aria-hidden="true"><use href="#ys-icon-menu"></use></svg><span>Menu</span></button>
 
   <div class="yu-dashboard-main">
-<header class="container py-3 border-bottom"><a href="<%= ResolveUrl("~/Default.aspx") %>">UIMS</a> <span class="ms-3">Academic</span></header>
+<header class="container py-3 border-bottom"><a href="<%= ResolveUrl("~/PublicPages/Home.aspx") %>">UIMS</a> <span class="ms-3">Academic</span></header>
 <main class="container py-4"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
 <footer class="container py-3 border-top"><small>UIMS - University Internship Management System</small></footer>
   </div>

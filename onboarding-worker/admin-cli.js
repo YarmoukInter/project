@@ -67,8 +67,23 @@ async function deleteStudent(request) {
         updates[`${collection}/${key}`] = null;
     }
   }
-  await auth.deleteUser(request.uid);
+  // Remove the database profile first. If the Authentication deletion then fails,
+  // restore the profile so the coordinator can retry without leaving a ghost record.
+  const studentProfile = root.users?.[request.uid];
+  const studentData = root.students?.[request.uid];
+  const cvData = root.studentCvFiles?.[request.uid];
+  const notesData = root.studentProgressNotes?.[request.uid];
   await db.ref().update(updates);
+  try {
+    await auth.deleteUser(request.uid);
+  } catch (error) {
+    const restore = { [`users/${request.uid}`]: studentProfile };
+    if (studentData !== undefined) restore[`students/${request.uid}`] = studentData;
+    if (cvData !== undefined) restore[`studentCvFiles/${request.uid}`] = cvData;
+    if (notesData !== undefined) restore[`studentProgressNotes/${request.uid}`] = notesData;
+    await db.ref().update(restore);
+    throw error;
+  }
   return { message: 'Student Authentication account and related database records deleted.' };
 }
 
