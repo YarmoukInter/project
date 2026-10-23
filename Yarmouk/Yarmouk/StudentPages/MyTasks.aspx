@@ -1,7 +1,9 @@
 <%@ Page Title="My Tasks" Language="C#" MasterPageFile="~/StudentPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="MyTasks.aspx.cs" Inherits="Yarmouk.StudentPages.MyTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css?v=task-details-1") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js?v=task-details-2") %>" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js?v=organized-board-3") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="my-tasks-page" aria-labelledby="tasks-heading">
@@ -15,6 +17,7 @@
 
   <asp:Literal ID="PageMessage" runat="server" />
   <div class="tasks-section-heading"><h2>Your task board</h2><span id="task-count" class="task-count"></span></div>
+  <div class="task-board-tools" aria-label="Organize your tasks"><label class="record-field"><span>Search tasks</span><input id="task-board-search" type="search" placeholder="Task title or description" aria-controls="task-board" /></label><label class="record-field"><span>Sort within each status</span><select id="task-board-sort" aria-controls="task-board"><option value="due">Due date · soonest</option><option value="title">Task title · A–Z</option><option value="newest">Newest assigned</option></select></label></div>
   <div id="task-board" class="task-board" aria-live="polite">
     <section class="task-column task-column--todo" data-drop-status="todo" aria-labelledby="todo-heading"><header><h3 id="todo-heading">To do</h3><span class="column-count">0</span></header><div class="task-column-list"></div></section>
     <section class="task-column task-column--progress" data-drop-status="inProgress" aria-labelledby="progress-heading"><header><h3 id="progress-heading">In Progress</h3><span class="column-count">0</span></header><div class="task-column-list"></div></section>

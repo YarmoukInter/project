@@ -5,14 +5,15 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link href="<%= ResolveUrl("~/Content/StudentPages/Dashboard.css?v=tasks-supervisors-1") %>" rel="stylesheet" />
-    <script src="<%= ResolveUrl("~/Scripts/StudentPages/Dashboard.js") %>" defer></script>
+    <script src="<%= ResolveUrl("~/Scripts/StudentPages/Dashboard.js?v=admin-alignment-1") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/dashboard-overview.css") %>?v=admin-alignment-1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<div class="dashboard">
+<div class="dashboard role-dashboard">
 
             <section class="page-heading">
                 <div>
-                    <h1>Student Dashboard</h1>
+                    <span class="overview-eyebrow">Yarmouk University &middot; Student training</span><h1>Student Dashboard</h1>
                     <p>An overview of your internship journey.</p>
                 </div>
 
@@ -35,9 +36,10 @@
 
             </section>
 
+<div class="overview-caption"><span>At a glance</span><small>Current training activity</small></div>
             <section class="stats-grid" aria-label="Internship summary">
 
-                <article class="stat-card">
+                <a class="stat-card" href="<%= ResolveUrl("~/StudentPages/MyApplications.aspx") %>">
                     <div class="stat-icon">
                         <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
                     </div>
@@ -53,9 +55,9 @@
 
                         <p><asp:Literal ID="ApplicationsSummary" runat="server" Text="Application status summary" /></p>
                     </div>
-                </article>
+                </a>
 
-                <article class="stat-card">
+                <a class="stat-card" href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>">
                     <div class="stat-icon">
                         <i class="bi bi-check2-square" aria-hidden="true"></i>
                     </div>
@@ -71,9 +73,9 @@
 
                         <p><asp:Literal ID="TasksSummary" runat="server" Text="Task status summary" /></p>
                     </div>
-                </article>
+                </a>
 
-                <article class="stat-card">
+                <a class="stat-card" href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>">
                     <div class="stat-icon">
                         <i class="bi bi-calendar4-week" aria-hidden="true"></i>
                     </div>
@@ -89,9 +91,9 @@
 
                         <p>Due within the next 7 days</p>
                     </div>
-                </article>
+                </a>
 
-                <article class="stat-card">
+                <a class="stat-card" href="<%= ResolveUrl("~/StudentPages/Progress.aspx") %>">
                     <div class="stat-icon">
                         <i class="bi bi-bar-chart" aria-hidden="true"></i>
                     </div>
@@ -107,7 +109,7 @@
 
                         <p>Reviewed task submissions</p>
                     </div>
-                </article>
+                </a>
 
             </section>
 
@@ -191,7 +193,7 @@
                     <div class="task-progress">
 
                         <div class="progress-label">
-                            <span>Completed tasks</span>
+                            <span>Submitted tasks</span>
                             <span><asp:Literal ID="TaskCompletionLabel" runat="server" Text="—" /></span>
                         </div>
 
@@ -199,7 +201,7 @@
                             <progress id="DashboardTaskProgress" runat="server" class="task-progress-bar"
                                       value="0"
                                       max="1"
-                                      aria-label="Completed tasks">
+                                      aria-label="Submitted tasks">
                                 0%
                             </progress>
 
@@ -210,7 +212,7 @@
 
                     <p class="progress-note">
                         <i class="bi bi-info-circle" aria-hidden="true"></i>
-                        <span>Training hours require supervisor approval.</span>
+                        <span>Submit 10 tasks to reach 100%. Each task adds 10%.</span>
                     </p>
 
                 </section>
@@ -343,5 +345,10 @@
                 <span>Student training overview</span>
             </footer>
 
-        </div>
+
+<section class="overview-workspace" aria-labelledby="workspaceTitle"><h2 id="workspaceTitle">Your student workspace</h2><nav aria-label="Student workspace"><a href="<%= ResolveUrl("~/StudentPages/Opportunities.aspx") %>"><span><strong>Find opportunities</strong><small>Explore available internships</small></span><span aria-hidden="true">&#8594;</span></a>
+<a href="<%= ResolveUrl("~/StudentPages/MyApplications.aspx") %>"><span><strong>Your applications</strong><small>Track application decisions</small></span><span aria-hidden="true">&#8594;</span></a>
+<a href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>"><span><strong>Training tasks</strong><small>Assignments and submissions</small></span><span aria-hidden="true">&#8594;</span></a>
+<a href="<%= ResolveUrl("~/StudentPages/Progress.aspx") %>"><span><strong>Your progress</strong><small>Hours and supervisor feedback</small></span><span aria-hidden="true">&#8594;</span></a></nav></section>
+</div>
 </asp:Content>

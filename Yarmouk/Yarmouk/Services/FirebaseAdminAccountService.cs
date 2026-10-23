@@ -24,7 +24,7 @@ namespace Yarmouk.Services
             string root = FindProjectRoot();
             string script = Path.Combine(root, "onboarding-worker", "admin-cli.js");
             string credential = Path.Combine(root, "yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json");
-            var start = new ProcessStartInfo("node", "\"" + script + "\"") {
+            var start = new ProcessStartInfo(System.Configuration.ConfigurationManager.AppSettings["FirebaseAdminNodePath"] ?? "node", "\"" + script + "\"") {
                 UseShellExecute = false, RedirectStandardInput = true, RedirectStandardOutput = true,
                 RedirectStandardError = true, CreateNoWindow = true
             };

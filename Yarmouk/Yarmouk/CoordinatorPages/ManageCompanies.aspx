@@ -3,6 +3,9 @@
 <link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageCompanies.css") %>?v=account-actions-2' rel="stylesheet" />
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=account-actions-2' defer></script>
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageCompanies.js") %>?v=company-email-1' defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>

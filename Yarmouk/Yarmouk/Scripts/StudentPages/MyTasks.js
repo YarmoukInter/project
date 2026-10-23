@@ -9,6 +9,9 @@
   var tasks = [];
   try { tasks = JSON.parse(dataNode.textContent || '[]'); }
   catch (error) { tasks = []; }
+  var boardSearch = document.getElementById('task-board-search');
+  var boardSort = document.getElementById('task-board-sort');
+  var visibleLimits = {};
 
   var backdrop = document.getElementById('task-modal-backdrop');
   var modal = document.getElementById('task-modal');
@@ -62,22 +65,30 @@
   function statusMarkup(task) { return '<span class="task-status ' + statusClass(task) + '">' + escapeHtml(statusLabel(task)) + '</span>'; }
 
   function renderTasks() {
+    var query = boardSearch ? boardSearch.value.trim().toLocaleLowerCase() : '';
+    var matching = tasks.filter(function (task) { return !query || (text(task.title) + ' ' + text(task.description)).toLocaleLowerCase().includes(query); });
     var count = document.getElementById('task-count');
-    if (count) count.textContent = tasks.length + (tasks.length === 1 ? ' assigned task' : ' assigned tasks');
+    if (count) count.textContent = query ? matching.length + ' of ' + tasks.length + ' tasks match' : tasks.length + (tasks.length === 1 ? ' assigned task' : ' assigned tasks');
     var columns = Array.prototype.slice.call(board.querySelectorAll('.task-column'));
     var grouped = { todo: [], inProgress: [], done: [], completed: [] };
-    tasks.forEach(function (task) { grouped[normalizedStatus(task.status)].push(task); });
+    matching.forEach(function (task) { grouped[normalizedStatus(task.status)].push(task); });
     columns.forEach(function (column) {
       var status = column.getAttribute('data-drop-status');
       var items = grouped[status] || [];
+      items.sort(function (a, b) {
+        if (boardSort && boardSort.value === 'title') return text(a.title).localeCompare(text(b.title), undefined, {numeric:true,sensitivity:'base'});
+        if (boardSort && boardSort.value === 'newest') return Number(b.createdAtUnixMs || 0) - Number(a.createdAtUnixMs || 0);
+        return (Number(a.dueAtUnixMs) || Infinity) - (Number(b.dueAtUnixMs) || Infinity);
+      });
       var columnList = column.querySelector('.task-column-list');
       column.querySelector('.column-count').textContent = String(items.length);
       if (!items.length) {
-        var emptyText = status === 'done' ? 'Submitted tasks appear here' : (status === 'completed' ? 'Approved tasks appear here' : 'Drop a task here');
+        var emptyText = query ? 'No matching tasks in this status' : status === 'done' ? 'Submitted tasks appear here' : (status === 'completed' ? 'Approved tasks appear here' : 'Drop a task here');
         columnList.innerHTML = '<div class="task-column-empty">' + emptyText + '</div>';
         return;
       }
-      columnList.innerHTML = items.map(function (task) {
+      var limit = visibleLimits[status] || 5;
+      columnList.innerHTML = items.slice(0, limit).map(function (task) {
       var index = tasks.indexOf(task);
       var title = text(task.title) || 'Untitled task';
       var id = text(task.id) || ('task-' + (index + 1));
@@ -96,6 +107,7 @@
         '<div class="task-card-bottom"><span class="task-card-actions">' + taskPdfAction + '</span><button class="task-open-button" type="button" data-task-index="' + index + '">View task →</button></div>' +
         '</article>';
       }).join('');
+      if (items.length > limit) columnList.insertAdjacentHTML('beforeend', '<button type="button" class="task-board-more" data-more-status="' + status + '">Show ' + Math.min(5,items.length-limit) + ' more <span>(' + (items.length-limit) + ' remaining)</span></button>');
     });
   }
 
@@ -170,12 +182,26 @@
   }
 
   board.addEventListener('click', function (event) {
+    var more = event.target.closest('[data-more-status]');
+    if (more) {
+      var moreStatus = more.getAttribute('data-more-status');
+      var previousLimit = visibleLimits[moreStatus] || 5;
+      visibleLimits[moreStatus] = previousLimit + 5;
+      renderTasks();
+      var column = board.querySelector('[data-drop-status="' + moreStatus + '"]');
+      var newTaskButton = column && column.querySelectorAll('[data-task-index]')[previousLimit];
+      if (newTaskButton) newTaskButton.focus({preventScroll:true});
+      return;
+    }
     var button = event.target.closest('[data-task-index]');
     if (!button) return;
     var task = tasks[Number(button.getAttribute('data-task-index'))];
     if (task) openTask(task);
   });
   var draggedTaskId = '';
+  if (boardSearch) boardSearch.addEventListener('input', function () { visibleLimits = {}; renderTasks(); });
+  if (boardSearch) boardSearch.addEventListener('keydown', function (event) { if (event.key === 'Enter') event.preventDefault(); });
+  if (boardSort) boardSort.addEventListener('change', function () { visibleLimits = {}; renderTasks(); });
   board.addEventListener('dragstart', function (event) {
     var card = event.target.closest('[data-task-id][draggable="true"]');
     if (!card) return;

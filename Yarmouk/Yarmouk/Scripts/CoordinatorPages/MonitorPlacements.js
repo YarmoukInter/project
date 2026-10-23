@@ -91,7 +91,7 @@
             });
             body.innerHTML = visible.map(row => {
                 const status = statusInfo[row.status] || statusInfo.active;
-                return `<tr><td><div class="mp-person"><span class="mp-avatar" aria-hidden="true">${escapeHtml(row.initials)}</span><span class="mp-person-copy"><strong>${escapeHtml(row.name)}</strong><span>${escapeHtml(row.id)}</span></span></div></td><td><span class="mp-company-copy"><strong>${escapeHtml(row.company)}</strong><span>${escapeHtml(row.city)}</span></span></td><td><div class="mp-progress"><span class="mp-progress-label"><span>Training plan</span><strong>${row.progress}%</strong></span><span class="mp-progress-track" role="progressbar" aria-label="${escapeHtml(row.name)} training plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${row.progress}"><span style="--progress:${row.progress}%"></span></span></div></td><td><span class="mp-badge mp-badge-${status.className}">${status.label}</span></td><td><button type="button" class="mp-details-button" data-detail-index="${rows.indexOf(row)}">View details</button></td></tr>`;
+                return `<tr><td><div class="mp-person"><span class="mp-avatar" aria-hidden="true">${escapeHtml(row.initials)}</span><span class="mp-person-copy"><strong>${escapeHtml(row.name)}</strong><span>${escapeHtml(row.id)}</span></span></div></td><td><span class="mp-company-copy"><strong>${escapeHtml(row.company)}</strong><span>${escapeHtml(row.city)}</span></span></td><td><div class="mp-progress"><span class="mp-progress-label"><span>Task submissions</span><strong>${row.progress}%</strong></span><span class="mp-progress-track" role="progressbar" aria-label="${escapeHtml(row.name)} training plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${row.progress}"><span style="--progress:${row.progress}%"></span></span></div></td><td><span class="mp-badge mp-badge-${status.className}">${status.label}</span></td><td><button type="button" class="mp-details-button" data-detail-index="${rows.indexOf(row)}">View details</button></td></tr>`;
             }).join('');
             page.querySelector('#mp-empty').hidden = visible.length !== 0;
             page.querySelector('.mp-table-wrap table').hidden = visible.length === 0;
@@ -99,7 +99,7 @@
                 ? 'Try changing the search term or clearing the selected filters.'
                 : (loadMessage || 'No placements are currently available.');
             resultCount.textContent = `${visible.length} of ${rows.length} placements`;
-            footerCount.innerHTML = `Showing <strong>${visible.length}</strong> of <strong>${rows.length}</strong> placements`;
+            footerCount.innerHTML = `Matches <strong>${visible.length}</strong> of <strong>${rows.length}</strong> placements`;
         }
         page.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
             activeFilter = button.dataset.filter;

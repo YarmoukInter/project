@@ -348,6 +348,6 @@ namespace Yarmouk.CoordinatorPages
         public string Location { get; set; }
         public string ContactName { get; set; }
         public string CompanyEmail { get; set; }
-        public Dictionary<string, object> ProfileFields { get; set; }
+        [JsonExtensionData] public Dictionary<string, object> ProfileFields { get; set; }
     }
 }

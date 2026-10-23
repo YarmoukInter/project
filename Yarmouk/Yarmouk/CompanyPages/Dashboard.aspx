@@ -6,9 +6,10 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/CompanyPages/Dashboard.css") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/CompanyPages/Dashboard.js") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/dashboard-overview.css") %>?v=admin-alignment-1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<div class="company-dashboard">
+<div class="company-dashboard role-dashboard">
     <section class="dashboard-heading" aria-labelledby="dashboardTitle">
         <div>
             <span class="eyebrow"><span class="eyebrow-dot"></span> Company portal</span>
@@ -30,6 +31,7 @@
         <i class="bi bi-info-circle" aria-hidden="true"></i><span>Dashboard preview with sample information</span><span class="notice-period">This week</span>
     </div>
 
+<div class="overview-caption"><span>At a glance</span><small>Current training activity</small></div>
     <section class="metrics-grid" aria-label="Company overview">
         <a class="metric-card" href="<%= ResolveUrl("~/CompanyPages/ManageOpportunities.aspx") %>">
             <span class="metric-icon"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
@@ -134,7 +136,7 @@
         <section class="panel trainees-panel" aria-labelledby="traineesTitle">
             <div class="panel-heading"><div><h2 id="traineesTitle">Trainee progress</h2><p>Active trainees and their task completion.</p></div><a class="text-link" href="<%= ResolveUrl("~/CompanyPages/MyTrainees.aspx") %>">View trainees <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
             <div class="trainee-list"><asp:Repeater ID="TraineesRepeater" runat="server"><ItemTemplate>
-                <div class="trainee-row"><span class="person-avatar"><%#: Eval("Initials") %></span><div class="trainee-name"><strong><%#: Eval("Name") %></strong><small><%#: Eval("Program") %></small></div><div class="trainee-progress"><div class="progress-caption"><span>Tasks completed</span><strong><%#: Eval("Completed") %> of <%#: Eval("Total") %></strong></div><div class="progress-track"><span style='width:<%#: Eval("Percent") %>%'></span></div></div><span class="progress-value"><%#: Eval("Percent") %>%</span></div>
+                <div class="trainee-row"><span class="person-avatar"><%#: Eval("Initials") %></span><div class="trainee-name"><strong><%#: Eval("Name") %></strong><small><%#: Eval("Program") %></small></div><div class="trainee-progress"><div class="progress-caption"><span>Tasks submitted</span><strong><%#: Eval("Completed") %> of <%#: Eval("Total") %></strong></div><div class="progress-track"><span style='width:<%#: Eval("Percent") %>%'></span></div></div><span class="progress-value"><%#: Eval("Percent") %>%</span></div>
             </ItemTemplate></asp:Repeater></div>
             <p id="NoTrainees" runat="server" class="empty-state" visible="false">No active trainees found.</p>
         </section>
@@ -146,5 +148,10 @@
     </div>
 
     <p class="dashboard-footnote"><i class="bi bi-shield-check" aria-hidden="true"></i> Trainee information is available to authorized company supervisors.</p>
+
+<section class="overview-workspace" aria-labelledby="workspaceTitle"><h2 id="workspaceTitle">Your company workspace</h2><nav aria-label="Company workspace"><a href="<%= ResolveUrl("~/CompanyPages/ManageOpportunities.aspx") %>"><span><strong>Opportunities</strong><small>Openings and applications</small></span><span aria-hidden="true">&#8594;</span></a>
+<a href="<%= ResolveUrl("~/CompanyPages/MyTrainees.aspx") %>"><span><strong>Your trainees</strong><small>Placements and progress</small></span><span aria-hidden="true">&#8594;</span></a>
+<a href="<%= ResolveUrl("~/CompanyPages/ManageTasks.aspx") %>"><span><strong>Training tasks</strong><small>Assignments and submissions</small></span><span aria-hidden="true">&#8594;</span></a>
+<a href="<%= ResolveUrl("~/CompanyPages/FinalEvaluation.aspx") %>"><span><strong>Final evaluations</strong><small>Complete trainee reviews</small></span><span aria-hidden="true">&#8594;</span></a></nav></section>
 </div>
 </asp:Content>

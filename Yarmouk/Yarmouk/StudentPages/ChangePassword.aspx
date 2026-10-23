@@ -2,6 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/StudentPages/ChangePassword.css") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/StudentPages/ChangePassword.js") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <div class="setup-page"><section id="main" class="setup-main"><span class="partner">ACCOUNT SETUP</span><h1>Choose your own password.</h1><p class="lead">Your account requires a temporary-password change before you enter the workspace.</p>

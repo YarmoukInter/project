@@ -14,7 +14,7 @@ namespace Yarmouk.StudentPages
 {
     public partial class Progress : Page
     {
-        private const int StageCount = 8;
+        private const int StageCount = TrainingProgress.RequiredTasks;
         private readonly FirebaseHelper firebase = new FirebaseHelper();
 
         protected void Page_Load(object sender, EventArgs e)
@@ -29,11 +29,14 @@ namespace Yarmouk.StudentPages
 
             try
             {
+                var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
+                var tasksTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Tasks, auth.IdToken);
+                var submissionsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TaskSubmissions, auth.IdToken);
                 var studentTask = firebase.GetAsync<Student>(DatabasePaths.Students + "/" + auth.Uid, auth.IdToken);
                 var logsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TrainingLogs, auth.IdToken);
                 var notesTask = firebase.GetAsync<Dictionary<string, JObject>>(
                     DatabasePaths.StudentProgressNotes + "/" + auth.Uid, auth.IdToken);
-                await Task.WhenAll(studentTask, logsTask, notesTask);
+                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask, submissionsTask);
 
                 var student = await studentTask;
                 var logs = (await logsTask ?? new Dictionary<string, JObject>()).Values
@@ -42,18 +45,23 @@ namespace Yarmouk.StudentPages
                 int required = student == null ? 0 : Math.Max(0, student.RequiredTrainingHours);
                 int approved = logs.Count == 0 && student != null ? Math.Max(0, student.ApprovedTrainingHours)
                     : logs.Where(IsApproved).Sum(x => Math.Max(0, ReadInt(x, "hours")));
-                int percent = required == 0 ? 0 : Math.Min(100, approved * 100 / required);
+                var tasks = (await tasksTask ?? new Dictionary<string, JObject>())
+                    .Where(t => !string.IsNullOrEmpty(activeOpportunityId) && Text(t.Value, "opportunityId") == activeOpportunityId);
+                int submitted = TrainingProgress.CountSubmitted(tasks,
+                    (await submissionsTask ?? new Dictionary<string, JObject>()).Values, auth.Uid);
+                int percent = TrainingProgress.Percent(submitted);
 
-                ApprovedHours.Text = approved.ToString("N0", CultureInfo.InvariantCulture);
-                RequiredHours.Text = required == 0 ? "—" : required.ToString("N0", CultureInfo.InvariantCulture);
+                ApprovedHours.Text = submitted.ToString(CultureInfo.InvariantCulture);
+                RequiredHours.Text = TrainingProgress.RequiredTasks.ToString(CultureInfo.InvariantCulture);
                 TargetHours.Text = RequiredHours.Text;
-                TrackTarget.Text = required == 0 ? "—" : required.ToString("N0", CultureInfo.InvariantCulture);
-                PlanRequiredHours.Text = RequiredHours.Text;
+                TrackTarget.Text = RequiredHours.Text;
+                PlanRequiredHours.Text = required == 0 ? "—" : required.ToString("N0", CultureInfo.InvariantCulture);
                 PlanApprovedHours.Text = approved.ToString("N0", CultureInfo.InvariantCulture) + " hours";
-                CompletionPercent.Text = required == 0 ? "—" : percent.ToString(CultureInfo.InvariantCulture);
+                CompletionPercent.Text = percent.ToString(CultureInfo.InvariantCulture);
                 progressRing.Style["--progress"] = percent + "%";
                 progressRing.Attributes["aria-valuenow"] = percent.ToString(CultureInfo.InvariantCulture);
-                hoursProgressBar.Attributes["aria-valuemax"] = Math.Max(0, required).ToString(CultureInfo.InvariantCulture);
+                hoursProgressBar.Attributes["aria-valuemax"] = RequiredHours.Text;
+                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(submitted, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
                 hoursTrack.Style["width"] = percent + "%";
 
                 var notes = (await notesTask ?? new Dictionary<string, JObject>()).Values
@@ -69,7 +77,7 @@ namespace Yarmouk.StudentPages
                 ProgressNotes.DataSource = notes;
                 ProgressNotes.DataBind();
                 NoProgressNotes.Visible = notes.Count == 0;
-                MilestoneRepeater.DataSource = BuildMilestones(approved, required);
+                MilestoneRepeater.DataSource = BuildMilestones(submitted, TrainingProgress.RequiredTasks);
                 MilestoneRepeater.DataBind();
 
                 if (student == null) ShowNotice("Your student training record has not been created yet.");

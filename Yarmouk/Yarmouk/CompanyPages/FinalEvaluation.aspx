@@ -2,6 +2,9 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/CompanyPages/FinalEvaluation.css?v=4") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=2") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <main class="company-evaluation" id="companyEvaluation">
@@ -21,7 +24,7 @@
 
   <div class="evaluation-layout">
     <aside class="trainee-panel" aria-label="Assigned trainees">
-      <div class="panel-heading"><p class="evaluation-eyebrow">COMPANY RECORDS</p><h2>Orange trainees</h2><span class="trainee-count"><asp:Literal ID="TraineeCount" runat="server" Text="0" /></span></div>
+      <div class="panel-heading"><p class="evaluation-eyebrow">COMPANY RECORDS</p><h2>Your trainees</h2><span class="trainee-count"><asp:Literal ID="TraineeCount" runat="server" Text="0" /></span></div>
       <div class="trainee-table-wrap">
         <table class="trainee-table">
           <thead>
@@ -82,6 +85,7 @@
         <section class="evaluation-section" id="section-reports" role="tabpanel" aria-labelledby="tab-reports" data-evaluation-section="reports">
           <div class="section-heading"><div><p class="evaluation-eyebrow">SUBMITTED WORK</p><h3>Student reports</h3><p>Review each submitted report and approve it or request revisions.</p></div></div>
           <asp:Repeater ID="ReportList" runat="server" OnItemCommand="ReportList_ItemCommand" OnItemDataBound="ReportList_ItemDataBound">
+            <HeaderTemplate><div id="company-report-list"></HeaderTemplate>
             <ItemTemplate>
               <article class="report-card">
                 <div class="report-card__top"><div><span class="report-type">REPORT</span><h4><%#: Eval("TaskTitle") %></h4></div><span class="report-status"><%#: Eval("Status") %></span></div>
@@ -94,6 +98,7 @@
                 </div>
               </article>
             </ItemTemplate>
+            <FooterTemplate></div></FooterTemplate>
           </asp:Repeater>
           <asp:Panel ID="ReportsEmpty" runat="server" CssClass="empty-state empty-state--wide" Visible="false"><span class="empty-state__icon" aria-hidden="true">▤</span><strong>No reports submitted</strong><p>Reports submitted by this trainee will appear here for review.</p></asp:Panel>
         </section>

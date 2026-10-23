@@ -19,13 +19,16 @@
     var pendingRejectionId = null;
 
     function api(action, payload) {
-        var options = { method: payload ? "POST" : "GET", credentials: "same-origin", headers: {} };
+        var options = { method: payload ? "POST" : "GET", credentials: "same-origin", cache: "no-store", headers: {} };
         if (payload) {
             options.headers["Content-Type"] = "application/json";
             options.headers["X-Requested-With"] = "XMLHttpRequest";
             options.body = JSON.stringify(Object.assign({ action: action }, payload));
         }
         return fetch(apiUrl + "?action=" + encodeURIComponent(action), options).then(function(response) {
+            if (response.redirected && /\/Login(?:[.?/]|$)/i.test(response.url)) {
+                throw new Error("Your company session expired. Sign in again.");
+            }
             return response.json().then(function(data) {
                 if (!response.ok || !data.success) throw new Error(data.message || "The request could not be completed.");
                 return data;

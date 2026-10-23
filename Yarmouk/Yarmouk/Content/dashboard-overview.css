@@ -1,0 +1,201 @@
+/* Role dashboards share the coordinator dashboard's visual language. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+body:has(.role-dashboard) {
+    --overview-green:#075f3d; --overview-green-dark:#04462f;
+    --overview-ink:#19372b; --overview-muted:#65776d; --overview-line:#e0e8e2;
+    --overview-page:#f3f6f3; --overview-paper:#fff; --overview-tint:#e9f2ec;
+    --overview-gold:#d4b778; --overview-radius:16px;
+    --overview-edge:clamp(20px,2.4vw,44px);
+    background:var(--overview-page); color:var(--overview-ink);
+    font-family:'DM Sans','Segoe UI',sans-serif;
+}
+body:has(.role-dashboard) :is(.yu-dashboard,.student-layout) { font-family:inherit; background:var(--overview-page); }
+body:has(.role-dashboard) :is(.yu-dashboard-main,.student-content) { min-width:0; }
+body:has(.role-dashboard) .yu-dashboard-main > :is(header.container,main.container,footer.container) {
+    width:auto; max-width:none; margin-inline:var(--overview-edge); padding-inline:0;
+}
+body:has(.role-dashboard) :is(.yu-dashboard-main > header.container,.student-topline) {
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    min-height:88px; padding-block:16px !important; border-bottom:1px solid var(--overview-line);
+    color:var(--overview-muted); font-size:13px;
+}
+body:has(.role-dashboard) :is(.yu-dashboard-main > header.container,.student-topline) > a {
+    color:var(--overview-green); font-weight:600; text-decoration:none;
+}
+body:has(.role-dashboard) :is(.yu-dashboard-main > main.container,.student-main) {
+    padding-block:32px !important; margin-inline:var(--overview-edge);
+}
+body:has(.role-dashboard) .yu-dashboard-main > footer.container {
+    display:flex; justify-content:space-between; gap:16px; padding-block:20px !important;
+    color:var(--overview-muted); font-size:11px; border-color:var(--overview-line) !important;
+}
+.role-dashboard.role-dashboard {
+    --academic-green:var(--overview-green); --academic-dark:var(--overview-ink); --academic-muted:var(--overview-muted);
+    --academic-line:var(--overview-line); --academic-soft:var(--overview-tint);
+    --company-green:var(--overview-green); --company-green-dark:var(--overview-green-dark); --company-ink:var(--overview-ink);
+    --company-muted:var(--overview-muted); --company-border:var(--overview-line); --company-surface:var(--overview-paper);
+    --company-green-soft:var(--overview-tint); --dash-green:var(--overview-green); --dash-text:var(--overview-ink);
+    --dash-green-dark:var(--overview-ink); --dash-secondary:var(--overview-muted); --dash-muted:var(--overview-muted);
+    --dash-border:var(--overview-line); --dash-green-light:var(--overview-tint);
+    width:100%; max-width:1600px; margin:0 auto; padding:0;
+    color:var(--overview-ink); font:400 14px/1.5 'DM Sans','Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+}
+.role-dashboard *, .role-dashboard *::before, .role-dashboard *::after { box-sizing:border-box; }
+.role-dashboard a { text-decoration:none; }
+.role-dashboard [hidden] { display:none !important; }
+.role-dashboard :is(a,button,input):focus-visible { outline:2px solid var(--overview-green); outline-offset:4px; }
+.role-dashboard :is(.page-heading,.dashboard-heading,.academic-dashboard-heading) {
+    align-items:center; gap:24px; margin:0 0 32px;
+}
+.role-dashboard :is(.page-heading,.dashboard-heading,.academic-dashboard-heading) h1 {
+    margin:0; color:var(--overview-ink); font:500 34px/1.2 'DM Sans','Segoe UI',sans-serif; letter-spacing:-1.2px;
+}
+.role-dashboard :is(.page-heading,.dashboard-heading,.academic-dashboard-heading) p {
+    margin:8px 0 0; color:var(--overview-muted); font-size:13px; line-height:1.6;
+}
+.role-dashboard :is(.overview-eyebrow,.academic-eyebrow,.eyebrow) {
+    display:block; margin:0 0 8px; padding:0; background:transparent; border:0;
+    color:var(--overview-green); font-size:11px; font-weight:600; letter-spacing:.25px;
+}
+.role-dashboard .eyebrow-dot { display:none; }
+.role-dashboard :is(.heading-actions,.dashboard-heading-actions) { flex-direction:column; align-items:flex-end; gap:12px; }
+.role-dashboard :is(.snapshot-date,.dashboard-date) { padding:0; border:0; background:transparent; color:var(--overview-muted); font-size:11px; }
+.role-dashboard :is(.button,.academic-button,.overview-button) {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:44px; padding:12px 20px; border:1px solid var(--overview-line); border-radius:8px;
+    font:500 13px/1.4 'DM Sans','Segoe UI',sans-serif;
+    transition:background 180ms ease-out,border-color 180ms ease-out;
+}
+.role-dashboard :is(.button-primary,.academic-button--primary,.overview-button) { background:var(--overview-green); color:#fff !important; border-color:var(--overview-green); }
+.role-dashboard :is(.button-primary,.academic-button--primary,.overview-button):hover { background:var(--overview-green-dark); border-color:var(--overview-green-dark); transform:none; }
+.role-dashboard :is(.preview-notice,.deadline-alert,.placement-strip) {
+    padding:16px 20px; border:1px solid var(--overview-line); border-radius:12px;
+    background:var(--overview-tint); color:var(--overview-ink); margin-bottom:24px; font-size:13px;
+}
+.role-dashboard :is(.notice-period,.alert-text) { font-size:12px; font-weight:400; }
+.overview-caption { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; font-size:13px; font-weight:600; }
+.overview-caption small { color:var(--overview-muted); font-size:11px; font-weight:400; }
+.role-dashboard :is(.academic-metrics,.stats-grid) { grid-template-columns:repeat(12,minmax(0,1fr)); gap:16px; margin-bottom:32px; }
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card) {
+    position:relative; display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between;
+    min-width:0; min-height:144px; gap:12px; padding:20px; border:1px solid var(--overview-line);
+    border-radius:var(--overview-radius); background:var(--overview-paper); box-shadow:0 3px 12px #163f2708;
+    color:var(--overview-ink); transition:background 180ms ease-out,border-color 180ms ease-out;
+}
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):hover { transform:none; box-shadow:0 3px 12px #163f2708; border-color:var(--overview-green); }
+.role-dashboard :is(.academic-metric,.stat-card) { grid-column:span 3; }
+.role-dashboard :is(.academic-metric,.stat-card):first-child { grid-column:span 6; grid-row:span 2; }
+.role-dashboard :is(.academic-metric,.stat-card):last-child { grid-column:span 6; }
+.role-dashboard .metrics-grid { grid-template-columns:repeat(20,minmax(0,1fr)); gap:16px; margin-bottom:32px; }
+.role-dashboard .metric-card { grid-column:span 4; }
+.role-dashboard .metric-card:first-child { grid-column:span 8; grid-row:span 2; }
+.role-dashboard .metric-card:nth-last-child(-n+2) { grid-column:span 6; }
+.role-dashboard :is(.metric-icon,.stat-icon) { display:grid; width:38px; height:38px; flex:none; margin:0; background:var(--overview-tint); color:var(--overview-green); border-radius:12px; font-size:18px; }
+.role-dashboard :is(.metric-icon,.stat-icon) { position:absolute; top:16px; right:16px; width:28px; height:28px; background:transparent; }
+.role-dashboard :is(.metric-label,.stat-content h2) { padding-right:32px; }
+.role-dashboard :is(.metric-label,.stat-content h2) { align-self:flex-start; white-space:normal; overflow:visible; color:var(--overview-ink); font-size:13px; font-weight:500; }
+.role-dashboard :is(.metric-value,.stat-number) { margin:0; color:var(--overview-ink); font-size:38px; font-weight:500; letter-spacing:-1.3px; line-height:1; font-variant-numeric:tabular-nums; }
+.role-dashboard :is(.metric-foot,.academic-metric small,.stat-content p) { align-self:auto; margin:0; color:var(--overview-muted); font-size:11px; line-height:1.6; }
+.role-dashboard .stat-content { display:contents; }
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child {
+    position:relative; overflow:hidden; justify-content:flex-start; padding:24px;
+    background:linear-gradient(135deg,#074632,#043626); border-color:transparent; color:#fff;
+}
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child::after {
+    content:''; position:absolute; width:200px; height:300px; right:-60px; bottom:-120px;
+    border:1px solid var(--overview-gold); border-radius:100px 100px 0 0; opacity:.25;
+    box-shadow:0 0 0 18px #d4b77820,0 0 0 36px #d4b77818,0 0 0 54px #d4b77810;
+    transform:rotate(-16deg); pointer-events:none;
+}
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child :is(.metric-icon,.stat-icon) { position:static; width:38px; height:38px; background:#ffffff12; color:#fff; border:1px solid #ffffff20; }
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child :is(.metric-label,h2) { margin-top:12px; color:#fff; font-size:21px; font-weight:500; letter-spacing:-.5px; }
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child :is(.metric-value,.stat-number) { color:#fff; font-size:80px; letter-spacing:-4px; }
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child :is(small,.metric-foot,p,.metric-highlight) { color:#c3d6ca; font-size:13px; }
+.role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child :is(small,.metric-foot,p) { margin-top:auto; padding-top:12px; }
+.role-dashboard :is(.panel,.academic-dashboard-panel) { padding:24px; border:1px solid var(--overview-line); border-radius:var(--overview-radius); background:var(--overview-paper); box-shadow:none; }
+.role-dashboard :is(.main-grid,.bottom-grid,.dashboard-grid) { gap:24px; margin-bottom:24px; }
+.role-dashboard :is(.panel-heading,.dashboard-panel-heading) { gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+.role-dashboard :is(.panel-heading,.dashboard-panel-heading) h2 { color:var(--overview-ink); font-size:21px; font-weight:500; letter-spacing:-.65px; }
+.role-dashboard :is(.panel-heading,.dashboard-panel-heading) p { font-size:12px; color:var(--overview-muted); }
+.role-dashboard :is(table,.dashboard-table,.academic-students-table) { font-size:13px; }
+.role-dashboard :is(.table-wrap,.table-container,.dashboard-table-wrap) { position:relative; max-width:100%; overflow-x:auto; }
+.role-dashboard :is(table,.dashboard-table,.academic-students-table) th { padding:12px 10px; color:var(--overview-muted); background:var(--overview-page); font-size:11px; font-weight:500; }
+.role-dashboard :is(table,.dashboard-table,.academic-students-table) td { padding:16px 10px; border-color:var(--overview-line); }
+.role-dashboard :is(.person-cell strong,.student-cell strong,.cell-title,.trainee-name strong,.opportunity-info strong) { color:var(--overview-ink); font-size:13px; font-weight:500; }
+.role-dashboard :is(.person-cell small,.student-cell small,.cell-subtitle,.task-summary small,.trainee-name small,.opportunity-info > span) { color:var(--overview-muted); font-size:11px; }
+.role-dashboard :is(.status-pill,.placement-badge,.badge,.training-status,.opportunity-state) { font-size:11px; }
+.role-dashboard :is(.text-link,.panel-link,.academic-panel-link,.queue-tab,.training-label,.task-summary strong,.progress-label,.hours-text h3,.progress-caption) { font-size:12px; }
+.role-dashboard :is(.row-action,.icon-link) { width:44px; height:44px; }
+.role-dashboard :is(.dashboard-search,.search-box) { min-height:44px; font-size:13px; border-color:var(--overview-line); }
+.role-dashboard .search-box input { font-size:13px; }
+.role-dashboard .queue-tab { min-height:44px; }
+.role-dashboard :is(.empty-state,.dashboard-empty p,.muted,.progress-note,.dashboard-footnote,.academic-dashboard-footer) { color:var(--overview-muted); font-size:12px; line-height:1.6; }
+.role-dashboard :is(.training-track span,.seat-track span,.progress-track span) { background:var(--overview-green); }
+.role-dashboard .hours-summary { flex-wrap:wrap; }
+.role-dashboard .hours-value { white-space:normal; }
+.role-dashboard .footer { display:none; }
+.overview-workspace { margin:24px 0; }
+.overview-workspace h2 { margin:0 0 16px; color:var(--overview-ink); font-size:21px; font-weight:500; letter-spacing:-.65px; }
+.overview-workspace nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.overview-workspace a { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; min-height:116px; padding:20px; border:1px solid var(--overview-line); border-radius:12px; background:var(--overview-paper); color:var(--overview-green); transition:border-color 180ms ease-out; }
+.overview-workspace a:hover { border-color:var(--overview-green); }
+.overview-workspace a > span:first-child { display:grid; gap:8px; }
+.overview-workspace strong { color:var(--overview-ink); font-size:13px; font-weight:500; }
+.overview-workspace small { color:var(--overview-muted); font-size:11px; }
+[data-theme="dark"] body:has(.role-dashboard) {
+    color-scheme:dark; --overview-green:#8bd4ad; --overview-green-dark:#a7e5c3;
+    --overview-ink:#e6f0e9; --overview-muted:#b1c4b7; --overview-line:#354d3e;
+    --overview-page:#101d16; --overview-paper:#1b2c22; --overview-tint:#263b2d;
+}
+[data-theme="dark"] .role-dashboard :is(.button-primary,.academic-button--primary,.overview-button) { color:var(--overview-page) !important; }
+[data-theme="dark"] .role-dashboard :is(.dashboard-search,.search-box,.button-outline,.row-action,.icon-link,.progress-ring-center) { background:var(--overview-paper); color:var(--overview-ink); }
+[data-theme="dark"] .role-dashboard :is(.person-avatar,.student-avatar,.avatar,.opportunity-symbol,.evaluation-icon,.queue-tab span) { background:var(--overview-tint); color:var(--overview-green); }
+[data-theme="dark"] .role-dashboard :is(.metric-highlight,.trainee-name strong,.evaluation-summary strong,.hours-value,.hours-value span,.hours-text h3,.progress-label,.training-label strong,.task-summary strong,.company-name,.placement-value,.account-copy strong,.table-container time) { color:var(--overview-ink); }
+[data-theme="dark"] .role-dashboard :is(.training-track,.seat-track,.progress-track,.progress-note,.dashboard-empty,.search-empty) { background:var(--overview-tint); }
+[data-theme="dark"] .role-dashboard .evaluation-summary { background:var(--overview-tint); border-color:var(--overview-line); box-shadow:none; }
+[data-theme="dark"] .role-dashboard :is(table,.dashboard-table,.academic-students-table,.evaluation-summary p,.progress-caption,.progress-value,.queue-tab,.placement-label,.account-copy small) { color:var(--overview-muted); }
+[data-theme="dark"] .role-dashboard :is(.dashboard-empty,.queue-tabs,.opportunity-item,.trainee-row,.task-progress) { border-color:var(--overview-line); }
+[data-theme="dark"] .role-dashboard :is(table,.academic-students-table,.dashboard-table) tbody tr:hover { background:var(--overview-tint); }
+[data-theme="dark"] .role-dashboard .status-review { background:#233e4a; color:#c1deee; }
+[data-theme="dark"] .role-dashboard :is(.status-pending,.badge-warning,.status-upcoming) { background:#3c3524; color:#e7c689; }
+[data-theme="dark"] .role-dashboard :is(.badge-success,.training-status,.placement-badge:not(.status-upcoming)) { background:var(--overview-tint); color:var(--overview-green); }
+[data-theme="dark"] .role-dashboard .badge-neutral { background:var(--overview-tint); color:var(--overview-muted); }
+[data-theme="dark"] .role-dashboard :is(.badge-danger,.dashboard-load-error) { background:#3e2928; color:#ffd4d0; }
+@media (max-width:1100px) {
+    .role-dashboard :is(.main-grid,.dashboard-grid,.lower-grid) { grid-template-columns:minmax(0,1fr); }
+    .role-dashboard :is(.academic-metric,.stat-card,.metric-card) { padding:16px; }
+    .role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child :is(.metric-value,.stat-number) { font-size:68px; }
+    .overview-workspace nav { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+    .role-dashboard :is(.page-heading,.dashboard-heading,.academic-dashboard-heading) { flex-direction:column; align-items:flex-start; gap:20px; }
+    .role-dashboard :is(.heading-actions,.dashboard-heading-actions) { width:100%; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .role-dashboard :is(.academic-metrics,.stats-grid,.metrics-grid) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .role-dashboard :is(.academic-metric,.stat-card,.metric-card):nth-child(n) { grid-column:span 1; grid-row:auto; min-height:160px; }
+    .role-dashboard :is(.academic-metric,.stat-card,.metric-card):first-child { grid-column:1 / -1; min-height:260px; }
+    .role-dashboard :is(.academic-metric,.stat-card):last-child { grid-column:1 / -1; }
+    .role-dashboard .bottom-grid { grid-template-columns:minmax(0,1fr); }
+    .role-dashboard .deadline-alert { flex-wrap:wrap; }
+    .role-dashboard .dashboard-list-tools { width:100%; }
+    .role-dashboard .dashboard-search { width:100%; min-width:0; }
+    .role-dashboard :is(.dashboard-table,.academic-students-table) { min-width:640px; }
+    .role-dashboard .notice-period { white-space:normal; }
+}
+@media (max-width:480px) {
+    body:has(.role-dashboard) { --overview-edge:16px; }
+    body:has(.role-dashboard) :is(.yu-dashboard-main > main.container,.student-main) { padding-top:24px !important; }
+    .role-dashboard :is(.page-heading,.dashboard-heading,.academic-dashboard-heading) h1 { font-size:29px; }
+    .role-dashboard :is(.panel,.academic-dashboard-panel) { padding:20px 16px; }
+    .role-dashboard :is(.academic-metrics,.stats-grid,.metrics-grid) { gap:12px; }
+    .overview-caption small { display:none; }
+    .overview-workspace nav { gap:12px; }
+    .overview-workspace a { padding:16px; }
+    .role-dashboard .dashboard-account { flex-wrap:wrap; }
+    .role-dashboard .placement-strip { align-items:flex-start; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .role-dashboard *, .role-dashboard *::before, .role-dashboard *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    .role-dashboard .reveal-ready, .role-dashboard.motion-ready .academic-metric { opacity:1 !important; transform:none !important; }
+}

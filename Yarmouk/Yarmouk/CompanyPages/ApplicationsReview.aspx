@@ -1,14 +1,17 @@
 <%@ Page Title="Applications Review" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ApplicationsReview.aspx.cs" Inherits="Yarmouk.CompanyPages.ApplicationsReview" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
     <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=3' rel="stylesheet" />
-    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=3' defer="defer"></script>
+    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=4' defer="defer"></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="co-page co-applications" aria-labelledby="applicationsTitle" data-api-url='<%= ResolveUrl("~/CompanyPages/ApplicationsReview") %>'>
         <header class="co-page-heading">
             <div><p class="co-eyebrow">COMPANY WORKSPACE</p><h1 id="applicationsTitle">Applications review</h1><p class="co-subtitle">Review student applications and make a decision for each opportunity.</p></div>
         </header>
-        <p class="co-demo-note co-review-feedback" id="applicationFeedback" role="status" aria-live="polite">Loading applications from Firebase…</p>
+        <p class="co-demo-note co-review-feedback" id="applicationFeedback" role="status" aria-live="polite">Loading applications…</p>
 
         <div class="co-review-stats" id="applicationStats" aria-label="Application summary"></div>
 

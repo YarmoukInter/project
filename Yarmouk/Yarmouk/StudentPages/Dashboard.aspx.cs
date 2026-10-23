@@ -92,16 +92,18 @@ namespace Yarmouk.StudentPages
 
                 var target = student == null ? 0 : Math.Max(0, student.RequiredTrainingHours);
                 var hours = student == null ? 0 : Math.Max(0, student.ApprovedTrainingHours);
-                int percent = target == 0 ? 0 : Math.Min(100, hours * 100 / target);
+                int submitted = TrainingProgress.CountSubmitted(tasks,
+                    (await submissionsTask ?? new Dictionary<string, JObject>()).Values, auth.Uid);
+                int percent = TrainingProgress.Percent(submitted);
                 ApprovedHours.Text = hours.ToString("N0", CultureInfo.InvariantCulture);
                 RequiredHours.Text = target == 0 ? "—" : target.ToString("N0", CultureInfo.InvariantCulture);
-                DashboardProgressPercent.Text = target == 0 ? "—" : percent.ToString(CultureInfo.InvariantCulture) + "%";
+                DashboardProgressPercent.Text = percent.ToString(CultureInfo.InvariantCulture) + "%";
                 DashboardProgressRing.Style["--progress"] = percent + "%";
-                DashboardProgressRing.Attributes["aria-label"] = target == 0 ? "Training target unavailable" : "Internship progress: " + percent + "%";
-                TaskCompletionLabel.Text = completed + " of " + taskRows.Count + " tasks";
-                DashboardTaskProgress.Attributes["value"] = completed.ToString(CultureInfo.InvariantCulture);
-                DashboardTaskProgress.Attributes["max"] = Math.Max(1, taskRows.Count).ToString(CultureInfo.InvariantCulture);
-                DashboardTaskProgressPercent.Text = taskRows.Count == 0 ? "0" : (completed * 100 / taskRows.Count).ToString(CultureInfo.InvariantCulture);
+                DashboardProgressRing.Attributes["aria-label"] = "Internship progress: " + percent + "%, " + TrainingProgress.Label(submitted);
+                TaskCompletionLabel.Text = TrainingProgress.Label(submitted);
+                DashboardTaskProgress.Attributes["value"] = Math.Min(TrainingProgress.RequiredTasks, submitted).ToString(CultureInfo.InvariantCulture);
+                DashboardTaskProgress.Attributes["max"] = TrainingProgress.RequiredTasks.ToString(CultureInfo.InvariantCulture);
+                DashboardTaskProgressPercent.Text = percent.ToString(CultureInfo.InvariantCulture);
                 InternshipStatus.Text = HttpUtility.HtmlEncode(student == null || string.IsNullOrWhiteSpace(student.InternshipStatus)
                     ? "No active training" : Humanize(student.InternshipStatus));
 

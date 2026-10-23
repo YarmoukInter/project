@@ -72,7 +72,7 @@
             empty.hidden = visible.length > 0;
             empty.textContent = records.length ? 'No matching evaluations. Try changing the search or filters.' : (message || 'No final evaluation records are available yet.');
             page.querySelector('#fr-count').textContent = `${visible.length} of ${records.length} records`;
-            page.querySelector('#fr-footer-count').textContent = `Showing ${visible.length} of ${records.length} records`;
+            page.querySelector('#fr-footer-count').textContent = `Matches ${visible.length} of ${records.length} records`;
         }
 
         function showDetails(record) {

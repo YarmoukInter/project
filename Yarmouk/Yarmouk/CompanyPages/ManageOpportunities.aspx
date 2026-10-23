@@ -2,6 +2,9 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
     <link href='<%= ResolveUrl("~/Content/CompanyPages/ManageOpportunities.css") %>' rel="stylesheet" />
     <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ManageOpportunities.js") %>?v=4' defer="defer"></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
+<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <section class="co-page co-opportunities" aria-labelledby="opportunitiesTitle" data-api-url='<%= ResolveUrl("~/CompanyPages/ManageOpportunities.aspx") %>'>
@@ -41,7 +44,7 @@
             </div>
             <p class="co-empty-state" id="opportunityEmpty" hidden="hidden">No opportunities match these filters.</p>
         </section>
-        <p class="co-demo-note" id="opportunityFeedback" role="status">Loading opportunities from Firebase…</p>
+        <p class="co-demo-note" id="opportunityFeedback" role="status">Loading opportunities…</p>
 
         <div class="co-modal-backdrop" id="opportunityModal" hidden="hidden">
             <section class="co-modal" role="dialog" aria-modal="true" aria-labelledby="opportunityModalTitle">

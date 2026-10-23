@@ -22,19 +22,21 @@ namespace Yarmouk.Helpers
                 throw new ConfigurationErrorsException("Set FirebaseDatabaseUrl to a valid HTTPS URL in Web.config.");
             databaseUrl = databaseUrl.TrimEnd('/');
         }
-        private string GetUrl(string path, string idToken, string query = null)
+        private string GetUrl(string path, string idToken, string query = null, bool allowRootUpdate = false)
         {
             if (string.IsNullOrWhiteSpace(idToken)) throw new UnauthorizedAccessException("Sign in first.");
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Database path required.");
+            if (allowRootUpdate && path == "/")
+                return databaseUrl + "/.json?auth=" + Uri.EscapeDataString(idToken);
             foreach (string segment in path.Split('/'))
                 if (string.IsNullOrWhiteSpace(segment) || segment == "." || segment == ".."
                     || segment.IndexOfAny(new[] { '.', '#', '$', '[', ']', '?', '&' }) >= 0)
                     throw new ArgumentException("Invalid Firebase path.");
             return databaseUrl + "/" + path + ".json?" + (string.IsNullOrEmpty(query) ? "" : query + "&") + "auth=" + Uri.EscapeDataString(idToken);
         }
-        private async Task<string> SendAsync(HttpMethod method, string path, string idToken, object value = null, string query = null)
+        private async Task<string> SendAsync(HttpMethod method, string path, string idToken, object value = null, string query = null, bool allowRootUpdate = false)
         {
-            using (var request = new HttpRequestMessage(method, GetUrl(path, idToken, query)))
+            using (var request = new HttpRequestMessage(method, GetUrl(path, idToken, query, allowRootUpdate)))
             {
                 if (value != null)
                     request.Content = new StringContent(JsonConvert.SerializeObject(value, Settings), Encoding.UTF8, "application/json");
@@ -70,6 +72,11 @@ namespace Yarmouk.Helpers
         {
             if (changes == null) throw new ArgumentNullException("changes");
             await SendAsync(new HttpMethod("PATCH"), path, idToken, changes).ConfigureAwait(false);
+        }
+        public async Task UpdateRootAsync(System.Collections.Generic.IDictionary<string, object> changes, string idToken)
+        {
+            if (changes == null || changes.Count == 0) throw new ArgumentException("Updates are required.");
+            await SendAsync(new HttpMethod("PATCH"), "/", idToken, changes, allowRootUpdate: true).ConfigureAwait(false);
         }
         public async Task DeleteAsync(string path, string idToken)
         {

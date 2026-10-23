@@ -21,13 +21,7 @@ namespace Yarmouk.Services
         {
             RequireIdentity(academicUid, idToken);
             var data = await LoadDataAsync(idToken).ConfigureAwait(false);
-            return BuildProgressRows(data, row =>
-            {
-                var student = Find(data.Students, row.StudentUid);
-                return Same(Read(row.Placement, "academicSupervisorUid"), academicUid)
-                    || Same(Read(row.Placement, "academicSupervisorId"), academicUid)
-                    || (student != null && Same(Read(student, "academicSupervisorId"), academicUid));
-            }).OrderBy(x => x.StudentName).ToList();
+            return BuildAcademicProgressRows(data, academicUid).OrderBy(x => x.StudentName).ToList();
         }
 
         public async Task SaveStudentProgressNoteAsync(string placementId, string academicUid, string idToken, string note)
@@ -46,9 +40,7 @@ namespace Yarmouk.Services
             var assigned = BuildProgressRows(data, row =>
             {
                 var student = Find(data.Students, row.StudentUid);
-                return Same(Read(row.Placement, "academicSupervisorUid"), academicUid)
-                    || Same(Read(row.Placement, "academicSupervisorId"), academicUid)
-                    || (student != null && Same(Read(student, "academicSupervisorId"), academicUid));
+                return student != null && Same(Read(student, "academicSupervisorId"), academicUid);
             }).FirstOrDefault(row => Same(row.PlacementId, placementId));
             if (assigned == null)
                 throw new SupervisorWorkflowException("This student is not assigned to your academic account.");
@@ -87,13 +79,33 @@ namespace Yarmouk.Services
             var placements = BuildProgressRows(data, row =>
             {
                 var student = Find(data.Students, row.StudentUid);
-                return Same(Read(row.Placement, "academicSupervisorUid"), academicUid)
-                    || Same(Read(row.Placement, "academicSupervisorId"), academicUid)
-                    || (student != null && Same(Read(student, "academicSupervisorId"), academicUid));
+                return student != null && Same(Read(student, "academicSupervisorId"), academicUid);
             });
 
             return placements.Select(row => BuildEvaluationItem(data, row, academicUid))
                 .OrderBy(x => x.StudentName).ToList();
+        }
+
+        public async Task<byte[]> DownloadCompanyEvaluationAsync(string placementId, string academicUid, string idToken)
+        {
+            RequireIdentity(academicUid, idToken);
+            if (!IsValidFirebaseKey(placementId))
+                throw new SupervisorWorkflowException("Select a valid student placement.");
+            var data = await LoadDataAsync(idToken).ConfigureAwait(false);
+            var user = Find(data.Users, academicUid);
+            if (user == null || AuthPolicy.NormalizeRole(Read(user, "role")) != "academic")
+                throw new UnauthorizedAccessException("An academic supervisor account is required.");
+            var assigned = BuildProgressRows(data, row =>
+            {
+                var student = Find(data.Students, row.StudentUid);
+                return student != null && Same(Read(student, "academicSupervisorId"), academicUid);
+            }).FirstOrDefault(row => Same(row.PlacementId, placementId));
+            if (assigned == null)
+                throw new UnauthorizedAccessException("This placement is not assigned to your academic account.");
+            var evaluation = FindEvaluation(data.Evaluations, placementId, assigned.StudentUid, academicUid);
+            if (evaluation == null || !IsCompanyEvaluationSubmitted(evaluation.Value))
+                throw new SupervisorWorkflowException("The company must submit its evaluation before a PDF is available.");
+            return CompanyEvaluationPdf.Create(assigned, evaluation.Id, evaluation.Value);
         }
 
         public async Task SaveAcademicEvaluationAsync(string placementId, string academicUid, string idToken,
@@ -124,9 +136,7 @@ namespace Yarmouk.Services
             var assigned = BuildProgressRows(data, row =>
             {
                 var student = Find(data.Students, row.StudentUid);
-                return Same(Read(row.Placement, "academicSupervisorUid"), academicUid)
-                    || Same(Read(row.Placement, "academicSupervisorId"), academicUid)
-                    || (student != null && Same(Read(student, "academicSupervisorId"), academicUid));
+                return student != null && Same(Read(student, "academicSupervisorId"), academicUid);
             }).FirstOrDefault(row => Same(row.PlacementId, placementId));
             if (assigned == null)
                 throw new SupervisorWorkflowException("This placement is not assigned to your academic account.");
@@ -155,11 +165,12 @@ namespace Yarmouk.Services
             var usersTask = firebase.GetAsync<JObject>(DatabasePaths.Users, idToken);
             var companiesTask = firebase.GetAsync<JObject>(DatabasePaths.Companies, idToken);
             var tasksTask = firebase.GetAsync<JObject>(DatabasePaths.Tasks, idToken);
+            var submissionsTask = firebase.GetAsync<JObject>(DatabasePaths.TaskSubmissions, idToken);
             var logsTask = firebase.GetAsync<JObject>(DatabasePaths.TrainingLogs, idToken);
             var evaluationsTask = firebase.GetAsync<JObject>(DatabasePaths.Evaluations, idToken);
             var applicationsTask = firebase.GetAsync<JObject>(DatabasePaths.Applications, idToken);
             await Task.WhenAll(placementsTask, studentsTask, usersTask, companiesTask,
-                tasksTask, logsTask, evaluationsTask, applicationsTask).ConfigureAwait(false);
+                tasksTask, submissionsTask, logsTask, evaluationsTask, applicationsTask).ConfigureAwait(false);
             return new WorkspaceData
             {
                 Placements = await placementsTask.ConfigureAwait(false) ?? new JObject(),
@@ -167,10 +178,34 @@ namespace Yarmouk.Services
                 Users = await usersTask.ConfigureAwait(false) ?? new JObject(),
                 Companies = await companiesTask.ConfigureAwait(false) ?? new JObject(),
                 Tasks = await tasksTask.ConfigureAwait(false) ?? new JObject(),
+                Submissions = await submissionsTask.ConfigureAwait(false) ?? new JObject(),
                 TrainingLogs = await logsTask.ConfigureAwait(false) ?? new JObject(),
                 Evaluations = await evaluationsTask.ConfigureAwait(false) ?? new JObject(),
                 Applications = await applicationsTask.ConfigureAwait(false) ?? new JObject()
             };
+        }
+
+        // Current student assignments determine the caseload, even before a placement exists.
+        private static List<SupervisorStudentProgress> BuildAcademicProgressRows(WorkspaceData data, string academicUid)
+        {
+            var rows = new List<SupervisorStudentProgress>();
+            foreach (var item in data.Students.Properties())
+            {
+                var student = item.Value as JObject;
+                if (!Same(Read(student, "academicSupervisorId"), academicUid)) continue;
+                var placement = data.Placements.Properties()
+                    .Where(p => p.Value is JObject && Same(Read((JObject)p.Value, "studentUid"), item.Name))
+                    .OrderByDescending(p => {
+                        string status = Normalize(Read((JObject)p.Value, "status"));
+                        return status == "inprogress" || status == "active" || status == "ongoing";
+                    }).FirstOrDefault();
+                rows.Add(EnrichProgressRow(data, new ProgressRow {
+                    StudentUid = item.Name,
+                    PlacementId = placement == null ? string.Empty : placement.Name,
+                    Placement = placement == null ? new JObject { ["status"] = "No placement" } : (JObject)placement.Value
+                }));
+            }
+            return rows;
         }
 
         private static List<SupervisorStudentProgress> BuildProgressRows(WorkspaceData data, Func<ProgressRow, bool> assigned)
@@ -180,7 +215,7 @@ namespace Yarmouk.Services
             {
                 var placement = item.Value as JObject;
                 if (placement == null) continue;
-                string placementId = Read(placement, "id", item.Name);
+                string placementId = item.Name;
                 string studentUid = Read(placement, "studentUid");
                 if (string.IsNullOrWhiteSpace(studentUid)) continue;
                 var row = new ProgressRow { Placement = placement, PlacementId = placementId, StudentUid = studentUid };
@@ -221,10 +256,11 @@ namespace Yarmouk.Services
                 ?? ReadNullableInt(student, "requiredTrainingHours")
                 ?? ReadInt(student, "requiredHours");
             int completedTasks = studentTasks.Count(task => IsCompletedTask(Read(task, "status")));
-            int submittedTasks = studentTasks.Count(task => IsSubmittedTask(Read(task, "status")));
-            int percent = requiredHours > 0 ? (int)Math.Round(100d * approvedHours / requiredHours) :
-                (studentTasks.Count == 0 ? 0 : (int)Math.Round(100d * completedTasks / studentTasks.Count));
-            percent = Math.Max(0, Math.Min(100, percent));
+            int submittedTasks = TrainingProgress.CountSubmitted(
+                data.Tasks.Properties().Select(t => new KeyValuePair<string, JObject>(t.Name, t.Value as JObject)),
+                data.Submissions.Properties().Select(s => s.Value as JObject), row.StudentUid,
+                row.PlacementId, Read(row.Placement, "opportunityId"));
+            int percent = TrainingProgress.Percent(submittedTasks);
 
             var evaluation = FindEvaluation(data.Evaluations, row.PlacementId, row.StudentUid, null);
             string feedback = Read(evaluation == null ? null : evaluation.Value, "companyFeedback");
@@ -261,7 +297,7 @@ namespace Yarmouk.Services
                 TotalTasks = studentTasks.Count,
                 CompletedTasks = completedTasks,
                 SubmittedTasks = submittedTasks,
-                TaskProgressLabel = studentTasks.Count == 0 ? "No tasks assigned" : completedTasks + " of " + studentTasks.Count + " tasks complete",
+                TaskProgressLabel = TrainingProgress.Label(submittedTasks),
                 HoursProgressLabel = requiredHours > 0 ? approvedHours + " / " + requiredHours + " approved hours" : approvedHours + " approved hours",
                 FeedbackLabel = string.IsNullOrWhiteSpace(feedback) ? "No company feedback submitted yet." : feedback
             };
@@ -307,6 +343,7 @@ namespace Yarmouk.Services
                 ZoomMeetingAssessment = Read(record, "zoomMeetingAssessment"),
                 CompanyScoreLabel = HasNumber(record, "companyScore") ? companyScore + " / 100" : "Not received",
                 CompanyStatusLabel = companySubmitted ? "Company evaluation received" : "Waiting for company evaluation",
+                CompanySubmitted = companySubmitted,
                 ApprovalStatusLabel = coordinatorApproved ? "University approval complete" : academicSubmitted ? "Waiting for university approval" : "Not submitted",
                 ProposedFinalScoreLabel = proposed,
                 AcademicSubmitted = academicSubmitted,
@@ -479,6 +516,7 @@ namespace Yarmouk.Services
             public JObject Users { get; set; }
             public JObject Companies { get; set; }
             public JObject Tasks { get; set; }
+            public JObject Submissions { get; set; }
             public JObject TrainingLogs { get; set; }
             public JObject Evaluations { get; set; }
             public JObject Applications { get; set; }

@@ -89,7 +89,7 @@
 .milestone-legend { display: flex; align-items: center; gap: 7px; color: var(--progress-muted); font-size: 10px; white-space: nowrap; }
 .legend-complete, .legend-upcoming { width: 7px; height: 7px; flex-basis: 7px; }
 .legend-upcoming { margin-left: 7px; background: #e1e9e3; }
-.milestone-list { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 13px; }
+.milestone-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 13px; }
 .milestone { min-width: 0; }
 .milestone-top { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
 .milestone-check { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; border: 1px solid #e1e9e3; border-radius: 50%; color: #9aaa9f; font-size: 10px; font-weight: 700; }
@@ -161,7 +161,7 @@
 
 @media (max-width: 900px) {
     .progress-grid { grid-template-columns: minmax(0, 1fr) minmax(240px, .8fr); }
-    .milestone-list { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 18px; }
+    .milestone-list { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 18px; }
 }
 @media (max-width: 700px) {
     .progress-heading { align-items: flex-start; flex-direction: column; gap: 14px; }

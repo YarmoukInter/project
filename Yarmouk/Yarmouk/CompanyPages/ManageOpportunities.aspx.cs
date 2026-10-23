@@ -101,7 +101,9 @@ namespace Yarmouk.CompanyPages
             var session = Session == null ? null : Session[AuthGuard.SessionKey] as AuthSession;
             if (session == null || string.IsNullOrWhiteSpace(session.Uid) || string.IsNullOrWhiteSpace(session.IdToken))
                 throw new UnauthorizedAccessException();
-            await new FirebaseAuthService().VerifyAsync(session);
+            // AuthGuard validates this protected page's session and current role.
+            // Rechecking ExpiresUtc here rejected actions after 30 minutes while
+            // the rest of the authenticated company workspace still worked.
             var user = await new StudentService().GetUserAsync(session.Uid, session.IdToken);
             if (user == null || !user.IsActive || !string.Equals(AuthPolicy.NormalizeRole(user.Role), "company", StringComparison.Ordinal))
                 throw new UnauthorizedAccessException();
@@ -297,7 +299,7 @@ namespace Yarmouk.CompanyPages
                 string status = Normalize(Text(app, "status"));
                 status = status == "offered" || status == "accepted" || status == "offerreceived" ? "accepted" : status == "rejected" ? "rejected" : status == "inreview" || status == "underreview" ? "in-review" : "new";
                 result.Add(new CompanyApplicationItem {
-                    Id = Text(app, "id") ?? entry.Key,
+                    Id = entry.Key,
                     Name = First(Text(user, "fullName"), "Student"),
                     Number = First(Text(student, "studentNumber"), Text(student, "studentId"), Text(user, "studentId"), "—"),
                     Major = First(Text(major, "name"), Text(student, "majorId"), Text(user, "majorId"), "—"),
@@ -343,7 +345,7 @@ namespace Yarmouk.CompanyPages
             if (string.IsNullOrWhiteSpace(status)) status = Bool(row, "isActive") ? "active" : "closed";
             int count = 0;
             foreach (var app in apps.Values) if (Same(Text(app, "opportunityId"), id)) count++;
-            return new CompanyOpportunityItem { Id = Text(row, "id") ?? id, Title = Text(row, "title") ?? string.Empty, Majors = Strings(row["eligibleMajorIds"]), Seats = Integer(row, "availablePositions"), Deadline = Text(row, "deadline") ?? string.Empty, Status = Normalize(status), Applications = count, Duration = Text(row, "duration") ?? string.Empty, Hours = Integer(row, "requiredTrainingHours"), WorkMode = Text(row, "workMode") ?? "OnSite", Description = Text(row, "description") ?? string.Empty, Requirements = Text(row, "requirements") ?? string.Empty, Questions = Strings(row["applicationQuestions"]) };
+            return new CompanyOpportunityItem { Id = id, Title = Text(row, "title") ?? string.Empty, Majors = Strings(row["eligibleMajorIds"]), Seats = Integer(row, "availablePositions"), Deadline = Text(row, "deadline") ?? string.Empty, Status = Normalize(status), Applications = count, Duration = Text(row, "duration") ?? string.Empty, Hours = Integer(row, "requiredTrainingHours"), WorkMode = Text(row, "workMode") ?? "OnSite", Description = Text(row, "description") ?? string.Empty, Requirements = Text(row, "requirements") ?? string.Empty, Questions = Strings(row["applicationQuestions"]) };
         }
         private static void Validate(CompanyOpportunityInput input)
         {

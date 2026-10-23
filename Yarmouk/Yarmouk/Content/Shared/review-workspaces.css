@@ -1,0 +1,138 @@
+/* Review workflows: summary rows first, details and forms on demand. */
+.evaluation-workflow-guide { display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:0 0 28px;padding:0;color:var(--wp-muted);font-size:12px;line-height:1.6; }
+.evaluation-workflow-guide > strong { color:var(--wp-ink);font-weight:600; }
+.academic-evaluation-workspace .evaluation-list-heading { margin:0 0 20px;align-items:center; }
+.evaluation-list-heading h2 { font-size:24px; }
+.evaluation-list-heading p { margin:6px 0 0;color:var(--wp-muted);font-size:14px; }
+.evaluation-state-filters { display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px; }
+.evaluation-state-filters[hidden] { display:none!important; }
+.evaluation-state-filters button { display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 14px;border:1px solid var(--wp-line);border-radius:8px;background:var(--wp-paper);color:var(--wp-muted);font:500 13px/1.4 var(--wp-font);cursor:pointer; }
+.evaluation-state-filters button:hover { border-color:var(--wp-green);color:var(--wp-green); }
+.evaluation-state-filters button[aria-pressed="true"] { background:var(--wp-soft);border-color:var(--wp-green);color:var(--wp-green);font-weight:600; }
+.evaluation-state-filters button > span { padding:2px 6px;border-radius:4px;background:var(--wp-soft);font-size:12px;font-variant-numeric:tabular-nums; }
+.evaluation-queue-region { position:relative;overflow-x:auto;border:1px solid var(--wp-line);border-radius:12px;background:var(--wp-paper); }
+.evaluation-queue-table { width:100%;min-width:1020px;border-collapse:collapse;color:var(--wp-ink);font:14px/1.55 var(--wp-font); }
+.evaluation-queue-table > .evaluation-cards { display:table-row-group; }
+.evaluation-queue-table > .evaluation-cards > .evaluation-card { display:table-row;position:static;isolation:auto;min-height:0;height:auto;overflow:visible;border:0;border-radius:0;background:var(--wp-paper);box-shadow:none;animation:none;transition:none; }
+.evaluation-queue-table > .evaluation-cards > .evaluation-card:hover { background:var(--wp-soft);transform:none;box-shadow:none; }
+.evaluation-queue-table > .evaluation-cards > .evaluation-card::before, .evaluation-queue-table > .evaluation-cards > .evaluation-card::after { display:none;content:none; }
+.evaluation-queue-table th { padding:14px 18px;background:var(--wp-soft);border-bottom:1px solid var(--wp-line);color:var(--wp-muted);font-size:12px;font-weight:600;text-align:left;white-space:nowrap; }
+.evaluation-queue-table td { padding:19px 18px;vertical-align:middle;border-bottom:1px solid var(--wp-line); }
+.evaluation-queue-table tr:last-child td { border-bottom:0; }
+.evaluation-queue-table .evaluation-student-name, .evaluation-provider, .evaluation-cell-value { display:block;color:var(--wp-ink);font-size:14px;font-weight:600; }
+.evaluation-student-number, .evaluation-cell-note { display:block;margin-top:4px;color:var(--wp-muted);font-size:12px;line-height:1.5; }
+.evaluation-queue-table .evaluation-status { display:inline-block;max-width:none;padding:5px 8px;border-radius:6px;font-size:12px;text-align:left;line-height:1.5; }
+.evaluation-queue-table .evaluation-download-link { min-height:32px;margin-top:4px;color:var(--wp-green);font-size:12px; }
+.evaluation-queue-table .evaluation-open-button { min-height:44px;padding:10px 14px;border-radius:8px;background:#076541;border-color:#076541;color:#fff;box-shadow:none;font:600 13px/1.4 var(--wp-font);white-space:nowrap; }
+.evaluation-queue-table .evaluation-open-button:hover { transform:none;background:#054e33;box-shadow:none; }
+.evaluation-action-cell { text-align:right; }
+.evaluation-queue-region ~ .record-pagination { margin-bottom:24px; }
+
+/* The assessment panel keeps one student's editable controls together in the original WebForms form. */
+.evaluation-dialog { display:flex;align-items:stretch;justify-content:flex-end;padding:0;overflow:hidden;background:rgb(8 28 18 / 46%);backdrop-filter:blur(3px); }
+.evaluation-dialog[hidden], .evaluation-dialog [data-evaluation-panel][hidden] { display:none!important; }
+.evaluation-dialog.is-open { animation:none; }
+.evaluation-dialog .evaluation-dialog-panel { width:min(650px,100%);height:100dvh;max-height:100dvh;max-width:100%;overflow-y:auto;overscroll-behavior:contain;border:0;border-inline-start:1px solid var(--wp-line);border-radius:16px 0 0 16px;background:var(--wp-paper);color:var(--wp-ink);font:14px/1.6 var(--wp-font);box-shadow:-16px 0 50px rgb(8 28 18 / 15%); }
+.evaluation-dialog .evaluation-dialog-header { position:sticky;top:0;z-index:3;padding:24px 28px;background:var(--wp-paper);border-bottom:1px solid var(--wp-line); }
+.evaluation-dialog .evaluation-dialog-header h3 { margin:6px 0;color:var(--wp-ink);font-size:24px;line-height:1.3; }
+.evaluation-dialog .evaluation-dialog-header p { margin:0;color:var(--wp-muted);font-size:13px; }
+.evaluation-dialog .evaluation-eyebrow { color:var(--wp-green);font-size:11px; }
+.evaluation-dialog .evaluation-dialog-close { min-width:44px;min-height:44px;border-color:var(--wp-line);background:var(--wp-paper);color:var(--wp-ink); }
+.evaluation-dialog .evaluation-dialog-status { display:flex;flex-wrap:wrap;gap:4px 16px;margin:24px 28px 0;padding:14px 16px;border-color:var(--wp-line);border-radius:8px;background:var(--wp-soft); }
+.evaluation-dialog .evaluation-dialog-status :is(span,strong) { color:var(--wp-ink);font-size:13px; }
+.evaluation-form-tabs { display:flex;gap:24px;margin:22px 28px 0;border-bottom:1px solid var(--wp-line); }
+.evaluation-form-tabs button { min-height:48px;padding:10px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--wp-muted);font:500 14px/1.5 var(--wp-font);cursor:pointer; }
+.evaluation-form-tabs button[aria-selected="true"] { border-bottom-color:var(--wp-green);color:var(--wp-green);font-weight:600; }
+.evaluation-dialog .evaluation-form-grid { display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding:26px 28px 32px; }
+.evaluation-dialog .evaluation-field > label, .evaluation-dialog .evaluation-field-label { color:var(--wp-ink);font-size:14px;font-weight:600; }
+.evaluation-dialog .evaluation-field-label span { color:var(--wp-muted);font-size:12px; }
+.evaluation-dialog .score-input-wrap { max-width:230px; }
+.evaluation-dialog .score-input-wrap > span { color:var(--wp-muted);font-size:14px; }
+.evaluation-dialog .score-input-wrap input { min-height:56px;font-size:24px;font-weight:600; }
+.evaluation-dialog .evaluation-field :is(input,textarea) { border-color:var(--wp-line);border-radius:8px;background:var(--wp-paper);color:var(--wp-ink);font-family:var(--wp-font); }
+.evaluation-dialog .evaluation-field textarea { min-height:160px;padding:12px 14px;font-size:15px;line-height:1.65; }
+.evaluation-dialog .evaluation-field > small, .evaluation-dialog .feedback-field-hint :is(small,span) { color:var(--wp-muted);font-size:12px;line-height:1.6; }
+.evaluation-dialog .zoom-review { margin:0;padding:26px 28px 32px;border:0;border-radius:0;background:var(--wp-paper); }
+.evaluation-dialog .zoom-review h4 { color:var(--wp-ink);font-size:18px; }
+.evaluation-dialog .zoom-review p { color:var(--wp-muted);font-size:14px;line-height:1.65; }
+.evaluation-dialog .zoom-review-grid { gap:16px;margin-block:22px; }
+.evaluation-dialog .zoom-review .evaluation-field input { min-height:46px;font-size:15px; }
+.evaluation-dialog .evaluation-dialog-actions { position:sticky;bottom:0;z-index:2;margin-top:auto;padding:18px 28px;background:var(--wp-paper);border-top:1px solid var(--wp-line); }
+.evaluation-dialog .evaluation-button { min-height:46px;padding:10px 20px;border-radius:8px;font:600 14px/1.5 var(--wp-font); }
+.evaluation-dialog .evaluation-button--secondary { color:var(--wp-ink);border-color:var(--wp-line);background:var(--wp-paper); }
+.evaluation-dialog .evaluation-button--primary { color:#fff;background:#076541;box-shadow:none; }
+.evaluation-dialog .evaluation-pending-hint { margin:18px 28px 0;padding:12px 14px;font-size:13px;line-height:1.6; }
+.evaluation-dialog :is(button,input,textarea,a):focus-visible, .evaluation-state-filters button:focus-visible { outline:3px solid var(--wp-focus);outline-offset:3px; }
+
+/* Related caseloads use one record per row, with extra notes disclosed separately. */
+.progress-workspace .progress-list, .company-trainees-workspace .trainees-grid { display:grid;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid var(--wp-line);border-radius:12px;background:var(--wp-paper);overflow:hidden; }
+.progress-workspace .student-progress-card { display:grid;grid-template-columns:minmax(220px,1.1fr) minmax(260px,1.3fr) minmax(150px,.6fr);align-items:center;gap:16px 24px;padding:24px;border:0;border-bottom:1px solid var(--wp-line);border-radius:0;box-shadow:none;background:var(--wp-paper); }
+.progress-workspace .student-progress-card:last-child { border-bottom:0; }
+.progress-workspace .student-card-top { display:flex;flex-direction:column;align-items:flex-start;gap:10px; }
+.progress-workspace .student-identity h3 { font-size:16px; }
+.progress-workspace .student-identity p { font-size:12px; }
+.progress-workspace .progress-card-grid { display:block;margin:0;padding:0;border:0; }
+.progress-workspace .progress-card-actions { display:flex;grid-column:3;grid-row:1;flex-direction:column;align-items:stretch;gap:8px;margin:0;padding:0;border:0; }
+.progress-workspace .progress-note-button { min-height:44px;justify-content:center;font-size:13px; }
+.progress-workspace .progress-card-actions > .progress-note-button { flex:0 0 auto;height:44px; }
+.progress-workspace .progress-record-details { grid-column:1 / -1;grid-row:2;border-top:1px solid var(--wp-line);padding-top:8px; }
+.progress-record-details summary { display:inline-flex;align-items:center;min-height:44px;color:var(--wp-green);font-size:13px;font-weight:500;cursor:pointer; }
+.progress-record-details summary::before { content:'+';margin-right:8px;font-size:16px; }
+.progress-record-details[open] summary::before { content:'−'; }
+.progress-workspace .progress-record-details .progress-detail { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:12px 0; }
+.progress-workspace .progress-record-details .company-feedback { margin:12px 0 0; }
+.company-trainees-workspace .trainee-card { min-height:0;display:grid;grid-template-columns:minmax(190px,1fr) minmax(190px,1.1fr) minmax(180px,1fr);align-items:center;gap:16px 24px;padding:24px;border:0;border-bottom:1px solid var(--wp-line);border-radius:0;background:var(--wp-paper);box-shadow:none; }
+.company-trainees-workspace .trainee-card:last-child { border-bottom:0; }
+.company-trainees-workspace .trainee-card:hover { transform:none;box-shadow:none; }
+.company-trainees-workspace .trainee-card::before, .company-trainees-workspace .trainee-card::after { display:none;content:none; }
+.company-trainees-workspace .trainee-card-header { display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:0; }
+.company-trainees-workspace .trainee-company { margin:0;padding:0;border:0;background:transparent; }
+.company-trainees-workspace .trainee-progress { margin:0;padding:0; }
+.company-trainees-workspace .trainee-card-meta { margin:0;padding:14px 0 0;border-top:1px solid var(--wp-line); }
+.company-trainees-workspace .trainee-card-actions { display:flex;gap:8px;grid-column:2 / -1;justify-content:flex-end;margin:0;padding:0;border:0; }
+.company-trainees-workspace .trainee-action { min-height:44px;font-size:13px; }
+
+@media(max-width:1000px) {
+  .progress-workspace .student-progress-card { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .progress-workspace .progress-card-actions { grid-column:1 / -1;grid-row:2;flex-direction:row; }
+  .progress-workspace .progress-record-details { grid-row:3; }
+  .progress-workspace .progress-card-actions > button { flex:1; }
+  .company-trainees-workspace .trainee-card { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .company-trainees-workspace .trainee-card-actions { grid-column:auto; }
+}
+@media(max-width:700px) {
+  .evaluation-state-filters { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }
+  .evaluation-state-filters button { justify-content:space-between;gap:6px;padding:10px;font-size:12px; }
+  .evaluation-workflow-guide { gap:6px 10px;font-size:12px; }
+  .evaluation-queue-table { min-width:0; }
+  .evaluation-queue-table thead { position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%); }
+  .evaluation-queue-table > .evaluation-cards { display:block; }
+  .evaluation-queue-table > .evaluation-cards > .evaluation-card { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 16px;padding:20px;border-bottom:1px solid var(--wp-line); }
+  .evaluation-queue-table td { display:block;min-width:0;padding:0;border:0; }
+  .evaluation-queue-table td:nth-child(2) { grid-column:1 / -1;grid-row:2; }
+  .evaluation-queue-table td:nth-child(4) { grid-column:2;grid-row:1;text-align:right; }
+  .evaluation-queue-table td:nth-child(3)::before { content:'Company assessment';display:block;margin-bottom:6px;color:var(--wp-muted);font-size:12px; }
+  .evaluation-queue-table td:nth-child(5)::before { content:'University approval';display:block;margin-bottom:6px;color:var(--wp-muted);font-size:12px; }
+  .evaluation-queue-table td:last-child { grid-column:1 / -1;border-top:1px solid var(--wp-line);padding-top:12px; }
+  .evaluation-queue-table .evaluation-open-button { width:100%; }
+  .evaluation-dialog .evaluation-dialog-panel { border-radius:0;border:0; }
+  .evaluation-dialog .evaluation-dialog-header { padding:20px; }
+  .evaluation-dialog .evaluation-dialog-header h3 { font-size:21px; }
+  .evaluation-dialog .evaluation-dialog-status { margin-inline:20px; }
+  .evaluation-form-tabs { margin-inline:20px;gap:20px; }
+  .evaluation-form-tabs button { font-size:13px; }
+  .evaluation-dialog .evaluation-form-grid, .evaluation-dialog .zoom-review { padding:24px 20px; }
+  .evaluation-dialog .zoom-review-grid { grid-template-columns:1fr; }
+  .evaluation-dialog .evaluation-field :is(input,textarea) { font-size:16px; }
+  .evaluation-dialog .evaluation-dialog-actions { display:flex;padding:16px 20px; }
+  .evaluation-dialog .evaluation-dialog-actions > input { flex:1;min-width:0;padding-inline:12px; }
+  .progress-workspace .student-progress-card, .company-trainees-workspace .trainee-card { grid-template-columns:minmax(0,1fr);padding:20px; }
+  .progress-workspace .progress-card-actions, .progress-workspace .progress-record-details { grid-column:1; }
+  .progress-workspace .progress-card-actions { grid-row:3;flex-direction:column; }
+  .progress-workspace .progress-record-details { grid-row:4; }
+  .company-trainees-workspace .trainee-card-actions { grid-column:1;flex-wrap:wrap; }
+  .company-trainees-workspace .trainee-card-actions > * { flex:1; }
+}
+@media print {
+  .evaluation-state-filters, .evaluation-form-tabs { display:none!important; }
+}

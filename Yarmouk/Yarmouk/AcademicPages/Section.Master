@@ -7,8 +7,8 @@
 <title>UIMS</title>
 <link runat="server" href="~/Content/bootstrap.min.css?v=dashboard-assets-3" rel="stylesheet" />
 <link runat="server" href="~/Content/AcademicPages/shared.css?v=dashboard-assets-3" rel="stylesheet" />
-<link runat="server" href="~/Content/AcademicPages/sidebar.css?v=sidebar-logout-4" rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/AcademicPages/sidebar.js") %>?v=sidebar-logout-4' defer></script>
+<link runat="server" href="~/Content/Shared/sidebar.css?v=shared-sidebar-1" rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/Shared/sidebar.js") %>?v=shared-sidebar-1' defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
 </head>
 <body>

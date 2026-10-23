@@ -50,6 +50,7 @@ namespace Yarmouk.StudentPages
                                 ? a.ApplicationQuestions : opportunity == null ? new List<string>() : opportunity.ApplicationQuestions ?? new List<string>(),
                             answers = a.Answers ?? new List<string>(),
                             status = student != null && student.AcceptedApplicationId == a.Id ? "accepted" : (a.Status ?? "pending"),
+                            needsPlacementSetup = student != null && student.AcceptedApplicationId == a.Id && string.IsNullOrWhiteSpace(student.CompanyId),
                             appliedAtUnixMs = a.AppliedAtUnixMs,
                             rejectionReason = a.RejectionReason ?? "" };
                     }).ToList();
@@ -75,7 +76,7 @@ namespace Yarmouk.StudentPages
                     var ownedApplications = await new ApplicationService().GetForStudentAsync(auth.Uid, auth.IdToken);
                     var application = ownedApplications.FirstOrDefault(a => a.Id == applicationId);
                     string currentStatus = (application == null ? "" : application.Status ?? "").Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant();
-                    if (application == null || (currentStatus != "offered" && currentStatus != "offerreceived"))
+                    if (application == null || (currentStatus != "offered" && currentStatus != "offerreceived" && currentStatus != "accepted"))
                     { SetApplicationsMessage("This offer is no longer available.", true); return; }
                     var students = new StudentService();
                     var student = await students.GetStudentAsync(auth.Uid, auth.IdToken);
@@ -83,8 +84,6 @@ namespace Yarmouk.StudentPages
                     if (!string.IsNullOrWhiteSpace(student.AcceptedApplicationId) && student.AcceptedApplicationId != application.Id)
                     { SetApplicationsMessage("You have already confirmed another internship offer.", true); return; }
                     await students.SetAcceptedApplicationAsync(auth.Uid, application.Id, auth.IdToken);
-                    try { await new ApplicationService().SetStatusAsync(application.Id, "accepted", auth.IdToken); }
-                    catch (Exception syncError) { System.Diagnostics.Trace.TraceWarning("Offer accepted on student profile; application status sync failed: " + syncError.GetType().Name); }
                     Response.Redirect(ResolveUrl("~/StudentPages/MyApplications.aspx?offerAccepted=1"), false);
                     Context.ApplicationInstance.CompleteRequest();
                 }

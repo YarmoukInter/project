@@ -44,6 +44,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PdfSharp-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath><Private>True</Private></Reference>
+    <Reference Include="MigraDoc.DocumentObjectModel-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.DocumentObjectModel-gdi.dll</HintPath><Private>True</Private></Reference>
+    <Reference Include="MigraDoc.Rendering-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.Rendering-gdi.dll</HintPath><Private>True</Private></Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
@@ -100,6 +103,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\dashboard-overview.css" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -145,6 +149,12 @@
     <Content Include="Content\Images\yarmouk-logo-on-dark.svg" />
     <Content Include="StudentPages\Section.Master" />
     <Content Include="Content\StudentPages\shared.css" />
+    <Content Include="Content\Shared\sidebar.css" />
+    <Content Include="Content\Shared\workspace-polish.css" />
+    <Content Include="Content\Shared\record-lists.css" />
+    <Content Include="Content\Shared\review-workspaces.css" />
+    <Content Include="Scripts\Shared\record-lists.js" />
+    <Content Include="Scripts\Shared\sidebar.js" />
     <Content Include="Content\StudentPages\student-shell.css" />
     <Content Include="Scripts\StudentPages\student-shell.js" />
     <Content Include="StudentPages\ChangePassword.aspx" />
@@ -600,10 +610,14 @@
     <Compile Include="Services\StudentService.cs" />
     <Compile Include="Services\OpportunityService.cs" />
     <Compile Include="Services\ApplicationService.cs" />
+    <Compile Include="Services\CompanyEvaluationPdf.cs" />
+    <Compile Include="AcademicPages\CompanyEvaluationPdf.ashx.cs"><DependentUpon>CompanyEvaluationPdf.ashx</DependentUpon></Compile>
+    <Content Include="AcademicPages\CompanyEvaluationPdf.ashx" />
     <Compile Include="Services\EvaluationService.cs" />
     <Compile Include="Services\SupervisorWorkspaceService.cs" />
     <Compile Include="Helpers\FirebaseHelper.cs" />
     <Compile Include="Helpers\DatabasePaths.cs" />
+    <Compile Include="Helpers\TrainingProgress.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Global.asax.cs">

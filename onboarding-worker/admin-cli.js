@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('node:path');
-const { initializeApp, cert } = require('firebase-admin/app');
+const { initializeApp, cert, deleteApp } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const { getDatabase } = require('firebase-admin/database');
 
@@ -102,4 +102,4 @@ async function deleteStudent(request) {
 })().catch(error => {
   process.stdout.write(JSON.stringify({ ok: false, error: error.message || 'Admin operation failed.' }));
   process.exitCode = 1;
-});
+}).finally(() => deleteApp(db.app));

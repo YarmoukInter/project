@@ -2,6 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
     <link href="<%= ResolveUrl("~/Content/StudentPages/Apply.css") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/StudentPages/Apply.js") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
     <div class="apply-backdrop" aria-hidden="true"></div>

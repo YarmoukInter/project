@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Yarmouk.Helpers;
 using Yarmouk.Models;
 namespace Yarmouk.Services
@@ -49,13 +50,63 @@ namespace Yarmouk.Services
             }, idToken);
         }
 
-        public Task SetAcceptedApplicationAsync(string verifiedUid, string applicationId, string idToken)
+        public async Task SetAcceptedApplicationAsync(string verifiedUid, string applicationId, string idToken)
         {
             if (string.IsNullOrWhiteSpace(verifiedUid) || string.IsNullOrWhiteSpace(applicationId))
                 throw new System.ArgumentException("Student and application are required.");
-            return firebase.UpdateAsync(DatabasePaths.Students + "/" + verifiedUid,
-                new { acceptedApplicationId = applicationId }, idToken);
+            var student = await GetStudentAsync(verifiedUid, idToken);
+            var application = await new ApplicationService().GetByIdAsync(applicationId, idToken);
+            if (student == null || application == null || application.StudentUid != verifiedUid)
+                throw new UnauthorizedAccessException("This offer does not belong to the signed-in student.");
+            if (!string.IsNullOrEmpty(student.AcceptedApplicationId) && student.AcceptedApplicationId != applicationId)
+                throw new ArgumentException("You have already confirmed another internship offer.");
+            string status = (application.Status ?? "").Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant();
+            if (status != "offered" && status != "offerreceived" && !(status == "accepted" && student.AcceptedApplicationId == applicationId))
+                throw new ArgumentException("This offer is no longer available.");
+            var opportunity = await new OpportunityService().GetByIdAsync(application.OpportunityId, idToken);
+            if (opportunity == null || string.IsNullOrWhiteSpace(opportunity.CompanyId))
+                throw new ArgumentException("The internship opportunity is unavailable.");
+            var company = await firebase.GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, idToken);
+            if (company == null || !company.IsApproved)
+                throw new ArgumentException("The internship company is unavailable.");
 
+            // A stable key makes retrying confirmation safe, including older accepted offers
+            // whose confirmation never created a placement.
+            string placementId = "PLACEMENT_" + applicationId;
+            var placement = await firebase.GetAsync<JObject>(DatabasePaths.Placements + "/" + placementId, idToken);
+            if (placement != null && ((string)placement["studentUid"] != verifiedUid
+                || (string)placement["opportunityId"] != application.OpportunityId))
+                throw new UnauthorizedAccessException("The existing placement does not match this offer.");
+            string studentPath = DatabasePaths.Students + "/" + verifiedUid + "/";
+            string applicationPath = DatabasePaths.Applications + "/" + applicationId + "/";
+            string placementPath = DatabasePaths.Placements + "/" + placementId + "/";
+            var changes = new Dictionary<string, object> {
+                { studentPath + "acceptedApplicationId", applicationId },
+                { studentPath + "companyId", opportunity.CompanyId },
+                { studentPath + "requiredTrainingHours", Math.Max(0, opportunity.RequiredTrainingHours) },
+                { applicationPath + "status", "accepted" },
+                { applicationPath + "isConfirmedPlacement", true },
+                { applicationPath + "placementId", placementId },
+                { placementPath + "id", placementId },
+                { placementPath + "studentUid", verifiedUid },
+                { placementPath + "applicationId", applicationId },
+                { placementPath + "opportunityId", application.OpportunityId },
+                { placementPath + "companyId", opportunity.CompanyId },
+                { placementPath + "academicSupervisorUid", student.AcademicSupervisorId ?? "" },
+                { placementPath + "companySupervisorUid", company.SupervisorUid ?? "" }
+            };
+            if (placement == null)
+            {
+                string startDate = DateTime.UtcNow.AddHours(3).ToString("yyyy-MM-dd");
+                changes[placementPath + "status"] = "Active";
+                changes[placementPath + "startDate"] = startDate;
+                changes[placementPath + "requiredHours"] = Math.Max(0, opportunity.RequiredTrainingHours);
+                changes[placementPath + "createdAtUnixMs"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                changes[studentPath + "internshipStatus"] = "InProgress";
+                if (string.IsNullOrEmpty(student.TrainingStartDate)) changes[studentPath + "trainingStartDate"] = startDate;
+            }
+            // Confirm the offer and establish its placement together, without partial saves.
+            await firebase.UpdateRootAsync(changes, idToken);
         }
 
         // Tasks belong only to the internship offer confirmed by this student.

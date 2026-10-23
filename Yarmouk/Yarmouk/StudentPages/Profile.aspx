@@ -2,6 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/StudentPages/Profile.css?v=skills-save-1") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/StudentPages/Profile.js?v=skills-save-1") %>" defer></script>
+<link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="profile-cover" aria-labelledby="profile-title">
