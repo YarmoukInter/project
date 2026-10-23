@@ -125,8 +125,6 @@ namespace Yarmouk.CoordinatorPages
             if (!AuthPolicy.ValidEmail(entry.Email)) throw new ArgumentException("Enter a valid email address.");
             CoordinatorUser existing = creating ? null : await ManagedUserAsync(entry.Id, role, session);
             bool emailChanged = !creating && !string.Equals(entry.Email, existing.Email, StringComparison.OrdinalIgnoreCase);
-            if (emailChanged && role != "student")
-                throw new ArgumentException("The sign-in email cannot be changed here. It must also be updated in Firebase Authentication.");
             var changes = new Dictionary<string, object>();
             var studentDetails = role == "student" && entry.ProfileFields != null ? JObject.FromObject(entry.ProfileFields).ToObject<Student>() : null;
             string majorId = null;
@@ -163,7 +161,7 @@ namespace Yarmouk.CoordinatorPages
                 ? await ReadAsync<Placement>(DatabasePaths.Placements, session) ?? new Dictionary<string, Placement>() : new Dictionary<string, Placement>();
             var existingCompanies = role == "company"
                 ? await ReadAsync<Company>(DatabasePaths.Companies, session) ?? new Dictionary<string, Company>() : new Dictionary<string, Company>();
-            if (emailChanged) await adminAccounts.UpdateStudentCredentialsAsync(entry.Id, entry.Email, "");
+            if (emailChanged) await adminAccounts.UpdateAccountCredentialsAsync(entry.Id, role, entry.Email, "");
             // The initial password is the new user's email; the account must replace it at first sign-in.
             string temporaryPassword = creating ? entry.Email : null;
             AuthSession newAccount = creating ? await authentication.CreateUserAsync(entry.Email, temporaryPassword) : null;

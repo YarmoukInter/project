@@ -1,7 +1,7 @@
 <%@ Page Async="true" Title="Companies" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="ManageCompanies.aspx.cs" Inherits="Yarmouk.CoordinatorPages.ManageCompanies" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageCompanies.css") %>?v=backend-1' rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=onboarding-1' defer></script>
+<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageCompanies.css") %>?v=account-actions-2' rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=account-actions-2' defer></script>
 <script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageCompanies.js") %>?v=company-email-1' defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">

@@ -19,6 +19,8 @@ const studentCollections = [
   'applications', 'placements', 'tasks', 'taskSubmissions',
   'trainingLogs', 'evaluations'
 ];
+const normalizeRole = value => ({ c_hr: 'company', uni_sp: 'academic' }[String(value || '').toLowerCase()]
+  || String(value || '').toLowerCase());
 
 async function readInput() {
   let input = '';
@@ -26,17 +28,20 @@ async function readInput() {
   return JSON.parse(input || '{}');
 }
 
-async function requireStudent(uid) {
-  if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid || '')) throw new Error('Invalid student UID.');
+async function requireRoleUser(uid, expectedRole) {
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid || '')) throw new Error('Invalid account UID.');
+  const role = normalizeRole(expectedRole);
+  if (!['student', 'academic', 'company'].includes(role)) throw new Error('Unsupported account role.');
   const snapshot = await db.ref(`users/${uid}`).get();
   const profile = snapshot.val();
-  if (!profile || String(profile.role || '').toLowerCase() !== 'student')
-    throw new Error('The selected account is not a student.');
+  if (!profile || normalizeRole(profile.role) !== role)
+    throw new Error(`The selected account is not a ${role}.`);
   return profile;
 }
 
 async function updateCredentials(request) {
-  const profile = await requireStudent(request.uid);
+  const role = normalizeRole(request.role || 'student');
+  const profile = await requireRoleUser(request.uid, role);
   const email = String(request.email || '').trim();
   const password = String(request.password || '');
   if (!email && !password) throw new Error('Enter a new email or password.');
@@ -57,7 +62,7 @@ async function updateCredentials(request) {
 }
 
 async function deleteStudent(request) {
-  await requireStudent(request.uid);
+  await requireRoleUser(request.uid, 'student');
   const root = (await db.ref().get()).val() || {};
   const updates = { [`users/${request.uid}`]: null, [`students/${request.uid}`]: null,
     [`studentCvFiles/${request.uid}`]: null, [`studentProgressNotes/${request.uid}`]: null };

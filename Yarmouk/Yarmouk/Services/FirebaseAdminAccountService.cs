@@ -11,7 +11,10 @@ namespace Yarmouk.Services
     public sealed class FirebaseAdminAccountService
     {
         public Task<string> UpdateStudentCredentialsAsync(string uid, string email, string password)
-        { return RunAsync(new { action = "credentials", uid, email, password }); }
+        { return UpdateAccountCredentialsAsync(uid, "student", email, password); }
+
+        public Task<string> UpdateAccountCredentialsAsync(string uid, string role, string email, string password)
+        { return RunAsync(new { action = "credentials", uid, role, email, password }); }
 
         public Task<string> DeleteStudentAsync(string uid)
         { return RunAsync(new { action = "deleteStudent", uid }); }
