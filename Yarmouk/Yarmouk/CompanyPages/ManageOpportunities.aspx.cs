@@ -1,13 +1,12 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using System.Web.UI.WebControls;
 using Yarmouk.Helpers;
 using Yarmouk.Models;
 using Yarmouk.Services;
@@ -16,85 +15,227 @@ namespace Yarmouk.CompanyPages
 {
     public partial class ManageOpportunities : Page
     {
-        private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-        { ContractResolver = new CamelCasePropertyNamesContractResolver() };
-
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (IsApiRequest) RegisterAsyncTask(new PageAsyncTask(ProcessApiRequestAsync));
+            if (!IsPostBack) RegisterAsyncTask(new PageAsyncTask(LoadPageAsync));
         }
 
-        protected override void Render(System.Web.UI.HtmlTextWriter writer)
+        protected void ApplyFiltersButton_Click(object sender, EventArgs e)
         {
-            if (!IsApiRequest) base.Render(writer);
+            RegisterAsyncTask(new PageAsyncTask(LoadPageAsync));
         }
 
-        private bool IsApiRequest
+        protected void OpenOpportunityFormButton_Click(object sender, EventArgs e)
         {
-            get { return !string.IsNullOrWhiteSpace(Request.QueryString["action"]); }
+            ClearEditor();
+            OpportunityEditorPanel.Visible = true;
         }
 
-        private async Task ProcessApiRequestAsync()
+        protected void CloseEditorButton_Click(object sender, EventArgs e)
         {
-            Response.Clear();
-            Response.ContentType = "application/json; charset=utf-8";
-            Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            Response.Cache.SetNoStore();
+            OpportunityEditorPanel.Visible = false;
+            RegisterAsyncTask(new PageAsyncTask(LoadPageAsync));
+        }
+
+        protected void SaveOpportunityButton_Click(object sender, EventArgs e)
+        {
+            RegisterAsyncTask(new PageAsyncTask(SaveOpportunityAsync));
+        }
+
+        protected void OpportunitiesRepeater_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            var id = Convert.ToString(e.CommandArgument, CultureInfo.InvariantCulture);
+            if (e.CommandName == "EditOpportunity")
+                RegisterAsyncTask(new PageAsyncTask(() => OpenEditorAsync(id)));
+            else if (e.CommandName == "ToggleStatus")
+                RegisterAsyncTask(new PageAsyncTask(() => ToggleStatusAsync(id)));
+        }
+
+        private async Task LoadPageAsync()
+        {
+            try
+            {
+                var auth = await VerifyCompanyAsync();
+                var items = await new CompanyWorkflowService().GetOpportunitiesAsync(auth.CompanyId, auth.Session.IdToken);
+                BindPage(items);
+                PageFeedbackLabel.Text = "Opportunities loaded from Firebase.";
+            }
+            catch (UnauthorizedAccessException) { RedirectToLogin(); }
+            catch (AuthException) { RedirectToLogin(); }
+            catch (Exception error)
+            {
+                System.Diagnostics.Trace.TraceWarning("Company opportunities could not load: " + error.GetType().Name);
+                BindPage(new List<CompanyOpportunityItem>());
+                PageFeedbackLabel.Text = "Could not load opportunities. Please try again.";
+            }
+        }
+
+        private void BindPage(List<CompanyOpportunityItem> allItems)
+        {
+            allItems = allItems ?? new List<CompanyOpportunityItem>();
+            ActiveCountLiteral.Text = allItems.Count(x => Same(x.Status, "active")).ToString(CultureInfo.InvariantCulture);
+            DraftCountLiteral.Text = allItems.Count(x => Same(x.Status, "draft")).ToString(CultureInfo.InvariantCulture);
+            ApplicationCountLiteral.Text = allItems.Sum(x => x.Applications).ToString(CultureInfo.InvariantCulture);
+
+            string query = (OpportunitySearchTextBox.Text ?? string.Empty).Trim();
+            string status = OpportunityStatusFilter.SelectedValue ?? "all";
+            var filtered = allItems.Where(item =>
+                (string.IsNullOrEmpty(query) || (item.Title ?? string.Empty).IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0
+                    || (item.Majors ?? new List<string>()).Any(major => major.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0))
+                && (status == "all" || Same(item.Status, status))).ToList();
+
+            OpportunitiesRepeater.DataSource = filtered;
+            OpportunitiesRepeater.DataBind();
+            OpportunityCountLabel.Text = filtered.Count == 1 ? "1 opportunity" : filtered.Count + " opportunities";
+            EmptyStatePanel.Visible = filtered.Count == 0;
+        }
+
+        private async Task SaveOpportunityAsync()
+        {
+            OpportunityEditorPanel.Visible = true;
+            EditorFeedbackLabel.Visible = false;
+            try
+            {
+                int seats;
+                int hours;
+                if (!int.TryParse(OpportunitySeatsInput.Text, out seats) || seats < 1 || seats > 500)
+                    throw new ArgumentException("Available seats must be between 1 and 500.");
+                if (!int.TryParse(OpportunityHoursInput.Text, out hours) || hours < 0 || hours > 10000)
+                    throw new ArgumentException("Training hours must be between 0 and 10000.");
+
+                var majors = SelectedMajors();
+                if (majors.Count == 0) throw new ArgumentException("Select at least one eligible major.");
+                var input = new CompanyOpportunityInput
+                {
+                    Id = NullIfEmpty(EditingOpportunityId.Value),
+                    Status = string.IsNullOrWhiteSpace(EditingOpportunityStatus.Value) ? "active" : EditingOpportunityStatus.Value,
+                    Title = OpportunityTitleInput.Text,
+                    Deadline = OpportunityDeadlineInput.Text,
+                    Seats = seats,
+                    Duration = OpportunityDurationInput.Text,
+                    Hours = hours,
+                    WorkMode = OpportunityWorkModeInput.SelectedValue,
+                    Majors = majors,
+                    Description = OpportunityDescriptionInput.Text,
+                    Requirements = OpportunityRequirementsInput.Text,
+                    Questions = SplitLines(OpportunityQuestionsInput.Text)
+                };
+                var auth = await VerifyCompanyAsync();
+                await new CompanyWorkflowService().SaveOpportunityAsync(auth.CompanyId, auth.Session.IdToken, input);
+                OpportunityEditorPanel.Visible = false;
+                await LoadPageAsync();
+                PageFeedbackLabel.Text = "Opportunity saved to Firebase.";
+            }
+            catch (UnauthorizedAccessException) { RedirectToLogin(); }
+            catch (AuthException) { RedirectToLogin(); }
+            catch (ArgumentException error) { ShowEditorError(error.Message); }
+            catch (InvalidOperationException error) { ShowEditorError(error.Message); }
+            catch (Exception error)
+            {
+                System.Diagnostics.Trace.TraceWarning("Company opportunity save failed: " + error.GetType().Name);
+                ShowEditorError("Firebase could not save this opportunity. Please try again.");
+            }
+        }
+
+        private async Task OpenEditorAsync(string id)
+        {
+            try
+            {
+                var auth = await VerifyCompanyAsync();
+                var items = await new CompanyWorkflowService().GetOpportunitiesAsync(auth.CompanyId, auth.Session.IdToken);
+                var item = items.FirstOrDefault(x => Same(x.Id, id));
+                if (item == null) throw new ArgumentException("Opportunity not found.");
+                PopulateEditor(item);
+                OpportunityEditorPanel.Visible = true;
+                BindPage(items);
+            }
+            catch (UnauthorizedAccessException) { RedirectToLogin(); }
+            catch (AuthException) { RedirectToLogin(); }
+            catch (Exception error) { PageFeedbackLabel.Text = HttpUtility.HtmlEncode(error.Message); await LoadPageAsync(); }
+        }
+
+        private async Task ToggleStatusAsync(string id)
+        {
             try
             {
                 var auth = await VerifyCompanyAsync();
                 var workflow = new CompanyWorkflowService();
-                string action = Request.QueryString["action"] ?? string.Empty;
-                if (string.Equals(Request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (action != "opportunities") { WriteJson(400, new { success = false, message = "Unknown request." }); return; }
-                    var opportunities = await workflow.GetOpportunitiesAsync(auth.CompanyId, auth.Session.IdToken);
-                    WriteJson(200, new { success = true, opportunities = opportunities });
-                    return;
-                }
-                if (!string.Equals(Request.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase))
-                {
-                    Response.AppendHeader("Allow", "GET, POST");
-                    WriteJson(405, new { success = false, message = "Method not allowed." });
-                    return;
-                }
-                if (!string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.Ordinal))
-                { WriteJson(400, new { success = false, message = "Invalid request." }); return; }
-                if (Request.ContentLength > 65536)
-                { WriteJson(413, new { success = false, message = "Request is too large." }); return; }
-
-                JObject body;
-                using (var reader = new StreamReader(Request.InputStream, Encoding.UTF8)) body = JObject.Parse(reader.ReadToEnd());
-                action = (string)body["action"] ?? action;
-                if (action == "saveOpportunity")
-                {
-                    var input = body["opportunity"] == null ? null : body["opportunity"].ToObject<CompanyOpportunityInput>();
-                    var item = await workflow.SaveOpportunityAsync(auth.CompanyId, auth.Session.IdToken, input);
-                    WriteJson(200, new { success = true, opportunity = item });
-                }
-                else if (action == "setOpportunityStatus")
-                {
-                    await workflow.SetOpportunityStatusAsync(auth.CompanyId, (string)body["id"], (string)body["status"], auth.Session.IdToken);
-                    WriteJson(200, new { success = true });
-                }
-                else WriteJson(400, new { success = false, message = "Unknown request." });
+                var items = await workflow.GetOpportunitiesAsync(auth.CompanyId, auth.Session.IdToken);
+                var item = items.FirstOrDefault(x => Same(x.Id, id));
+                if (item == null) throw new ArgumentException("Opportunity not found.");
+                string nextStatus = Same(item.Status, "active") ? "closed" : "active";
+                await workflow.SetOpportunityStatusAsync(auth.CompanyId, id, nextStatus, auth.Session.IdToken);
+                await LoadPageAsync();
+                PageFeedbackLabel.Text = nextStatus == "closed" ? "Opportunity closed." : "Opportunity published.";
             }
-            catch (UnauthorizedAccessException)
-            { WriteJson(401, new { success = false, message = "Your company session is no longer valid. Sign in again." }); }
-            catch (AuthException)
-            { WriteJson(401, new { success = false, message = "Your company session is no longer valid. Sign in again." }); }
-            catch (ArgumentException error)
-            { WriteJson(400, new { success = false, message = error.Message }); }
-            catch (JsonException)
-            { WriteJson(400, new { success = false, message = "Invalid request data." }); }
-            catch (InvalidOperationException error)
-            { WriteJson(409, new { success = false, message = error.Message }); }
-            catch (Exception error)
-            {
-                System.Diagnostics.Trace.TraceWarning("Company opportunity request failed: " + error.GetType().Name);
-                WriteJson(500, new { success = false, message = "Firebase could not complete this request. Check the database rules and try again." });
-            }
+            catch (UnauthorizedAccessException) { RedirectToLogin(); }
+            catch (AuthException) { RedirectToLogin(); }
+            catch (Exception error) { PageFeedbackLabel.Text = "Could not update the opportunity: " + HttpUtility.HtmlEncode(error.Message); }
         }
+
+        private void ClearEditor()
+        {
+            EditingOpportunityId.Value = string.Empty;
+            EditingOpportunityStatus.Value = "active";
+            EditorTitleLiteral.Text = "Add opportunity";
+            SaveOpportunityButton.Text = "Save opportunity";
+            OpportunityTitleInput.Text = string.Empty;
+            OpportunityDeadlineInput.Text = string.Empty;
+            OpportunitySeatsInput.Text = "1";
+            OpportunityDurationInput.Text = string.Empty;
+            OpportunityHoursInput.Text = "0";
+            OpportunityWorkModeInput.SelectedValue = "OnSite";
+            OpportunityDescriptionInput.Text = string.Empty;
+            OpportunityRequirementsInput.Text = string.Empty;
+            OpportunityQuestionsInput.Text = string.Empty;
+            MajorCisCheckBox.Checked = MajorCsCheckBox.Checked = MajorSeCheckBox.Checked = false;
+            EditorFeedbackLabel.Visible = false;
+        }
+
+        private void PopulateEditor(CompanyOpportunityItem item)
+        {
+            ClearEditor();
+            EditingOpportunityId.Value = item.Id;
+            EditingOpportunityStatus.Value = item.Status;
+            EditorTitleLiteral.Text = "Edit opportunity";
+            SaveOpportunityButton.Text = "Save changes";
+            OpportunityTitleInput.Text = item.Title;
+            OpportunityDeadlineInput.Text = item.Deadline;
+            OpportunitySeatsInput.Text = item.Seats.ToString(CultureInfo.InvariantCulture);
+            OpportunityDurationInput.Text = item.Duration;
+            OpportunityHoursInput.Text = item.Hours.ToString(CultureInfo.InvariantCulture);
+            if (OpportunityWorkModeInput.Items.FindByValue(item.WorkMode) != null) OpportunityWorkModeInput.SelectedValue = item.WorkMode;
+            OpportunityDescriptionInput.Text = item.Description;
+            OpportunityRequirementsInput.Text = item.Requirements;
+            OpportunityQuestionsInput.Text = string.Join(Environment.NewLine, item.Questions ?? new List<string>());
+            MajorCisCheckBox.Checked = Contains(item.Majors, "CIS");
+            MajorCsCheckBox.Checked = Contains(item.Majors, "CS");
+            MajorSeCheckBox.Checked = Contains(item.Majors, "SE");
+        }
+
+        private List<string> SelectedMajors()
+        {
+            var result = new List<string>();
+            if (MajorCisCheckBox.Checked) result.Add("CIS");
+            if (MajorCsCheckBox.Checked) result.Add("CS");
+            if (MajorSeCheckBox.Checked) result.Add("SE");
+            return result;
+        }
+
+        private void ShowEditorError(string message) { EditorFeedbackLabel.Text = HttpUtility.HtmlEncode(message); EditorFeedbackLabel.Visible = true; }
+        private void RedirectToLogin() { Response.Redirect(ResolveUrl("~/PublicPages/Login"), false); Context.ApplicationInstance.CompleteRequest(); }
+        private static string NullIfEmpty(string value) { return string.IsNullOrWhiteSpace(value) ? null : value.Trim(); }
+        private static bool Same(string left, string right) { return string.Equals(left, right, StringComparison.OrdinalIgnoreCase); }
+        private static bool Contains(IEnumerable<string> values, string value) { return values != null && values.Any(x => Same(x, value)); }
+        private static List<string> SplitLines(string value) { return (value ?? string.Empty).Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x.Length > 0).ToList(); }
+
+        protected string Encode(object value) { return HttpUtility.HtmlEncode(Convert.ToString(value, CultureInfo.CurrentCulture)); }
+        protected string RenderMajors(object value) { return string.Join(string.Empty, ((value as IEnumerable<string>) ?? Enumerable.Empty<string>()).Select(x => "<span class=\"co-major-chip\">" + HttpUtility.HtmlEncode(x) + "</span>")); }
+        protected string FormatDeadline(object value) { DateTime date; string text = Convert.ToString(value, CultureInfo.InvariantCulture); return DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) : "Not set"; }
+        protected string StatusCss(object value) { return "co-status co-status-" + HttpUtility.HtmlAttributeEncode(Convert.ToString(value, CultureInfo.InvariantCulture).ToLowerInvariant()); }
+        protected string StatusLabel(object value) { string status = Convert.ToString(value, CultureInfo.InvariantCulture); return string.IsNullOrEmpty(status) ? "Unknown" : HttpUtility.HtmlEncode(char.ToUpperInvariant(status[0]) + status.Substring(1)); }
+        protected string ToggleLabel(object value) { return Same(Convert.ToString(value, CultureInfo.InvariantCulture), "active") ? "Close" : Same(Convert.ToString(value, CultureInfo.InvariantCulture), "closed") ? "Reopen" : "Publish"; }
+        protected string ToggleCss(object value) { return "co-text-action" + (Same(Convert.ToString(value, CultureInfo.InvariantCulture), "active") ? " close" : string.Empty); }
 
         private async Task<VerifiedCompany> VerifyCompanyAsync()
         {
@@ -126,13 +267,6 @@ namespace Yarmouk.CompanyPages
             var company = await firebase.GetAsync<Company>(DatabasePaths.Companies + "/" + companyId, session.IdToken);
             if (company == null || !company.IsApproved) throw new UnauthorizedAccessException();
             return new VerifiedCompany { Session = session, CompanyId = companyId };
-        }
-
-        private void WriteJson(int statusCode, object value)
-        {
-            Response.StatusCode = statusCode;
-            Response.TrySkipIisCustomErrors = true;
-            Response.Write(JsonConvert.SerializeObject(value, JsonSettings));
         }
 
         private sealed class VerifiedCompany
@@ -182,6 +316,7 @@ namespace Yarmouk.CompanyPages
     public sealed class CompanyApplicationItem
     {
         public string Id { get; set; }
+        public string StudentUid { get; set; }
         public string Name { get; set; }
         public string Number { get; set; }
         public string Major { get; set; }
@@ -191,10 +326,13 @@ namespace Yarmouk.CompanyPages
         public string Opportunity { get; set; }
         public string Status { get; set; }
         public string CvUrl { get; set; }
+        public bool HasUploadedCv { get; set; }
         public System.Collections.Generic.List<string> Answers { get; set; }
         public System.Collections.Generic.List<string> Questions { get; set; }
         public string RejectionReason { get; set; }
         public string DecisionNote { get; set; }
+        public bool CanAccept { get; set; }
+        public string AcceptanceBlockedReason { get; set; }
     }
 
     public sealed class CompanyWorkflowService
@@ -275,6 +413,7 @@ namespace Yarmouk.CompanyPages
             var users = await GetMapAsync(Yarmouk.Helpers.DatabasePaths.Users, idToken);
             var students = await GetMapAsync(Yarmouk.Helpers.DatabasePaths.Students, idToken);
             var majors = await GetMapAsync(Yarmouk.Helpers.DatabasePaths.Majors, idToken);
+            var placements = await GetMapAsync(Yarmouk.Helpers.DatabasePaths.Placements, idToken);
             var result = new System.Collections.Generic.List<CompanyApplicationItem>();
             foreach (var entry in applications)
             {
@@ -295,9 +434,23 @@ namespace Yarmouk.CompanyPages
                     answers.Add(answerList != null && i < answerList.Count
                         ? answerList[i].ToString() : answerMap == null ? string.Empty : Text(answerMap, i.ToString()) ?? string.Empty);
                 string status = Normalize(Text(app, "status"));
-                status = status == "offered" || status == "accepted" || status == "offerreceived" ? "accepted" : status == "rejected" ? "rejected" : status == "inreview" || status == "underreview" ? "in-review" : "new";
+                status = status == "accepted" ? "accepted"
+                    : status == "offered" || status == "offerreceived" ? "offered"
+                    : status == "rejected" || status == "declined" ? "rejected"
+                    : status == "withdrawn" || status == "cancelled" ? "withdrawn"
+                    : status == "inreview" || status == "underreview" ? "in-review"
+                    : string.IsNullOrWhiteSpace(status) || status == "pending" || status == "new" || status == "submitted" ? "new"
+                    : "unknown";
+                string acceptedApplicationId = Text(student, "acceptedApplicationId");
+                bool confirmedElsewhere = !string.IsNullOrWhiteSpace(acceptedApplicationId)
+                    && !Same(acceptedApplicationId, Text(app, "id") ?? entry.Key);
+                confirmedElsewhere = confirmedElsewhere || placements.Values.Any(placement => placement != null
+                    && Same(Text(placement, "studentUid"), studentUid)
+                    && !Same(Text(placement, "opportunityId"), opportunityId)
+                    && IsConfirmedPlacementStatus(Text(placement, "status")));
                 result.Add(new CompanyApplicationItem {
                     Id = Text(app, "id") ?? entry.Key,
+                    StudentUid = studentUid,
                     Name = First(Text(user, "fullName"), "Student"),
                     Number = First(Text(student, "studentNumber"), Text(student, "studentId"), Text(user, "studentId"), "—"),
                     Major = First(Text(major, "name"), Text(student, "majorId"), Text(user, "majorId"), "—"),
@@ -310,9 +463,20 @@ namespace Yarmouk.CompanyPages
                     Answers = answers,
                     Questions = questions,
                     RejectionReason = Text(app, "rejectionReason") ?? string.Empty,
-                    DecisionNote = status == "accepted" ? "Offer sent; waiting for student confirmation." : string.Empty
+                    DecisionNote = status == "offered" ? "Offer sent; waiting for student confirmation."
+                        : status == "accepted" ? "The student accepted the offer and confirmed this placement."
+                        : status == "withdrawn" ? "This application was closed after the student confirmed another placement."
+                        : confirmedElsewhere ? "This student has already confirmed another internship placement." : string.Empty,
+                    CanAccept = (status == "new" || status == "in-review") && !confirmedElsewhere,
+                    AcceptanceBlockedReason = confirmedElsewhere ? "Already accepted in another opportunity" : string.Empty
                 });
             }
+            var cvChecks = result.Where(item => !string.IsNullOrWhiteSpace(item.StudentUid)).Select(async item =>
+            {
+                var cv = await firebase.GetAsync<JObject>(Yarmouk.Helpers.DatabasePaths.StudentCvFiles + "/" + item.StudentUid, idToken);
+                item.HasUploadedCv = cv != null && !string.IsNullOrWhiteSpace(Text(cv, "dataBase64"));
+            });
+            await System.Threading.Tasks.Task.WhenAll(cvChecks);
             result.Sort((a, b) => b.AppliedAtUnixMs.CompareTo(a.AppliedAtUnixMs));
             return result;
         }
@@ -330,6 +494,21 @@ namespace Yarmouk.CompanyPages
             string current = Normalize(Text(app, "status"));
             if (current == "accepted" || current == "rejected" || current == "offered" || current == "offerreceived") throw new System.InvalidOperationException("This application already has a final decision.");
             if (value == "Rejected" && string.IsNullOrWhiteSpace(reason)) throw new System.ArgumentException("A rejection reason is required.");
+            if (value == "Offered")
+            {
+                string studentUid = Text(app, "studentUid");
+                if (string.IsNullOrWhiteSpace(studentUid))
+                    throw new System.InvalidOperationException("This application is not linked to a student account.");
+                var student = await firebase.GetAsync<JObject>(Yarmouk.Helpers.DatabasePaths.Students + "/" + studentUid, idToken);
+                string acceptedApplicationId = Text(student, "acceptedApplicationId");
+                if (!string.IsNullOrWhiteSpace(acceptedApplicationId) && !Same(acceptedApplicationId, id))
+                    throw new System.InvalidOperationException("This student has already confirmed another internship placement.");
+                var placements = await GetMapAsync(Yarmouk.Helpers.DatabasePaths.Placements, idToken);
+                if (placements.Values.Any(placement => placement != null && Same(Text(placement, "studentUid"), studentUid)
+                    && !Same(Text(placement, "opportunityId"), Text(app, "opportunityId"))
+                    && IsConfirmedPlacementStatus(Text(placement, "status"))))
+                    throw new System.InvalidOperationException("This student has already confirmed another internship placement.");
+            }
             await firebase.UpdateAsync(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, new { companyId = companyId, status = value, rejectionReason = value == "Rejected" ? reason.Trim() : string.Empty, reviewedByUid = reviewerUid, reviewedAtUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, idToken);
         }
 
@@ -364,6 +543,7 @@ namespace Yarmouk.CompanyPages
         private static System.Collections.Generic.List<string> Strings(JToken token) { return token == null || token.Type == JTokenType.Null ? new System.Collections.Generic.List<string>() : token.ToObject<System.Collections.Generic.List<string>>() ?? new System.Collections.Generic.List<string>(); }
         private static string First(params string[] values) { return System.Linq.Enumerable.FirstOrDefault(values, value => !string.IsNullOrWhiteSpace(value)) ?? string.Empty; }
         private static string Normalize(string value) { return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant(); }
+        private static bool IsConfirmedPlacementStatus(string value) { value = Normalize(value); return value == "confirmed" || value == "accepted" || value == "active" || value == "inprogress" || value == "ongoing" || value == "completed"; }
         private static bool Same(string left, string right) { return !string.IsNullOrWhiteSpace(left) && !string.IsNullOrWhiteSpace(right) && string.Equals(left, right, System.StringComparison.Ordinal); }
         private static void ValidateKey(string value) { if (string.IsNullOrWhiteSpace(value) || value.Length > 128 || value.IndexOfAny(new[] { '.', '#', '$', '[', ']', '/', '?', '&' }) >= 0) throw new System.ArgumentException("Invalid Firebase record id."); }
     }

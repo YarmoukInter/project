@@ -1,41 +1,68 @@
 <%@ Page Title="Applications Review" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ApplicationsReview.aspx.cs" Inherits="Yarmouk.CompanyPages.ApplicationsReview" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=3' rel="stylesheet" />
-    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=3' defer="defer"></script>
+    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=5' rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-    <section class="co-page co-applications" aria-labelledby="applicationsTitle" data-api-url='<%= ResolveUrl("~/CompanyPages/ApplicationsReview") %>'>
-        <header class="co-page-heading">
-            <div><p class="co-eyebrow">COMPANY WORKSPACE</p><h1 id="applicationsTitle">Applications review</h1><p class="co-subtitle">Review student applications and make a decision for each opportunity.</p></div>
-        </header>
-        <p class="co-demo-note co-review-feedback" id="applicationFeedback" role="status" aria-live="polite">Loading applications from Firebase…</p>
+    <section class="co-page co-applications" aria-labelledby="applicationsTitle">
+        <header class="co-page-heading"><div><p class="co-eyebrow">COMPANY WORKSPACE</p><h1 id="applicationsTitle">Applications review</h1><p class="co-subtitle">Review student applications and make a decision for each opportunity.</p></div></header>
+        <asp:Label ID="PageFeedbackLabel" runat="server" CssClass="co-demo-note co-review-feedback" role="status" />
 
-        <div class="co-review-stats" id="applicationStats" aria-label="Application summary"></div>
+        <div class="co-review-stats" aria-label="Application summary">
+            <article class="co-review-stat"><span class="co-review-stat-icon">♧</span><span class="co-review-stat-copy"><span>New applications</span><strong><asp:Literal ID="NewCountLiteral" runat="server" /></strong></span></article>
+            <article class="co-review-stat"><span class="co-review-stat-icon">◷</span><span class="co-review-stat-copy"><span>In review</span><strong><asp:Literal ID="ReviewCountLiteral" runat="server" /></strong></span></article>
+            <article class="co-review-stat"><span class="co-review-stat-icon">✓</span><span class="co-review-stat-copy"><span>Accepted</span><strong><asp:Literal ID="AcceptedCountLiteral" runat="server" /></strong></span></article>
+            <article class="co-review-stat"><span class="co-review-stat-icon">×</span><span class="co-review-stat-copy"><span>Rejected</span><strong><asp:Literal ID="RejectedCountLiteral" runat="server" /></strong></span></article>
+        </div>
 
         <section class="co-review-layout" aria-label="Application review workspace">
             <div class="co-panel co-candidate-panel">
-                <div class="co-panel-heading co-candidate-heading"><div><h2>Candidate applications</h2><p id="applicationResultsCount">0 applications</p></div></div>
+                <div class="co-panel-heading co-candidate-heading"><div><h2>Candidate applications</h2><asp:Label ID="ApplicationResultsCountLabel" runat="server" /></div></div>
                 <div class="co-toolbar co-review-toolbar">
-                    <label class="co-search"><span aria-hidden="true">⌕</span><input type="search" id="applicationSearch" placeholder="Search student name or major…" aria-label="Search applications" /></label>
-                    <select class="co-select" id="applicationOpportunityFilter" aria-label="Filter applications by opportunity"><option value="all">All opportunities</option></select>
-                    <select class="co-select" id="applicationStatusFilter" aria-label="Filter applications by status"><option value="all">All statuses</option><option value="new">New</option><option value="in-review">In review</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option></select>
+                    <label class="co-search"><span aria-hidden="true">⌕</span><asp:TextBox ID="ApplicationSearchTextBox" runat="server" TextMode="Search" placeholder="Search student name or major…" aria-label="Search applications" /></label>
+                    <asp:DropDownList ID="ApplicationOpportunityFilter" runat="server" CssClass="co-select" aria-label="Filter applications by opportunity"><asp:ListItem Value="all">All opportunities</asp:ListItem></asp:DropDownList>
+                    <asp:DropDownList ID="ApplicationStatusFilter" runat="server" CssClass="co-select" aria-label="Filter applications by status"><asp:ListItem Value="all">All statuses</asp:ListItem><asp:ListItem Value="new">New</asp:ListItem><asp:ListItem Value="in-review">In review</asp:ListItem><asp:ListItem Value="offered">Offer sent</asp:ListItem><asp:ListItem Value="accepted">Accepted</asp:ListItem><asp:ListItem Value="rejected">Rejected</asp:ListItem><asp:ListItem Value="withdrawn">Withdrawn</asp:ListItem></asp:DropDownList>
+                    <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" OnClick="ApplyFiltersButton_Click" />
                 </div>
-                <div class="co-table-wrap co-candidate-table-wrap">
-                    <table class="co-table co-candidate-table"><thead><tr><th scope="col">Student</th><th scope="col">Major</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span class="co-visually-hidden">View</span></th></tr></thead><tbody id="applicationRows"></tbody></table>
-                </div>
-                <p class="co-empty-state" id="applicationEmpty" hidden="hidden">No applications match these filters.</p>
+                <div class="co-table-wrap co-candidate-table-wrap"><table class="co-table co-candidate-table">
+                    <thead><tr><th scope="col">Student</th><th scope="col">Major</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span class="co-visually-hidden">View</span></th></tr></thead>
+                    <tbody><asp:Repeater ID="ApplicationsRepeater" runat="server"><ItemTemplate>
+                        <tr class='<%# CandidateRowCss(Eval("Id")) %>'>
+                            <td><span class="co-student-name"><%# Encode(Eval("Name")) %></span><span class="co-student-number"><%# Encode(Eval("Number")) %></span></td>
+                            <td class="co-major-cell"><%# Encode(Eval("Major")) %></td><td><%# FormatDate(Eval("AppliedAtUnixMs")) %></td>
+                            <td><span class='<%# StatusCss(Eval("Status")) %>'><%# StatusLabel(Eval("Status")) %></span></td>
+                            <td><button type="button" class="co-row-open" data-application-open="<%# Attribute(Eval("Id")) %>" aria-label="View application details">View details</button></td>
+                        </tr>
+                    </ItemTemplate></asp:Repeater></tbody>
+                </table></div>
+                <asp:Panel ID="EmptyStatePanel" runat="server" CssClass="co-empty-state" Visible="false">No applications match these filters.</asp:Panel>
             </div>
 
-            <aside class="co-panel co-candidate-detail" id="candidateDetail" aria-live="polite" aria-label="Selected applicant details">
-                <div class="co-detail-empty"><span class="co-detail-mark" aria-hidden="true">Y</span><h2>Select an application</h2><p>Choose a student from the list to review their details.</p></div>
-            </aside>
         </section>
-        <div class="co-modal-backdrop" id="rejectionModal" hidden="hidden">
+
+        <asp:HiddenField ID="SelectedApplicationId" runat="server" ClientIDMode="Static" />
+        <script type="application/json" id="applicationsReviewData"><asp:Literal ID="ApplicationsDataLiteral" runat="server" /></script>
+        <div id="applicationDetailModal" class="co-modal-backdrop co-application-modal-backdrop" hidden>
+            <section class="co-modal co-application-modal" role="dialog" aria-modal="true" aria-labelledby="applicationModalTitle">
+                    <header class="co-detail-head"><div><p class="co-eyebrow">APPLICATION DETAILS</p><h2 id="applicationModalTitle" data-detail-name></h2><p data-detail-summary></p></div><div class="co-detail-head-actions"><span data-detail-status></span><button type="button" class="co-icon-button" data-application-close aria-label="Close application details">×</button></div></header>
+                    <div class="co-profile-strip"><span class="co-profile-avatar" data-detail-initials></span><div><strong data-detail-name-secondary></strong><span data-detail-number></span></div></div>
+                    <div class="co-detail-facts"><span class="co-detail-fact"><span>Email</span><strong data-detail-email></strong></span><span class="co-detail-fact"><span>Applied</span><strong data-detail-applied></strong></span><span class="co-detail-fact"><span>Opportunity</span><strong data-detail-opportunity></strong></span></div>
+                    <section class="co-detail-section"><h3>CV / RESUME</h3><a data-detail-cv class="co-cv-link" target="_blank" rel="noopener noreferrer">Open student CV</a><p data-detail-no-cv class="co-empty-copy">No CV attached to this profile.</p></section>
+                    <section class="co-detail-section"><h3>COMPANY QUESTIONS &amp; ANSWERS</h3><div data-detail-answers></div></section>
+                    <div data-detail-note class="co-decision-note" hidden></div>
+                    <div id="applicationDecisionActions" class="co-detail-actions"><asp:Button ID="AcceptApplicationButton" runat="server" ClientIDMode="Static" CssClass="co-button co-button-primary" Text="Accept application" CausesValidation="false" OnClick="AcceptApplicationButton_Click" /><button id="openRejectButton" type="button" class="co-button co-button-danger">Reject application</button></div>
+                    <div id="acceptanceBlockedMessage" class="co-blocked-note" hidden></div>
+                    <div class="co-modal-actions co-application-modal-actions"><button type="button" class="co-button co-button-quiet" data-application-close>Close</button></div>
+            </section>
+        </div>
+
+        <div id="rejectionModal" class="co-modal-backdrop" hidden>
             <section class="co-modal co-rejection-modal" role="dialog" aria-modal="true" aria-labelledby="rejectionModalTitle">
-                <header class="co-modal-heading"><div><p class="co-eyebrow">APPLICATION DECISION</p><h2 id="rejectionModalTitle">Reject application</h2></div><button class="co-icon-button" type="button" data-close-rejection aria-label="Close">×</button></header>
-                <label class="co-field">Reason for rejection<textarea id="rejectionReasonInput" rows="4" maxlength="500" required="required" placeholder="Share a brief reason with the student."></textarea></label>
-                <div class="co-modal-actions"><button class="co-button co-button-quiet" type="button" data-close-rejection>Cancel</button><button class="co-button co-button-danger" id="confirmRejection" type="button">Confirm rejection</button></div>
+                <header class="co-modal-heading"><div><p class="co-eyebrow">APPLICATION DECISION</p><h2 id="rejectionModalTitle">Reject application</h2></div><button type="button" class="co-icon-button" data-rejection-close aria-label="Close">×</button></header>
+                <label class="co-field">Reason for rejection<asp:TextBox ID="RejectionReasonInput" runat="server" TextMode="MultiLine" Rows="4" MaxLength="500" required="required" placeholder="Share a brief reason with the student." /></label>
+                <asp:Label ID="RejectionFeedbackLabel" runat="server" CssClass="co-modal-feedback" Visible="false" role="alert" />
+                <div class="co-modal-actions"><button type="button" class="co-button co-button-quiet" data-rejection-close>Cancel</button><asp:Button ID="ConfirmRejectionButton" runat="server" CssClass="co-button co-button-danger" Text="Confirm rejection" OnClick="ConfirmRejectionButton_Click" /></div>
             </section>
         </div>
     </section>
+    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=2' defer></script>
 </asp:Content>

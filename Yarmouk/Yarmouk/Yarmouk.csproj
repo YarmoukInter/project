@@ -176,12 +176,11 @@
     <Content Include="CompanyPages\Dashboard.aspx" />
     <Content Include="Content\CompanyPages\Dashboard.css" />
     <Content Include="Scripts\CompanyPages\Dashboard.js" />
+      <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
     <Content Include="CompanyPages\ManageOpportunities.aspx" />
     <Content Include="Content\CompanyPages\ManageOpportunities.css" />
-    <Content Include="Scripts\CompanyPages\ManageOpportunities.js" />
     <Content Include="CompanyPages\ApplicationsReview.aspx" />
     <Content Include="Content\CompanyPages\ApplicationsReview.css" />
-    <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
     <Content Include="CompanyPages\MyTrainees.aspx" />
     <Content Include="Content\CompanyPages\MyTrainees.css" />
     <Content Include="Scripts\CompanyPages\MyTrainees.js" />

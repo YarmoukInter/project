@@ -77,14 +77,18 @@ namespace Yarmouk.StudentPages
                     string currentStatus = (application == null ? "" : application.Status ?? "").Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant();
                     if (application == null || (currentStatus != "offered" && currentStatus != "offerreceived"))
                     { SetApplicationsMessage("This offer is no longer available.", true); return; }
+                    var applicationService = new ApplicationService();
+                    if (await applicationService.HasConfirmedInternshipAsync(auth.Uid, auth.IdToken))
+                    { SetApplicationsMessage("You have already confirmed an internship offer.", true); return; }
                     var students = new StudentService();
                     var student = await students.GetStudentAsync(auth.Uid, auth.IdToken);
                     if (student == null) { SetApplicationsMessage("Your student profile could not be loaded.", true); return; }
                     if (!string.IsNullOrWhiteSpace(student.AcceptedApplicationId) && student.AcceptedApplicationId != application.Id)
                     { SetApplicationsMessage("You have already confirmed another internship offer.", true); return; }
-                    await students.SetAcceptedApplicationAsync(auth.Uid, application.Id, auth.IdToken);
-                    try { await new ApplicationService().SetStatusAsync(application.Id, "accepted", auth.IdToken); }
-                    catch (Exception syncError) { System.Diagnostics.Trace.TraceWarning("Offer accepted on student profile; application status sync failed: " + syncError.GetType().Name); }
+                    var opportunity = await new OpportunityService().GetByIdAsync(application.OpportunityId, auth.IdToken);
+                    if (opportunity == null)
+                    { SetApplicationsMessage("The opportunity linked to this offer is no longer available.", true); return; }
+                    await applicationService.ConfirmOfferAsync(application, student, opportunity, auth.Uid, auth.IdToken);
                     Response.Redirect(ResolveUrl("~/StudentPages/MyApplications.aspx?offerAccepted=1"), false);
                     Context.ApplicationInstance.CompleteRequest();
                 }

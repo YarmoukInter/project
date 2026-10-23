@@ -1,4 +1,33 @@
 (function () {
+    'use strict';
+    var dialog = document.getElementById('evaluationDialog');
+    var workspace = document.querySelector('.evaluation-main');
+    var host = document.getElementById('evaluationDialogBody');
+    var selected = document.getElementById('SelectedPlacementId');
+    if (!dialog || !workspace || !host) return;
+    host.appendChild(workspace);
+    document.documentElement.classList.add('evaluation-list-view');
+    var opener = null;
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('[data-evaluation-open]');
+        if (link) {
+            var placement = new URL(link.href, location.href).searchParams.get('placementId');
+            if (selected && placement === selected.value) {
+                event.preventDefault();
+                opener = link;
+                dialog.showModal();
+            }
+        }
+        if (event.target.closest('[data-close-evaluation]') || event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', function () {
+        if (opener) opener.focus();
+    });
+    if (new URLSearchParams(location.search).has('placementId') && workspace.querySelector('.evaluation-workspace')) {
+        dialog.showModal();
+    }
+}());
+(function () {
     "use strict";
 
     const tabs = document.querySelectorAll("[data-evaluation-tab]");
@@ -61,3 +90,4 @@
 
     activateTab(initialTab || tabs[0], false);
 })();
+

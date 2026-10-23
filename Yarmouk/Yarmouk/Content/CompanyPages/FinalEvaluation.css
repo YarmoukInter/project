@@ -1063,3 +1063,22 @@ textarea.evaluation-control {
 .company-evaluation .trainee-table a.evaluation-button.evaluation-button--primary:focus {
     color: #fff !important;
 }
+/* Evaluation dialog: presentation only; existing server form handles all actions. */
+.evaluation-list-view .evaluation-layout>.evaluation-main{display:none}
+.evaluation-list-view .evaluation-layout{display:block}
+.evaluation-dialog{width:min(1120px,96vw);height:92vh;max-height:92vh;padding:0;border:1px solid #d5e5dc;border-radius:20px;overflow:hidden;box-shadow:0 30px 100px #001c1966;background:#f8fbf9}
+.evaluation-dialog::backdrop{background:#092d24aa;backdrop-filter:blur(5px)}
+.evaluation-dialog[open]{display:flex;flex-direction:column;animation:evaluation-dialog-in .2s ease-out}
+.evaluation-dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px 25px;background:linear-gradient(120deg,#093f2e,#08734f);color:white}
+.evaluation-dialog-heading span{font-size:10px;letter-spacing:.15em;color:#c6dec9;font-weight:700}
+.evaluation-dialog-heading h2{margin:5px 0 0;font-size:20px;color:white}
+.evaluation-dialog-heading button{width:40px;height:40px;border:1px solid #ffffff50;background:#ffffff15;color:white;border-radius:12px;font-size:26px;cursor:pointer}
+@keyframes evaluation-dialog-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:600px){.evaluation-dialog{width:98vw;height:96vh;max-height:96vh;border-radius:14px}.evaluation-dialog-heading{padding:14px}.evaluation-dialog-heading h2{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.evaluation-dialog[open]{animation:none}}
+
+.evaluation-dialog-body{flex:1;min-height:0;overflow:auto;padding:20px;color:#173d32}
+.evaluation-dialog-body .evaluation-main{display:block;width:100%;min-width:0}
+.evaluation-dialog-body .evaluation-workspace{box-shadow:none;margin:0}
+.evaluation-dialog-body .evaluation-tabs{overflow-x:auto}
+@media(max-width:600px){.evaluation-dialog-body{padding:10px}}

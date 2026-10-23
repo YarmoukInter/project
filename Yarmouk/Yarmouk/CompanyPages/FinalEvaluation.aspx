@@ -1,7 +1,7 @@
 <%@ Page Title="Reports & Final Evaluation" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="FinalEvaluation.aspx.cs" Inherits="Yarmouk.CompanyPages.FinalEvaluation" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href="<%= ResolveUrl("~/Content/CompanyPages/FinalEvaluation.css?v=4") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=2") %>" defer></script>
+<link href="<%= ResolveUrl("~/Content/CompanyPages/FinalEvaluation.css?v=modal-6") %>" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=modal-4") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <main class="company-evaluation" id="companyEvaluation">
@@ -21,7 +21,7 @@
 
   <div class="evaluation-layout">
     <aside class="trainee-panel" aria-label="Assigned trainees">
-      <div class="panel-heading"><p class="evaluation-eyebrow">COMPANY RECORDS</p><h2>Orange trainees</h2><span class="trainee-count"><asp:Literal ID="TraineeCount" runat="server" Text="0" /></span></div>
+      <div class="panel-heading"><p class="evaluation-eyebrow">COMPANY RECORDS</p><h2>Company trainees</h2><span class="trainee-count"><asp:Literal ID="TraineeCount" runat="server" Text="0" /></span></div>
       <div class="trainee-table-wrap">
         <table class="trainee-table">
           <thead>
@@ -44,7 +44,7 @@
                   <td><span class="status-pill"><%#: Eval("StatusLabel") %></span></td>
                   <td>
                     <asp:HyperLink runat="server" CssClass="evaluation-button evaluation-button--primary"
-                        NavigateUrl='<%# Eval("SelectUrl") %>' Visible='<%# (bool)Eval("CanEvaluate") %>' Text="Evaluate" />
+                        data-evaluation-open="true" NavigateUrl='<%# Eval("SelectUrl") %>' Visible='<%# (bool)Eval("CanEvaluate") %>' Text="Evaluate" />
                   </td>
                 </tr>
               </ItemTemplate>
@@ -133,4 +133,7 @@
     </section>
   </div>
 </main>
+<dialog id="evaluationDialog" class="evaluation-dialog"><header class="evaluation-dialog-heading"><div><span>COMPANY ASSESSMENT</span><h2>Reports &amp; final evaluation</h2></div><button type="button" data-close-evaluation aria-label="Close evaluation">×</button></header><div id="evaluationDialogBody" class="evaluation-dialog-body"></div></dialog>
 </asp:Content>
+
+
