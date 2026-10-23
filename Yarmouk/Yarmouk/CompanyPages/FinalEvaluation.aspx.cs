@@ -169,7 +169,7 @@ namespace Yarmouk.CompanyPages
                     StudentName = string.IsNullOrWhiteSpace(x.StudentName) ? "Student" : x.StudentName,
                     StudentNumber = string.IsNullOrWhiteSpace(x.StudentNumber) ? "Student number not recorded" : x.StudentNumber,
                     Initials = GetInitials(x.StudentName),
-                    CanEvaluate = !string.IsNullOrWhiteSpace(x.PlacementId),
+                    CanEvaluate = !string.IsNullOrWhiteSpace(x.PlacementId) && !x.Locked,
                     ToolTip = string.IsNullOrWhiteSpace(x.PlacementId) ? "A placement record must be linked before reports or evaluations can be opened." : string.Empty,
                     CssClass = string.IsNullOrWhiteSpace(x.PlacementId) ? "trainee-row is-unlinked"
                         : (string.Equals(x.PlacementId, SelectedPlacementId.Value, StringComparison.Ordinal)
