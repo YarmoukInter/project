@@ -98,8 +98,13 @@ namespace Yarmouk.Helpers
                     using (var response = await Client.SendAsync(read).ConfigureAwait(false))
                     {
                         if (!response.IsSuccessStatusCode) throw new InvalidOperationException("Firebase HTTP error " + (int)response.StatusCode);
-                        if (response.Headers.ETag == null) throw new InvalidOperationException("Firebase did not return a transaction version.");
-                        etag = response.Headers.ETag.ToString();
+                        // Firebase uses the unquoted sentinel null_etag for absent
+                        // records. HttpClient's typed ETag parser rejects that value.
+                        System.Collections.Generic.IEnumerable<string> versions;
+                        if (!response.Headers.TryGetValues("ETag", out versions))
+                            throw new InvalidOperationException("Firebase did not return a transaction version.");
+                        etag = System.Linq.Enumerable.FirstOrDefault(versions);
+                        if (string.IsNullOrWhiteSpace(etag)) throw new InvalidOperationException("Firebase did not return a transaction version.");
                         snapshot = JsonConvert.DeserializeObject<JObject>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
                     }
                 }

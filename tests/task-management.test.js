@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function fixture(confirmResult = false) {
+function fixture(confirmResult = false, traineeCount = 0) {
   const events = {}, formEvents = {}, nodes = {};
   const form = { addEventListener(name, fn) { formEvents[name] = fn; } };
   const fields = ['id', 'number', 'title', 'deadline', 'description', 'url'].map(name => {
@@ -14,13 +14,17 @@ function fixture(confirmResult = false) {
     return field;
   });
   nodes['edit-task-fields'] = { disabled: true };
+  const choices = Array.from({ length: traineeCount }, () => ({ checked: false, addEventListener(name, fn) { this.onChange = fn; } }));
+  const summary = { textContent: '' };
+  if (traineeCount) nodes['target-all-students'] = { checked: false, addEventListener(name, fn) { this.onChange = fn; } };
   nodes['edit-task-modal'] = {
     hidden: true, closest() { return form; }, addEventListener() {}, querySelectorAll() { return fields.slice(1); }
   };
   const document = {
     getElementById(id) { return nodes[id] || null; },
     addEventListener(name, fn) { (events[name] ||= []).push(fn); },
-    querySelectorAll() { return []; }, contains() { return true; },
+    querySelectorAll(selector) { return selector.includes('targetStudentUid') ? (selector.includes(':checked') ? choices.filter(c => c.checked) : choices) : []; },
+    querySelector() { return summary; }, contains() { return true; },
     body: { classList: { add() {}, remove() {} } }
   };
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../Yarmouk/Yarmouk/Scripts/CompanyPages/ManageTasks.js'), 'utf8'), {
@@ -32,7 +36,7 @@ function fixture(confirmResult = false) {
     events.click.forEach(fn => fn(event));
     return prevented;
   }
-  return { nodes, click, formEvents };
+  return { nodes, click, formEvents, choices, summary };
 }
 
 test('delete requires confirmation before allowing submission', () => {
@@ -61,4 +65,18 @@ test('invalid edit stops submission without losing the entered values', () => {
   f.formEvents.submit({ submitter: { name: 'taskManagementAction', value: 'edit' }, preventDefault() { prevented = true; } });
   assert.equal(prevented, true);
   assert.equal(f.nodes['edit-task-title'].value, 'Keep this title');
+});
+
+test('select-all checks every trainee and individual changes update its partial state', () => {
+  const f = fixture(false, 2);
+  const all = f.nodes['target-all-students'];
+  all.checked = true;
+  all.onChange();
+  assert.ok(f.choices.every(choice => choice.checked));
+  assert.equal(f.summary.textContent, 'All 2 students selected');
+  f.choices[0].checked = false;
+  f.choices[0].onChange();
+  assert.equal(all.checked, false);
+  assert.equal(all.indeterminate, true);
+  assert.equal(f.summary.textContent, '1 student selected');
 });

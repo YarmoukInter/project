@@ -13,6 +13,17 @@ namespace Yarmouk.Services
     {
         private readonly FirebaseHelper firebase = new FirebaseHelper();
 
+        public static List<string> ResolveRecipients(IEnumerable<string> selected, IEnumerable<string> assigned, bool sendAll)
+        {
+            var allowed = new HashSet<string>((assigned ?? Enumerable.Empty<string>()).Where(s => !string.IsNullOrWhiteSpace(s)), StringComparer.Ordinal);
+            var targets = sendAll ? allowed.ToList() : (selected ?? Enumerable.Empty<string>())
+                .Where(s => !string.IsNullOrWhiteSpace(s)).Distinct(StringComparer.Ordinal).ToList();
+            if (targets.Count == 0) throw new ArgumentException("Select at least one trainee student.");
+            if (targets.Any(uid => !allowed.Contains(uid)))
+                throw new UnauthorizedAccessException("Only students assigned to your company can receive this task.");
+            return targets;
+        }
+
         private async Task<JObject> RequireManagedTaskAsync(string taskId, string uid, string token)
         {
             if (string.IsNullOrWhiteSpace(taskId) || taskId.Length > 256

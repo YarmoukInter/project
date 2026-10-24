@@ -85,7 +85,7 @@
 [data-theme="dark"] .manage-tasks-page .task-empty-state span { color:#adc1b4; }
 
 .task-review-card > .task-review-card__action { display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; justify-content:flex-end; gap:8px; }
-.task-review-card__action .review-open-button { flex:0 0 auto; min-height:38px; padding:8px 12px; white-space:nowrap; }
+.task-review-card__action .review-open-button { flex:0 0 38px; width:38px; height:38px; padding:8px; }
 .task-icon-button { display:inline-flex; flex:0 0 38px; box-sizing:border-box; align-items:center; justify-content:center; width:38px; height:38px; padding:8px; border:1px solid #c9ded2; border-radius:10px; background:#f1faf4; color:#11603b; cursor:pointer; }
 .task-icon-button svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
 .task-icon-button:hover { background:#e1f4e8; }
@@ -94,6 +94,9 @@
 .task-icon-button:focus-visible { outline:3px solid #459d78; outline-offset:3px; }
 .task-edit-open { overflow:hidden; }
 #edit-task-fields { min-width:0; margin:0; padding:0; border:0; }
+.add-task-form > .trainee-select-all { display:flex; align-items:center; gap:10px; margin:2px 0 4px; padding:12px; border:1px solid #c9ded2; border-radius:10px; background:#f1faf4; cursor:pointer; }
+.trainee-select-all input { width:18px; height:18px; margin:0; accent-color:#08734f; }
+[data-theme="dark"] .trainee-select-all { border-color:#52765d; background:#264432; color:#d7f0dc; }
 [data-theme="dark"] .manage-tasks-page .task-icon-button { background:#264432; border-color:#52765d; color:#d7f0dc; }
 [data-theme="dark"] .manage-tasks-page .task-icon-button--delete { background:#422929; border-color:#795151; color:#ffc0c0; }
 @media(max-width:1200px) {

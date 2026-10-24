@@ -185,12 +185,27 @@
     return true;
   };
 
-  document.querySelectorAll('input[name="targetStudentUid"]').forEach(function (checkbox) {
-    checkbox.addEventListener('change', function () {
-      var summary = document.querySelector('.trainee-picker summary');
-      if (!summary) return;
-      var count = document.querySelectorAll('input[name="targetStudentUid"]:checked').length;
-      summary.textContent = count ? count + (count === 1 ? ' student selected' : ' students selected') : 'Choose one or more students';
-    });
+  var allStudents = document.getElementById('target-all-students');
+  var traineeChoices = document.querySelectorAll('input[name="targetStudentUid"]');
+  function syncTrainees() {
+    var count = document.querySelectorAll('input[name="targetStudentUid"]:checked').length;
+    if (allStudents) {
+      allStudents.checked = count > 0 && count === traineeChoices.length;
+      allStudents.indeterminate = count > 0 && count < traineeChoices.length;
+      allStudents.disabled = traineeChoices.length === 0;
+    }
+    var summary = document.querySelector('.trainee-picker summary');
+    if (summary) summary.textContent = count ? (allStudents && allStudents.checked ? 'All ' : '') + count
+      + (count === 1 ? ' student selected' : ' students selected') : 'Choose one or more students';
+  }
+  if (allStudents) allStudents.addEventListener('change', function () {
+    traineeChoices.forEach(function (choice) { choice.checked = allStudents.checked; });
+    syncTrainees();
   });
+  traineeChoices.forEach(function (checkbox) { checkbox.addEventListener('change', syncTrainees); });
+  if (allStudents) syncTrainees();
+  if (addModal && !addModal.hidden) {
+    var firstField = document.getElementById('new-task-number');
+    if (firstField) firstField.focus();
+  }
 })();

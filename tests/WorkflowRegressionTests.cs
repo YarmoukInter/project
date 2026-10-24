@@ -225,6 +225,7 @@ class WorkflowRegressionTests
         var helper = new FirebaseHelper();
         var task = JObject.Parse("{'status':'todo','title':'One assignment'}");
         await helper.TransactAsync("tasks/stable-request", "token", row => row == null, task);
+        Check(db["tasks"]["stable-request"] != null, "Creating an absent task supports Firebase's unquoted null_etag header");
         db["tasks"]["stable-request"]["status"] = "completed";
         await helper.TransactAsync("tasks/stable-request", "token", row => row == null, task);
         Check(((JObject)db["tasks"]).Count == 1 && (string)db["tasks"]["stable-request"]["status"] == "completed",
@@ -260,6 +261,13 @@ class WorkflowRegressionTests
         Check((int)db["deletedTasks"]["edit-task"]["task"]["grade"] == 9
             && db["deletedTasks"]["edit-task"]["submissions"]["reviewed"] != null,
             "Task deletion retains an audit archive with the original submitted work");
+        var allRecipients = CompanyTaskService.ResolveRecipients(new[] { "outside" }, new[] { "a", "b", "a" }, true);
+        Check(allRecipients.Count == 2 && allRecipients.Contains("a") && allRecipients.Contains("b") && !allRecipients.Contains("outside"),
+            "Send to all derives unique recipients only from server-authorized company trainees");
+        Check(CompanyTaskService.ResolveRecipients(new[] { "b", "b" }, new[] { "a", "b" }, false).SequenceEqual(new[] { "b" }),
+            "Individual recipient selection remains supported without duplicate assignments");
+        try { CompanyTaskService.ResolveRecipients(new[] { "outside" }, new[] { "a", "b" }, false); throw new Exception("Unassigned recipient accepted"); }
+        catch (UnauthorizedAccessException) { Check(true, "Tasks cannot be sent to students outside the company"); }
     }
 
     sealed class FirebaseFixture : HttpMessageHandler
@@ -276,11 +284,15 @@ class WorkflowRegressionTests
                 path = path.Substring(0, path.Length - 5).Trim('/');
                 JToken row = db;
                 if (path.Length > 0) foreach (var key in path.Split('/')) row = row == null ? null : row[key];
-                if (request.Method == HttpMethod.Put && request.Headers.IfMatch.Count > 0) {
+                IEnumerable<string> conditions;
+                if (request.Method == HttpMethod.Put && request.Headers.TryGetValues("if-match", out conditions)) {
                     if (BeforeConditionalWrite != null) {
                         var action = BeforeConditionalWrite; BeforeConditionalWrite = null; action(); version++;
                     }
-                    if (request.Headers.IfMatch.First().ToString() != "\"" + version + "\"")
+                    JToken latest = db;
+                    if (path.Length > 0) foreach (var key in path.Split('/')) latest = latest == null ? null : latest[key];
+                    string expected = latest == null ? "null_etag" : "\"" + version + "\"";
+                    if (conditions.First() != expected)
                         return new HttpResponseMessage(HttpStatusCode.PreconditionFailed) { Content = new StringContent("null") };
                 }
                 if (request.Method.Method == "PATCH") {
@@ -293,7 +305,7 @@ class WorkflowRegressionTests
                 var response = new HttpResponseMessage(HttpStatusCode.OK) {
                     Content = new StringContent(row == null ? "null" : row.ToString())
                 };
-                response.Headers.ETag = new System.Net.Http.Headers.EntityTagHeaderValue("\"" + version + "\"");
+                response.Headers.TryAddWithoutValidation("ETag", row == null ? "null_etag" : "\"" + version + "\"");
                 return response;
             }
         }
