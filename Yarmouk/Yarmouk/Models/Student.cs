@@ -16,6 +16,7 @@ namespace Yarmouk.Models
         public string TrainingStartDate { get; set; }
         public int RequiredTrainingHours { get; set; }
         public int ApprovedTrainingHours { get; set; }
+        public long HoursApprovedAtUnixMs { get; set; }
 
         public string StudentNumber { get; set; }
         public string EnglishName { get; set; }

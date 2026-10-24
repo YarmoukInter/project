@@ -10,6 +10,7 @@
 <link href="<%= ResolveUrl("~/Content/Shared/sidebar.css") %>?v=shared-sidebar-1" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/StudentPages/student-shell.css") %>?v=sidebar-account-compact-1" rel="stylesheet" />
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+<link href="<%= ResolveUrl("~/Content/StudentPages/completion-reports.css") %>?v=1" rel="stylesheet" />
 </head>
 <body class="student-app">
 <form id="form1" runat="server">
@@ -42,7 +43,16 @@
 </div>
 </div>
 </form>
-<script src="<%= ResolveUrl("~/Scripts/Shared/sidebar.js") %>?v=sidebar-profile-name-1" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/Shared/sidebar.js") %>?v=completion-reports-2" defer></script>
 <script src="<%= ResolveUrl("~/Scripts/StudentPages/student-shell.js") %>?v=shared-sidebar-1" defer></script>
+<div data-completion-notifications data-endpoint="<%= ResolveUrl("~/StudentPages/CompletionReports") %>" data-csrf="<%= CompletionInboxCsrf %>"></div>
+<dialog id="completion-report-notice" class="completion-report-dialog" aria-labelledby="completion-report-notice-title">
+<p class="completion-eyebrow">YOUR REPORT IS READY</p><h2 id="completion-report-notice-title">Your internship result has arrived</h2>
+<p>The university coordinator has approved your completion and sent your final report.</p>
+<p class="completion-notice-grade" data-report-notice-grade></p>
+<p>You can open it now or find it later in <a href="<%= ResolveUrl("~/StudentPages/CompletionReports") %>">Completion reports</a>.</p>
+<div class="completion-notice-actions"><a class="completion-primary" data-report-open target="_blank" rel="noopener">Open PDF</a><button type="button" class="completion-secondary" data-report-dismiss>Got it</button></div>
+</dialog>
+<script src="<%= ResolveUrl("~/Scripts/StudentPages/completion-notifications.js") %>?v=1" defer></script>
 </body>
 </html>

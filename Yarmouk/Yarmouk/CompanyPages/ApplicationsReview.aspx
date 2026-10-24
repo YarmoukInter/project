@@ -59,7 +59,7 @@
         <div id="rejectionModal" class="co-modal-backdrop" hidden>
             <section class="co-modal co-rejection-modal" role="dialog" aria-modal="true" aria-labelledby="rejectionModalTitle">
                 <header class="co-modal-heading"><div><p class="co-eyebrow">APPLICATION DECISION</p><h2 id="rejectionModalTitle">Reject application</h2></div><button type="button" class="co-icon-button" data-rejection-close aria-label="Close">×</button></header>
-                <label class="co-field">Reason for rejection<asp:TextBox ID="RejectionReasonInput" runat="server" TextMode="MultiLine" Rows="4" MaxLength="500" required="required" placeholder="Share a brief reason with the student." /></label>
+                <label class="co-field">Reason for rejection<asp:TextBox ID="RejectionReasonInput" runat="server" TextMode="MultiLine" Rows="4" MaxLength="500" aria-required="true" placeholder="Share a brief reason with the student." /></label>
                 <asp:Label ID="RejectionFeedbackLabel" runat="server" CssClass="co-modal-feedback" Visible="false" role="alert" />
                 <div class="co-modal-actions"><button type="button" class="co-button co-button-quiet" data-rejection-close>Cancel</button><asp:Button ID="ConfirmRejectionButton" runat="server" CssClass="co-button co-button-danger" Text="Confirm rejection" OnClick="ConfirmRejectionButton_Click" /></div>
             </section>

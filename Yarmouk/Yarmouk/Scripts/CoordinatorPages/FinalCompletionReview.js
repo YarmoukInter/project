@@ -42,7 +42,7 @@
         const providers = Array.from(new Set(records.map(record => record.company).filter(Boolean))).sort((a, b) => a.localeCompare(b));
         page.innerHTML = `
             <div class="fr-heading"><div><p class="fr-eyebrow">${icon('check')} COMPLETION WORKFLOW</p><h1 id="fr-title">Final completion review</h1><p class="fr-intro">Review company and academic final evaluations alongside approved training hours before making a completion decision.</p></div><div class="fr-heading-actions"><a class="fr-button" href="${route('MonitorPlacements.aspx')}">← Back to placement monitoring</a></div></div>
-            <aside class="fr-preview" role="note">${icon('info')} <strong>Coordinator decision required.</strong> Review the source evaluations and university requirements before approving completion. Evaluation scores are shown separately; no combined score is calculated.</aside>
+            <aside class="fr-preview" role="note">${icon('info')} <strong>Coordinator decision required.</strong> Review the source evaluations and university requirements before approving completion. The final grade uses 40% company evaluation and 60% academic evaluation.</aside>
             ${message ? `<div class="fr-alert" role="status">${escapeHtml(message)}</div>` : ''}
             <section class="fr-stats" aria-label="Completion review summary"><article class="fr-stat"><span class="fr-stat-label">Evaluation records</span><strong>${records.length}</strong><span class="fr-hint">Loaded from the system</span></article><article class="fr-stat"><span class="fr-stat-label">Ready for review</span><strong>${count('ready')}</strong><span class="fr-hint">Required evidence currently present</span></article><article class="fr-stat"><span class="fr-stat-label">Evidence incomplete</span><strong>${count('missing')}</strong><span class="fr-hint">At least one prerequisite is outstanding</span></article><article class="fr-stat"><span class="fr-stat-label">Approved</span><strong>${count('approved')}</strong><span class="fr-hint">Recorded coordinator decisions</span></article></section>
             <section class="fr-panel" aria-labelledby="fr-list-title"><div class="fr-panel-head"><h2 id="fr-list-title">Completion evaluations</h2><p>Open a record to review both evaluations, approved hours, and prerequisite status.</p></div>
@@ -80,8 +80,38 @@
             page.querySelector('#fr-dialog-title').textContent = record.name || 'Evaluation details';
             page.querySelector('#fr-dialog-subtitle').textContent = `${record.id} · ${record.studentId || 'Student ID unavailable'}`;
             const checks = (record.checks || []).map(item => `<li class="${item.complete ? '' : 'pending'}"><strong>${item.complete ? '✓' : '!' } ${escapeHtml(item.label)}</strong><span> — ${escapeHtml(item.detail)}</span></li>`).join('');
-            page.querySelector('#fr-dialog-body').innerHTML = `<div class="fr-details"><div class="fr-detail"><span>Training provider</span><strong>${escapeHtml(record.company)}</strong></div><div class="fr-detail"><span>Opportunity</span><strong>${escapeHtml(record.opportunity || 'Not recorded')}</strong></div><div class="fr-detail"><span>Review status</span><strong><span class="fr-badge fr-${state[1]}">${state[0]}</span></strong></div><div class="fr-detail"><span>Coordinator decision</span><strong>${record.coordinatorApproved ? 'Approved' : 'Not approved'}</strong></div></div><h3>Final evaluations</h3><div class="fr-review-grid"><div class="fr-detail"><span>Company supervisor evaluation</span><strong>${escapeHtml(record.companyScore)}</strong></div><div class="fr-detail"><span>Academic supervisor evaluation</span><strong>${escapeHtml(record.academicScore)}</strong></div></div><h3>Completion requirements</h3><ul class="fr-checklist">${checks}</ul><p class="fr-note">Final approval belongs to the coordinator. The approval and official PDF delivery actions are not available until this project provides the required coordinator write permission and student report delivery route.</p><div class="fr-dialog-actions"><button type="button" class="fr-button" id="fr-close-secondary">Close</button><button type="button" class="fr-button" disabled title="Coordinator write workflow is not configured">Approve completion</button><button type="button" class="fr-button" disabled title="Official report generation and student delivery are not configured">Generate and send official PDF</button></div>`;
-            dialog.showModal();
+            page.querySelector('#fr-dialog-body').innerHTML = `<div class="fr-details"><div class="fr-detail"><span>Training provider</span><strong>${escapeHtml(record.company)}</strong></div><div class="fr-detail"><span>Opportunity</span><strong>${escapeHtml(record.opportunity || 'Not recorded')}</strong></div><div class="fr-detail"><span>Review status</span><strong><span class="fr-badge fr-${state[1]}">${state[0]}</span></strong></div><div class="fr-detail"><span>Coordinator decision</span><strong>${record.coordinatorApproved ? 'Approved' : 'Not approved'}</strong></div></div><h3>Final evaluations</h3><div class="fr-review-grid"><div class="fr-detail"><span>Company supervisor evaluation</span><strong>${escapeHtml(record.companyScore)}</strong></div><div class="fr-detail"><span>Academic supervisor evaluation</span><strong>${escapeHtml(record.academicScore)}</strong></div></div><h3>Completion requirements</h3><ul class="fr-checklist">${checks}</ul>${!record.coordinatorApproved ? `<section class="fr-hours-entry"><h3>Verify training hours</h3><p>Record the total hours verified from attendance evidence. This does not add hours to the existing total.</p><label for="fr-hours">Total verified hours</label><input id="fr-hours" type="number" min="0" max="10000" step="1" value="${Number(record.approvedHours)}"><label for="fr-hours-note">Verification note</label><textarea id="fr-hours-note" maxlength="1000" rows="3" placeholder="Attendance records or evidence reviewed"></textarea><button type="button" class="fr-button" data-action="hours">Approve verified hours</button></section>` : `<p class="fr-note">Final grade: <strong>${escapeHtml(record.finalScore)} / 100</strong></p>`}<p class="fr-note">${record.reportSent ? 'The PDF has been delivered to the student’s Completion reports inbox.' : 'Approve completion, then send the PDF. The student will receive an in-app notice and a permanent download link.'}</p><p id="fr-action-feedback" role="status" aria-live="polite"></p><div class="fr-dialog-actions"><button type="button" class="fr-button" id="fr-close-secondary">Close</button>${!record.coordinatorApproved ? `<button type="button" class="fr-button" data-action="approve" ${record.status !== 'ready' ? 'disabled' : ''}>Approve completion</button>` : `<a class="fr-button" href="${page.dataset.endpoint}?pdf=${encodeURIComponent(record.id)}" target="_blank" rel="noopener">Open / print PDF</a><button type="button" class="fr-button" data-action="send" ${record.reportSent ? 'disabled' : ''}>${record.reportSent ? 'PDF delivered' : 'Send PDF to student'}</button>`}</div>`;
+            if (!dialog.open) dialog.showModal();
+            page.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', async () => {
+                const feedback = page.querySelector('#fr-action-feedback');
+                const action = button.dataset.action;
+                const payload = { id: record.id };
+                if (action === 'hours') {
+                    payload.hours = page.querySelector('#fr-hours').value;
+                    payload.note = page.querySelector('#fr-hours-note').value.trim();
+                    if (!payload.note) { feedback.textContent = 'Add a verification note before approving hours.'; page.querySelector('#fr-hours-note').focus(); return; }
+                }
+                const controls = Array.from(page.querySelectorAll('[data-action]'));
+                const states = controls.map(control => control.disabled);
+                controls.forEach(control => control.disabled = true);
+                feedback.textContent = action === 'send' ? 'Generating and delivering the PDF…' : 'Saving approval…';
+                try {
+                    const response = await fetch(page.dataset.endpoint + '?action=' + action, {
+                        method: 'POST', credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-Completion-CSRF': page.dataset.csrf },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.redirected) throw new Error('Your session expired. Sign in again.');
+                    const data = await response.json();
+                    if (!response.ok || !data.success) throw new Error(data.message || 'The action could not be saved.');
+                    sessionStorage.setItem('completion-review-open', record.id);
+                    sessionStorage.setItem('completion-review-feedback', action === 'send' ? 'PDF delivered. The student can now open it from Completion reports.' : action === 'hours' ? 'Verified hours saved.' : 'Completion approved. You can now print or send the PDF.');
+                    location.reload();
+                } catch (error) {
+                    feedback.textContent = error.message;
+                    controls.forEach((control, index) => control.disabled = states[index]);
+                }
+            }));
             page.querySelector('#fr-close-secondary').onclick = () => dialog.close();
         }
 
@@ -101,6 +131,12 @@
         page.querySelector('#fr-close').addEventListener('click', () => dialog.close());
         dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
         render();
+        const reopenId = sessionStorage.getItem('completion-review-open');
+        const savedMessage = sessionStorage.getItem('completion-review-feedback');
+        sessionStorage.removeItem('completion-review-open');
+        sessionStorage.removeItem('completion-review-feedback');
+        const reopened = records.find(record => record.id === reopenId);
+        if (reopened) { showDetails(reopened); page.querySelector('#fr-action-feedback').textContent = savedMessage || ''; }
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });

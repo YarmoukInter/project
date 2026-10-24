@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const menus = {
-    student: [['dashboard','Dashboard','grid'],['opportunities','Opportunities','briefcase'],['applications','Applications','send'],['tasks','My tasks','tasks'],['progress','Progress','chart']],
+    student: [['dashboard','Dashboard','grid'],['opportunities','Opportunities','briefcase'],['applications','Applications','send'],['tasks','My tasks','tasks'],['progress','Progress','chart'],['reports','Completion reports','check']],
     supervisor: [['dashboard','Academic Dashboard','grid'],['progress','Student Progress Monitor','chart'],['tasks','Student Tasks','tasks'],['evaluations','Final Academic Evaluation','check']]
   };
   function initialize() {
@@ -15,7 +15,7 @@
       const pages = {
         student: {
           dashboard:'Dashboard.aspx', opportunities:'Opportunities.aspx', applications:'MyApplications.aspx',
-          tasks:'MyTasks.aspx', progress:'Progress.aspx', account:'Profile.aspx'
+          tasks:'MyTasks.aspx', progress:'Progress.aspx', reports:'CompletionReports', account:'Profile.aspx'
         },
         supervisor: {
           dashboard:'Dashboard.aspx', progress:'StudentProgress.aspx', tasks:'Tasks.aspx', evaluations:'FinalEvaluation.aspx', account:'Account.aspx'
@@ -39,6 +39,10 @@
         link.title = label; link.setAttribute('aria-label',label); link.dataset.page = page;
         if (page === activePage) link.setAttribute('aria-current','page');
         link.innerHTML = '<svg aria-hidden="true"><use href="#ys-icon-' + icon + '"></use></svg><span>' + label + '</span>';
+        if (role === 'student' && page === 'reports') {
+          const badge = document.createElement('span'); badge.dataset.completionCount = '';
+          link.querySelector('span').append(badge);
+        }
         list.append(link);
       });
       root.querySelector('[data-sidebar-profile]').href = route('account');

@@ -31,21 +31,26 @@ namespace Yarmouk.StudentPages
             {
                 var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
                 var tasksTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Tasks, auth.IdToken);
+                var submissionsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TaskSubmissions, auth.IdToken);
                 var studentTask = firebase.GetAsync<Student>(DatabasePaths.Students + "/" + auth.Uid, auth.IdToken);
                 var logsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TrainingLogs, auth.IdToken);
                 var notesTask = firebase.GetAsync<Dictionary<string, JObject>>(
                     DatabasePaths.StudentProgressNotes + "/" + auth.Uid, auth.IdToken);
-                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask);
+                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask, submissionsTask);
 
                 var student = await studentTask;
                 var logs = (await logsTask ?? new Dictionary<string, JObject>()).Values
                     .Where(x => Text(x, "studentUid") == auth.Uid).ToList();
 
                 int required = student == null ? 0 : Math.Max(0, student.RequiredTrainingHours);
-                int approved = logs.Count == 0 && student != null ? Math.Max(0, student.ApprovedTrainingHours)
-                    : logs.Where(IsApproved).Sum(x => Math.Max(0, ReadInt(x, "hours")));
+                int approved = student != null && student.HoursApprovedAtUnixMs > 0
+                    ? Math.Max(0, student.ApprovedTrainingHours)
+                    : Math.Max(student == null ? 0 : Math.Max(0, student.ApprovedTrainingHours),
+                        logs.Where(IsApproved).Sum(x => Math.Max(0, ReadInt(x, "hours"))));
                 var tasks = await tasksTask ?? new Dictionary<string, JObject>();
-                int completedTasks = CountCompletedTasks(tasks, auth.Uid, activeOpportunityId);
+                var submissions = await submissionsTask ?? new Dictionary<string, JObject>();
+                int completedTasks = string.IsNullOrEmpty(activeOpportunityId) ? 0
+                    : TrainingProgress.CountSubmitted(tasks, submissions.Values, auth.Uid, opportunityId: activeOpportunityId);
                 int percent = TrainingProgress.Percent(completedTasks);
 
                 CompletedTaskCount.Text = completedTasks.ToString(CultureInfo.InvariantCulture);
@@ -89,25 +94,6 @@ namespace Yarmouk.StudentPages
                 SetLiteral(RequiredHours, "—");
                 ShowNotice("Progress data could not be loaded. Please refresh the page and try again.");
             }
-        }
-
-        private static int CountCompletedTasks(Dictionary<string, JObject> tasks, string studentUid, string opportunityId)
-        {
-            if (tasks == null || string.IsNullOrWhiteSpace(studentUid) || string.IsNullOrWhiteSpace(opportunityId)) return 0;
-            return tasks
-                .Where(item => item.Value != null
-                    && Text(item.Value, "studentUid") == studentUid
-                    && Text(item.Value, "opportunityId") == opportunityId
-                    && IsCompletedTaskStatus(Text(item.Value, "status")))
-                .Select(item => string.IsNullOrWhiteSpace(Text(item.Value, "id")) ? item.Key : Text(item.Value, "id"))
-                .Distinct(StringComparer.Ordinal)
-                .Count();
-        }
-
-        private static bool IsCompletedTaskStatus(string value)
-        {
-            var status = Normalize(value);
-            return status == "completed" || status == "complete" || status == "approved";
         }
 
         private static List<ProgressMilestone> BuildMilestones(int completedTasks, int required)

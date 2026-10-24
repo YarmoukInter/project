@@ -706,4 +706,13 @@
     <Content Include="Content\CoordinatorPages\notifications.css" />
     <Content Include="Scripts\CoordinatorPages\notifications.js" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Services\CompletionService.cs" />
+    <Compile Include="Services\CompletionPdf.cs" />
+    <Compile Include="Services\CompletionInboxService.cs" />
+    <Compile Include="StudentPages\CompletionReports.aspx.cs"><DependentUpon>CompletionReports.aspx</DependentUpon></Compile>
+    <Content Include="StudentPages\CompletionReports.aspx" />
+    <Content Include="Scripts\StudentPages\completion-notifications.js" />
+    <Content Include="Content\StudentPages\completion-reports.css" />
+  </ItemGroup>
 </Project>

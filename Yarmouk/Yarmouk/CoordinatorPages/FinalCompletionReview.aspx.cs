@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.UI;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using Yarmouk.Helpers;
 using Yarmouk.Models;
 using Yarmouk.Services;
@@ -17,9 +18,63 @@ namespace Yarmouk.CoordinatorPages
     {
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer { MaxJsonLength = 1024 * 1024 };
 
+        protected string CompletionCsrf {
+            get {
+                if (Session["CompletionCsrf"] == null) Session["CompletionCsrf"] = Guid.NewGuid().ToString("N");
+                return (string)Session["CompletionCsrf"];
+            }
+        }
+        private bool IsEndpoint { get { return Request.QueryString["action"] != null || Request.QueryString["pdf"] != null; } }
+        protected override void Render(HtmlTextWriter writer) { if (!IsEndpoint) base.Render(writer); }
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack) RegisterAsyncTask(new PageAsyncTask(LoadReviewDataAsync));
+            if (IsEndpoint) RegisterAsyncTask(new PageAsyncTask(ProcessActionAsync));
+            else if (!IsPostBack) RegisterAsyncTask(new PageAsyncTask(LoadReviewDataAsync));
+        }
+        private async Task ProcessActionAsync()
+        {
+            Response.Clear();
+            Response.Cache.SetNoStore();
+            Response.TrySkipIisCustomErrors = true;
+            try {
+                var auth = Session[AuthGuard.SessionKey] as AuthSession;
+                if (auth == null) throw new UnauthorizedAccessException("Please sign in again.");
+                var service = new CompletionService();
+                if (Request.QueryString["pdf"] != null && Request.HttpMethod == "GET") {
+                    byte[] bytes = await service.GetCoordinatorPdfAsync(Request.QueryString["pdf"], auth.Uid, auth.IdToken);
+                    Response.ContentType = "application/pdf";
+                    Response.AddHeader("Content-Disposition", "inline; filename=internship-final-report.pdf");
+                    Response.BinaryWrite(bytes);
+                    return;
+                }
+                if (Request.HttpMethod != "POST") throw new ArgumentException("Use POST for completion actions.");
+                if (Request.Headers["X-Completion-CSRF"] != CompletionCsrf) throw new UnauthorizedAccessException("Reload the page before saving.");
+                if (Request.ContentLength > 8192) throw new ArgumentException("Request too large.");
+                JObject body;
+                using (var reader = new System.IO.StreamReader(Request.InputStream)) body = JObject.Parse(reader.ReadToEnd());
+                string id = (string)body["id"];
+                switch (Request.QueryString["action"]) {
+                    case "hours":
+                        int hours;
+                        if (!int.TryParse((string)body["hours"], out hours)) throw new ArgumentException("Enter a whole number of verified hours.");
+                        await service.ApproveHoursAsync(id, auth.Uid, auth.IdToken, hours, (string)body["note"]); break;
+                    case "approve": await service.ApproveCompletionAsync(id, auth.Uid, auth.IdToken); break;
+                    case "send": await service.SendReportAsync(id, auth.Uid, auth.IdToken); break;
+                    default: throw new ArgumentException("Unknown action.");
+                }
+                WriteJson(200, new { success = true });
+            } catch (UnauthorizedAccessException e) { WriteJson(403, new { success = false, message = e.Message }); }
+              catch (ArgumentException e) { WriteJson(400, new { success = false, message = e.Message }); }
+              catch (InvalidOperationException e) { WriteJson(409, new { success = false, message = e.Message }); }
+              catch (Exception e) {
+                Trace.Warn("Completion", "Completion action failed", e);
+                WriteJson(500, new { success = false, message = "The action could not be saved. Please try again." });
+              }
+        }
+        private void WriteJson(int status, object value) {
+            Response.StatusCode = status;
+            Response.ContentType = "application/json";
+            Response.Write(JsonConvert.SerializeObject(value));
         }
 
         private async Task LoadReviewDataAsync()
@@ -88,11 +143,13 @@ namespace Yarmouk.CoordinatorPages
                 JObject company = Find(companies, companyId);
                 JObject opportunity = Find(opportunities, opportunityId);
 
-                int requiredHours = Number(studentRecord, "requiredTrainingHours");
+                int requiredHours = Number(placementRecord, "requiredHours");
+                if (requiredHours <= 0) requiredHours = Number(studentRecord, "requiredTrainingHours");
                 if (requiredHours <= 0) requiredHours = Number(studentRecord, "requiredHours");
                 if (requiredHours <= 0) requiredHours = Number(opportunity, "requiredTrainingHours");
-                int approvedHours = Number(studentRecord, "approvedTrainingHours");
-                if (approvedHours <= 0) approvedHours = SumApprovedHours(logs, studentUid, placementId);
+                int approvedHours = placementRecord != null && placementRecord["approvedHours"] != null
+                    ? Number(placementRecord, "approvedHours") : Number(studentRecord, "approvedTrainingHours");
+                if (approvedHours <= 0 && (placementRecord == null || placementRecord["approvedHours"] == null)) approvedHours = SumApprovedHours(logs, studentUid, placementId);
 
                 bool companySubmitted = Flag(evaluation, "companySubmitted");
                 bool academicSubmitted = Flag(evaluation, "academicSubmitted");
@@ -112,6 +169,8 @@ namespace Yarmouk.CoordinatorPages
                 result.Add(new CompletionReviewRow
                 {
                     id = item.Key,
+                    reportSent = evaluation["reportSentAtUnixMs"] != null,
+                    finalScore = evaluation["finalScore"] == null ? "" : Text(evaluation, "finalScore"),
                     name = name,
                     studentId = First(Text(studentRecord, "studentId"), Text(studentRecord, "studentNumber")),
                     initials = Initials(name),
@@ -148,8 +207,8 @@ namespace Yarmouk.CoordinatorPages
         {
             if (placements == null) return null;
             JObject record;
-            if (!string.IsNullOrWhiteSpace(placementId) && placements.TryGetValue(placementId, out record)) return record;
-            return placements.FirstOrDefault(x => x.Value != null && string.Equals(Text(x.Value, "studentUid"), studentUid, StringComparison.Ordinal)).Value;
+            return !string.IsNullOrWhiteSpace(placementId) && placements.TryGetValue(placementId, out record)
+                && record != null && Text(record, "studentUid") == studentUid ? record : null;
         }
 
         private static int SumApprovedHours(IDictionary<string, JObject> logs, string studentUid, string placementId)
@@ -205,6 +264,7 @@ namespace Yarmouk.CoordinatorPages
 
         private sealed class CompletionReviewRow
         {
+            public bool reportSent { get; set; } public string finalScore { get; set; }
             public string id { get; set; } public string name { get; set; } public string studentId { get; set; }
             public string initials { get; set; } public string program { get; set; } public string company { get; set; }
             public string opportunity { get; set; } public string status { get; set; } public bool companySubmitted { get; set; }

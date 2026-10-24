@@ -1,7 +1,7 @@
 <%@ Page Title="Final Academic Evaluation" Language="C#" MasterPageFile="~/AcademicPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="FinalEvaluation.aspx.cs" Inherits="Yarmouk.AcademicPages.FinalEvaluation" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/AcademicPages/FinalEvaluation.css?v=company-pdf-1") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/AcademicPages/FinalEvaluation.js?v=review-drawer-3") %>" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/AcademicPages/FinalEvaluation.js?v=recovered-dialog-submit-4") %>" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
 <script src="../Scripts/Shared/record-lists.js?v=review-groups-3" defer></script>

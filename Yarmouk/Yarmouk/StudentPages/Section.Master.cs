@@ -7,6 +7,12 @@ namespace Yarmouk.StudentPages
 {
     public partial class SectionMaster : MasterPage
     {
+        protected string CompletionInboxCsrf {
+            get {
+                if (Session["CompletionInboxCsrf"] == null) Session["CompletionInboxCsrf"] = Guid.NewGuid().ToString("N");
+                return (string)Session["CompletionInboxCsrf"];
+            }
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             var auth = Session[AuthGuard.SessionKey] as AuthSession;
