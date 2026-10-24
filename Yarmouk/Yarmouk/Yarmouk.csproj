@@ -44,9 +44,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PdfSharp-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath><Private>True</Private></Reference>
-    <Reference Include="MigraDoc.DocumentObjectModel-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.DocumentObjectModel-gdi.dll</HintPath><Private>True</Private></Reference>
-    <Reference Include="MigraDoc.Rendering-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.Rendering-gdi.dll</HintPath><Private>True</Private></Reference>
+    <Compile Include="Helpers\StudentProfileImages.cs" />
+    <Compile Include="Helpers\PdfText.cs" />
+    <Compile Include="Services\CompanyTaskService.cs" />
+    <Reference Include="PdfSharp-gdi">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MigraDoc.DocumentObjectModel-gdi">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.DocumentObjectModel-gdi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MigraDoc.Rendering-gdi">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.Rendering-gdi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
@@ -121,6 +133,7 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="PublicPages\AccountSetup.Master" />
     <Content Include="PublicPages\Home.Master" />
     <Content Include="PublicPages\Section.Master" />
     <Content Include="Controls\PublicPages\SiteFooter.ascx" />
@@ -153,8 +166,10 @@
     <Content Include="Content\Shared\workspace-polish.css" />
     <Content Include="Content\Shared\record-lists.css" />
     <Content Include="Content\Shared\review-workspaces.css" />
+    <Content Include="Content\Shared\student-profile-images.css" />
     <Content Include="Scripts\Shared\record-lists.js" />
     <Content Include="Scripts\Shared\sidebar.js" />
+    <Content Include="Scripts\Shared\student-profile-images.js" />
     <Content Include="Content\StudentPages\student-shell.css" />
     <Content Include="Scripts\StudentPages\student-shell.js" />
     <Content Include="StudentPages\ChangePassword.aspx" />
@@ -167,6 +182,7 @@
     <Content Include="Content\StudentPages\Profile.css" />
     <Content Include="Scripts\StudentPages\Profile.js" />
     <Content Include="Uploads\StudentProfileImages\.gitkeep" />
+    <Content Include="StudentProfileImage.ashx" />
     <Content Include="StudentPages\Opportunities.aspx" />
     <Content Include="Content\StudentPages\Opportunities.css" />
     <Content Include="Scripts\StudentPages\Opportunities.js" />
@@ -187,7 +203,7 @@
     <Content Include="CompanyPages\Dashboard.aspx" />
     <Content Include="Content\CompanyPages\Dashboard.css" />
     <Content Include="Scripts\CompanyPages\Dashboard.js" />
-      <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
+    <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
     <Content Include="CompanyPages\ManageOpportunities.aspx" />
     <Content Include="Content\CompanyPages\ManageOpportunities.css" />
     <Content Include="CompanyPages\ApplicationsReview.aspx" />
@@ -241,6 +257,15 @@
     <Content Include="CoordinatorPages\MonitorPlacements.aspx" />
     <Content Include="Content\CoordinatorPages\MonitorPlacements.css" />
     <Content Include="Scripts\CoordinatorPages\MonitorPlacements.js" />
+    <Content Include="CoordinatorPages\ManageOpportunities.aspx" />
+    <Content Include="Content\CoordinatorPages\ManageOpportunities.css" />
+    <Content Include="Scripts\CoordinatorPages\ManageOpportunities.js" />
+    <Content Include="CoordinatorPages\ApplicationsReview.aspx" />
+    <Content Include="Content\CoordinatorPages\coordinator-header.css" />
+    <Content Include="Scripts\CoordinatorPages\ApplicationsReview.js" />
+    <Content Include="CoordinatorPages\ManageTasks.aspx" />
+    <Content Include="Content\CoordinatorPages\ManageTasks.css" />
+    <Content Include="Scripts\CoordinatorPages\ManageTasks.js" />
     <Content Include="CoordinatorPages\FinalCompletionReview.aspx" />
     <Content Include="Content\CoordinatorPages\FinalCompletionReview.css" />
     <Content Include="Scripts\CoordinatorPages\FinalCompletionReview.js" />
@@ -250,6 +275,11 @@
     <Content Include="CoordinatorPages\Account.aspx" />
     <Content Include="Content\CoordinatorPages\Account.css" />
     <Content Include="Scripts\CoordinatorPages\Account.js" />
+    <Content Include="CoordinatorPages\Settings.aspx" />
+    <Content Include="Content\CoordinatorPages\Settings.css" />
+    <Content Include="Scripts\CoordinatorPages\Settings.js" />
+    <Content Include="Scripts\Shared\site-settings.js" />
+    <Content Include="SiteSettings.ashx" />
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -573,6 +603,21 @@
     <Compile Include="CoordinatorPages\MonitorPlacements.aspx.designer.cs">
       <DependentUpon>MonitorPlacements.aspx</DependentUpon>
     </Compile>
+    <Compile Include="CoordinatorPages\ManageOpportunities.aspx.cs">
+      <DependentUpon>ManageOpportunities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ApplicationsReview.aspx.cs">
+      <DependentUpon>ApplicationsReview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageTasks.aspx.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\ManageTasks.aspx.designer.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+    </Compile>
     <Compile Include="CoordinatorPages\FinalCompletionReview.aspx.cs">
       <DependentUpon>FinalCompletionReview.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -594,6 +639,13 @@
     <Compile Include="CoordinatorPages\Account.aspx.designer.cs">
       <DependentUpon>Account.aspx</DependentUpon>
     </Compile>
+    <Compile Include="CoordinatorPages\Settings.aspx.cs">
+      <DependentUpon>Settings.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CoordinatorPages\Settings.aspx.designer.cs">
+      <DependentUpon>Settings.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Models\SupervisorWorkspace.cs" />
@@ -611,11 +663,24 @@
     <Compile Include="Services\OpportunityService.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\CompanyEvaluationPdf.cs" />
-    <Compile Include="AcademicPages\CompanyEvaluationPdf.ashx.cs"><DependentUpon>CompanyEvaluationPdf.ashx</DependentUpon></Compile>
+    <Compile Include="Services\CompletionCertificatePdf.cs" />
+    <Compile Include="AcademicPages\CompanyEvaluationPdf.ashx.cs">
+      <DependentUpon>CompanyEvaluationPdf.ashx</DependentUpon>
+    </Compile>
     <Content Include="AcademicPages\CompanyEvaluationPdf.ashx" />
+    <Compile Include="CoordinatorPages\CompletionReviewAction.ashx.cs">
+      <DependentUpon>CompletionReviewAction.ashx</DependentUpon>
+    </Compile>
+    <Content Include="CoordinatorPages\CompletionReviewAction.ashx" />
+    <Compile Include="CoordinatorPages\CompletionCertificate.ashx.cs">
+      <DependentUpon>CompletionCertificate.ashx</DependentUpon>
+    </Compile>
+    <Content Include="CoordinatorPages\CompletionCertificate.ashx" />
     <Compile Include="Services\EvaluationService.cs" />
     <Compile Include="Services\SupervisorWorkspaceService.cs" />
     <Compile Include="Helpers\FirebaseHelper.cs" />
+    <Compile Include="Helpers\SiteSettingsStore.cs" />
+    <Compile Include="Helpers\SiteSettingsHandler.cs" />
     <Compile Include="Helpers\DatabasePaths.cs" />
     <Compile Include="Helpers\TrainingProgress.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -627,6 +692,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\Videos\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -704,5 +770,6 @@
     <Content Include="Content\Images\Team\yu-text1ORG.png" />
     <Content Include="Content\CoordinatorPages\notifications.css" />
     <Content Include="Scripts\CoordinatorPages\notifications.js" />
+    <Content Include="Scripts\Shared\excel-export.js" />
   </ItemGroup>
 </Project>

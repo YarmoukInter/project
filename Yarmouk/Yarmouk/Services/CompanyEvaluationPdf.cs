@@ -51,8 +51,8 @@ namespace Yarmouk.Services
             title.Format.Font.Size = 20;
             title.Format.Font.Bold = true;
             section.AddParagraph("Yarmouk University | Submitted company assessment");
-            section.AddParagraph("Student: " + student.StudentName + " | Student ID: " + student.StudentNumber);
-            section.AddParagraph("Company: " + student.CompanyName);
+            Helpers.PdfText.Add(section.AddParagraph(), "Student: " + student.StudentName + " | Student ID: " + student.StudentNumber);
+            Helpers.PdfText.Add(section.AddParagraph(), "Company: " + student.CompanyName);
             section.AddParagraph("Training period: " + student.TrainingPeriodLabel);
             section.AddParagraph("Evaluation reference: " + evaluationId);
             long submittedAt;
@@ -96,7 +96,7 @@ namespace Yarmouk.Services
             observations.Format.Font.Bold = true;
             observations.Format.KeepWithNext = true;
             string feedback = (string)record["companyFeedback"] ?? (string)record["companyComments"];
-            section.AddParagraph(string.IsNullOrWhiteSpace(feedback) ? "No observations provided." : feedback);
+            Helpers.PdfText.Add(section.AddParagraph(), string.IsNullOrWhiteSpace(feedback) ? "No observations provided." : feedback);
             var footer = section.Footers.Primary.AddParagraph();
             footer.Format.Font.Size = 8;
             footer.AddText("Company evaluation | Page ");

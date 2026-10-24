@@ -3,10 +3,12 @@ using System.Web.UI;
 using System.Web;
 using Yarmouk.Helpers;
 using Yarmouk.Services;
+using Yarmouk.Models;
 namespace Yarmouk.StudentPages
 {
     public partial class SectionMaster : MasterPage
     {
+        protected string StudentProfileImageUrl { get; private set; }
         protected void Page_Load(object sender, EventArgs e)
         {
             var auth = Session[AuthGuard.SessionKey] as AuthSession;
@@ -20,6 +22,19 @@ namespace Yarmouk.StudentPages
             StudentSidebarName.Text = HttpUtility.HtmlEncode(name);
             StudentSidebarInitials.Text = HttpUtility.HtmlEncode(Initials(name));
             StudentSidebarEmail.Text = HttpUtility.HtmlEncode(email);
+            if (auth != null && !string.IsNullOrWhiteSpace(auth.Uid) && !string.IsNullOrWhiteSpace(auth.IdToken))
+                Page.RegisterAsyncTask(new PageAsyncTask(async () =>
+                {
+                    try
+                    {
+                        var student = await new StudentService().GetStudentAsync(auth.Uid, auth.IdToken);
+                        StudentProfileImageUrl = StudentProfileImages.GetUrl(student == null ? null : student.ProfileImageFileName);
+                    }
+                    catch (Exception error)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("Student navigation photo could not load: " + error.GetType().Name);
+                    }
+                }));
         }
 
         private static string Initials(string name)

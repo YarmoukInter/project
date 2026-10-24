@@ -50,6 +50,15 @@
         academicStatus: button.dataset.academicStatus,
         gpa: button.dataset.gpa
       };
+      const photo = dialog.querySelector('[data-dialog-photo]');
+      if (photo) {
+        photo.dataset.studentPhotoUrl = button.dataset.profileImageUrl || '';
+        photo.removeAttribute('data-student-photo-ready');
+        photo.querySelectorAll('.uims-student-photo-image').forEach(image => image.remove());
+        const initials = dialog.querySelector('[data-dialog-initials]');
+        if (initials) initials.textContent = button.dataset.initials || 'ST';
+        window.UimsStudentPhotos && window.UimsStudentPhotos.enhance(dialog);
+      }
       detailFields.forEach(field => {
         field.textContent = values[field.dataset.profileField] || 'Not provided';
       });

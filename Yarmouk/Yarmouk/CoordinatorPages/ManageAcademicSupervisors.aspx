@@ -1,11 +1,11 @@
 <%@ Page Async="true" Title="Academic supervisors" Language="C#" MasterPageFile="~/CoordinatorPages/Section.Master" AutoEventWireup="true" CodeBehind="ManageAcademicSupervisors.aspx.cs" Inherits="Yarmouk.CoordinatorPages.ManageAcademicSupervisors" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageAcademicSupervisors.css") %>?v=account-actions-2' rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=account-actions-2' defer></script>
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageAcademicSupervisors.js") %>' defer></script>
+<link href='<%= ResolveUrl("~/Content/CoordinatorPages/ManageAcademicSupervisors.css") %>?v=supervisor-cards-3' rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/roster.js") %>?v=coordinator-header-2' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/ManageAcademicSupervisors.js") %>?v=supervisor-cards-3' defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
-<script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
+<script src="../Scripts/Shared/record-lists.js?v=supervisor-cards-3" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>

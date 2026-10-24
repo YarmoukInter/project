@@ -31,7 +31,7 @@
       const shade = root.querySelector('.yu-sidebar-shade'), theme = root.querySelector('[data-sidebar-theme]');
       const small = matchMedia('(max-width:1080px)');
       const storageKey = 'yarmouk:' + role + ':sidebar:pinned';
-      let pinned = false, hovering = false, focused = false, manual = false, mobileOpen = false, suppressed = false, timer;
+      let pinned = false, focused = false, manual = false, mobileOpen = false, suppressed = false;
       try { pinned = sessionStorage.getItem(storageKey) === 'true'; } catch (_) {}
       list.replaceChildren();
       menus[role].forEach(([page,label,icon]) => {
@@ -48,7 +48,7 @@
       root.querySelector('[data-sidebar-home]').href = new URL(role === 'student' ? 'StudentPages/Dashboard.aspx' : 'PublicPages/Home.aspx',base).href;
       root.classList.add('is-enhanced'); menu.hidden = false;
       function render() {
-        const open = small.matches ? mobileOpen : pinned || manual || (!suppressed && (hovering || focused));
+        const open = small.matches ? mobileOpen : pinned || manual || (!suppressed && focused);
         rail.classList.toggle('is-open',open && !small.matches);
         aside.classList.toggle('is-collapsed',!open && !small.matches); aside.classList.toggle('is-mobile-open',small.matches && mobileOpen);
         aside.inert = small.matches && !mobileOpen;
@@ -65,13 +65,11 @@
       }
       function save() { try { sessionStorage.setItem(storageKey,String(pinned)); } catch (_) {} }
       function closeMobile(restoreFocus) { mobileOpen=false;render();if (restoreFocus) menu.focus(); }
-      aside.addEventListener('pointerenter',event=>{if(small.matches || event.pointerType==='touch')return;clearTimeout(timer);hovering=true;suppressed=false;render();});
-      aside.addEventListener('pointerleave',()=>{if(small.matches)return;timer=setTimeout(()=>{hovering=false;manual=false;suppressed=false;render();},220);});
       aside.addEventListener('focusin',event=>{if(!small.matches && event.target.matches(':focus-visible')){focused=true;suppressed=false;render();}});
       aside.addEventListener('focusout',event=>{if(!aside.contains(event.relatedTarget)){focused=false;if(small.matches&&event.relatedTarget!==menu)closeMobile(false);else render();}});
       toggle.addEventListener('click',()=>{
         if(small.matches){closeMobile(true);return;}
-        if(rail.classList.contains('is-open')){pinned=false;manual=false;hovering=false;focused=false;suppressed=true;save();}
+        if(rail.classList.contains('is-open')){pinned=false;manual=false;focused=false;suppressed=true;save();}
         else {manual=true;suppressed=false;}
         render();
       });
@@ -83,18 +81,18 @@
         if(event.key!=='Escape')return;
         if(mobileOpen){closeMobile(true);return;}
         if(!small.matches&&aside.contains(document.activeElement)){
-          manual=false;hovering=false;focused=false;suppressed=true;render();toggle.focus();
+          manual=false;focused=false;suppressed=true;render();toggle.focus();
         }
       });
       document.addEventListener('pointerdown',event=>{if(mobileOpen&&!aside.contains(event.target)&&!menu.contains(event.target))closeMobile(false);});
-      small.addEventListener('change',()=>{mobileOpen=false;hovering=false;focused=false;manual=false;render();});
+      small.addEventListener('change',()=>{mobileOpen=false;focused=false;manual=false;render();});
       function syncTheme() {
         const dark=document.documentElement.dataset.theme==='dark';
         theme.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');
         theme.querySelector('span').textContent=dark?'Light mode':'Dark mode';
         theme.querySelector('use').setAttribute('href','#ys-icon-'+(dark?'sun':'moon'));
       }
-      try {document.documentElement.dataset.theme=localStorage.getItem('yarmouk:portal-theme')==='dark'?'dark':'light';}catch(_){}
+      try {const savedTheme=localStorage.getItem('yarmouk:portal-theme');document.documentElement.dataset.theme=savedTheme?savedTheme:(document.documentElement.dataset.siteDefaultTheme==='dark'?'dark':'light');}catch(_){}
       theme.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('yarmouk:portal-theme',next);}catch(_){}syncTheme();document.dispatchEvent(new CustomEvent('yarmouk:themechange',{detail:{theme:next}}));});
       render();syncTheme();
     });

@@ -31,11 +31,14 @@ namespace Yarmouk.StudentPages
             {
                 var activeOpportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(auth.Uid, auth.IdToken);
                 var tasksTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Tasks, auth.IdToken);
+                var submissionsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TaskSubmissions, auth.IdToken);
+                var placementsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Placements, auth.IdToken);
+                var evaluationsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Evaluations, auth.IdToken);
                 var studentTask = firebase.GetAsync<Student>(DatabasePaths.Students + "/" + auth.Uid, auth.IdToken);
                 var logsTask = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TrainingLogs, auth.IdToken);
                 var notesTask = firebase.GetAsync<Dictionary<string, JObject>>(
                     DatabasePaths.StudentProgressNotes + "/" + auth.Uid, auth.IdToken);
-                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask);
+                await Task.WhenAll(studentTask, logsTask, notesTask, tasksTask, submissionsTask, placementsTask, evaluationsTask);
 
                 var student = await studentTask;
                 var logs = (await logsTask ?? new Dictionary<string, JObject>()).Values
@@ -45,10 +48,17 @@ namespace Yarmouk.StudentPages
                 int approved = logs.Count == 0 && student != null ? Math.Max(0, student.ApprovedTrainingHours)
                     : logs.Where(IsApproved).Sum(x => Math.Max(0, ReadInt(x, "hours")));
                 var tasks = await tasksTask ?? new Dictionary<string, JObject>();
-                int completedTasks = CountCompletedTasks(tasks, auth.Uid, activeOpportunityId);
-                int percent = TrainingProgress.Percent(completedTasks);
+                var submissions = await submissionsTask ?? new Dictionary<string, JObject>();
+                var placements = await placementsTask ?? new Dictionary<string, JObject>();
+                string placementId = FindActivePlacementId(placements, auth.Uid, activeOpportunityId);
+                var assignedTasks = GetAssignedTasks(tasks, auth.Uid, activeOpportunityId, placementId);
+                int completedTasks = CountCompletedTasks(assignedTasks, auth.Uid, submissions);
+                bool allAssignedTasksCompleted = assignedTasks.Count > 0 && completedTasks == assignedTasks.Count;
+                int submittedTasks = TrainingProgress.CountSubmitted(assignedTasks, submissions.Values,
+                    auth.Uid, placementId, activeOpportunityId);
+                int percent = TrainingProgress.Percent(submittedTasks);
 
-                CompletedTaskCount.Text = completedTasks.ToString(CultureInfo.InvariantCulture);
+                CompletedTaskCount.Text = submittedTasks.ToString(CultureInfo.InvariantCulture);
                 RequiredHours.Text = TrainingProgress.RequiredTasks.ToString(CultureInfo.InvariantCulture);
                 TargetHours.Text = RequiredHours.Text;
                 TrackTarget.Text = RequiredHours.Text;
@@ -58,7 +68,7 @@ namespace Yarmouk.StudentPages
                 progressRing.Style["--progress"] = percent + "%";
                 progressRing.Attributes["aria-valuenow"] = percent.ToString(CultureInfo.InvariantCulture);
                 hoursProgressBar.Attributes["aria-valuemax"] = RequiredHours.Text;
-                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(completedTasks, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
+                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(submittedTasks, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
                 hoursTrack.Style["width"] = percent + "%";
 
                 var notes = (await notesTask ?? new Dictionary<string, JObject>()).Values
@@ -74,8 +84,23 @@ namespace Yarmouk.StudentPages
                 ProgressNotes.DataSource = notes;
                 ProgressNotes.DataBind();
                 NoProgressNotes.Visible = notes.Count == 0;
-                MilestoneRepeater.DataSource = BuildMilestones(completedTasks, TrainingProgress.RequiredTasks);
+                MilestoneRepeater.DataSource = BuildMilestones(submittedTasks, TrainingProgress.RequiredTasks);
                 MilestoneRepeater.DataBind();
+
+                NextStepCard.Visible = !allAssignedTasksCompleted;
+                AcademicMeetingCard.Visible = allAssignedTasksCompleted;
+                if (allAssignedTasksCompleted)
+                {
+                    var evaluations = await evaluationsTask ?? new Dictionary<string, JObject>();
+                    BindAcademicMeeting(evaluations, auth.Uid, placementId);
+                }
+                bool certificateAvailable = student != null && student.CompletionCertificateAvailable
+                    && !string.IsNullOrWhiteSpace(student.CompletionCertificateEvaluationId);
+                CompletionCertificateLink.Visible = certificateAvailable;
+                CertificatePendingLabel.Visible = !certificateAvailable;
+                CompletionCertificateLink.NavigateUrl = certificateAvailable
+                    ? ResolveUrl("~/CoordinatorPages/CompletionCertificate.ashx?evaluationId=" + HttpUtility.UrlEncode(student.CompletionCertificateEvaluationId))
+                    : string.Empty;
 
                 if (student == null) ShowNotice("Your student training record has not been created yet.");
                 else if (required == 0) ShowNotice("Your required training hours have not been set yet.");
@@ -91,23 +116,108 @@ namespace Yarmouk.StudentPages
             }
         }
 
-        private static int CountCompletedTasks(Dictionary<string, JObject> tasks, string studentUid, string opportunityId)
+        private static List<KeyValuePair<string, JObject>> GetAssignedTasks(Dictionary<string, JObject> tasks,
+            string studentUid, string opportunityId, string placementId)
         {
-            if (tasks == null || string.IsNullOrWhiteSpace(studentUid) || string.IsNullOrWhiteSpace(opportunityId)) return 0;
+            if (tasks == null || string.IsNullOrWhiteSpace(studentUid)) return new List<KeyValuePair<string, JObject>>();
             return tasks
                 .Where(item => item.Value != null
-                    && Text(item.Value, "studentUid") == studentUid
-                    && Text(item.Value, "opportunityId") == opportunityId
-                    && IsCompletedTaskStatus(Text(item.Value, "status")))
-                .Select(item => string.IsNullOrWhiteSpace(Text(item.Value, "id")) ? item.Key : Text(item.Value, "id"))
+                    && Same(Text(item.Value, "studentUid"), studentUid)
+                    && IsCurrentPlacementTask(item.Value, opportunityId, placementId))
+                .ToList();
+        }
+
+        private static int CountCompletedTasks(IEnumerable<KeyValuePair<string, JObject>> tasks, string studentUid,
+            Dictionary<string, JObject> submissions)
+        {
+            return (tasks ?? Enumerable.Empty<KeyValuePair<string, JObject>>())
+                .Where(task => IsTaskCompleted(task, studentUid, submissions))
+                .Select(task => string.IsNullOrWhiteSpace(Text(task.Value, "id")) ? task.Key : Text(task.Value, "id"))
                 .Distinct(StringComparer.Ordinal)
                 .Count();
+        }
+
+        private static bool IsCurrentPlacementTask(JObject task, string opportunityId, string placementId)
+        {
+            string taskPlacementId = Text(task, "placementId");
+            if (!string.IsNullOrWhiteSpace(taskPlacementId)) return Same(taskPlacementId, placementId);
+            string taskOpportunityId = Text(task, "opportunityId");
+            if (!string.IsNullOrWhiteSpace(taskOpportunityId)) return Same(taskOpportunityId, opportunityId);
+            return true;
+        }
+
+        private static bool IsTaskCompleted(KeyValuePair<string, JObject> task, string studentUid,
+            Dictionary<string, JObject> submissions)
+        {
+            if (IsCompletedTaskStatus(Text(task.Value, "status"))) return true;
+            string taskId = Text(task.Value, "id", task.Key);
+            var latest = (submissions ?? new Dictionary<string, JObject>())
+                .Where(item => item.Value != null && Same(Text(item.Value, "taskId"), taskId)
+                    && Same(Text(item.Value, "studentUid"), studentUid))
+                .OrderByDescending(item => Number(item.Value, "submittedAtUnixMs"))
+                .FirstOrDefault();
+            return latest.Value != null && IsCompletedTaskStatus(Text(latest.Value, "reviewStatus", Text(latest.Value, "status")));
+        }
+
+        private static string FindActivePlacementId(Dictionary<string, JObject> placements, string studentUid, string opportunityId)
+        {
+            var match = (placements ?? new Dictionary<string, JObject>())
+                .Where(item => item.Value != null && Same(Text(item.Value, "studentUid"), studentUid)
+                    && (string.IsNullOrWhiteSpace(opportunityId) || Same(Text(item.Value, "opportunityId"), opportunityId))
+                    && IsActivePlacementStatus(Text(item.Value, "status")))
+                .OrderByDescending(item => Number(item.Value, "createdAtUnixMs"))
+                .FirstOrDefault();
+            return match.Value == null ? string.Empty : Text(match.Value, "id", match.Key);
+        }
+
+        private void BindAcademicMeeting(Dictionary<string, JObject> evaluations, string studentUid, string placementId)
+        {
+            var meeting = (evaluations ?? new Dictionary<string, JObject>())
+                .Where(item => item.Value != null && Same(Text(item.Value, "studentUid"), studentUid)
+                    && Same(Text(item.Value, "placementId"), placementId))
+                .OrderByDescending(item => Number(item.Value, "academicUpdatedAtUnixMs"))
+                .FirstOrDefault().Value;
+            string date = Text(meeting, "zoomMeetingDate");
+            string link = Text(meeting, "zoomMeetingUrl");
+            string note = Text(meeting, "zoomMeetingAssessment");
+            bool hasDate = !string.IsNullOrWhiteSpace(date);
+            bool hasLink = IsSafeHttpsUrl(link);
+            bool hasNote = !string.IsNullOrWhiteSpace(note);
+            AcademicMeetingStatus.Text = hasDate || hasLink || hasNote
+                ? "Your academic supervisor has shared the details below."
+                : "You have completed all assigned tasks. Your academic supervisor will share the meeting details here.";
+            AcademicMeetingDateRow.Visible = hasDate;
+            AcademicMeetingNoteRow.Visible = hasNote;
+            AcademicMeetingDate.Text = hasDate ? HttpUtility.HtmlEncode(FormatMeetingDate(date)) : string.Empty;
+            AcademicMeetingNote.Text = hasNote ? HttpUtility.HtmlEncode(note) : string.Empty;
+            AcademicMeetingLink.Visible = hasLink;
+            AcademicMeetingLink.NavigateUrl = hasLink ? link : string.Empty;
         }
 
         private static bool IsCompletedTaskStatus(string value)
         {
             var status = Normalize(value);
             return status == "completed" || status == "complete" || status == "approved";
+        }
+
+        private static bool IsActivePlacementStatus(string value)
+        {
+            var status = Normalize(value);
+            return status == "confirmed" || status == "accepted" || status == "inprogress" || status == "active"
+                || status == "ongoing" || status == "completed";
+        }
+
+        private static bool IsSafeHttpsUrl(string value)
+        {
+            Uri uri;
+            return Uri.TryCreate(value, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttps;
+        }
+
+        private static string FormatMeetingDate(string value)
+        {
+            DateTime date;
+            return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out date) ? date.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : value;
         }
 
         private static List<ProgressMilestone> BuildMilestones(int completedTasks, int required)
@@ -165,6 +275,7 @@ namespace Yarmouk.StudentPages
             long number;
             return long.TryParse(Text(value, key), out number) ? number : 0;
         }
+        private static bool Same(string left, string right) { return string.Equals(left, right, StringComparison.Ordinal); }
         private static string Normalize(string value) { return (value ?? "").Trim().Replace("_", "").Replace("-", "").Replace(" ", "").ToLowerInvariant(); }
         private void ShowNotice(string message)
         {

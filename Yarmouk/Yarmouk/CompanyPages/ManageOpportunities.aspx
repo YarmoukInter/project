@@ -25,7 +25,7 @@
                 <label class="co-search"><span aria-hidden="true">⌕</span><asp:TextBox ID="OpportunitySearchTextBox" runat="server" TextMode="Search" placeholder="Search opportunities…" aria-label="Search opportunities" /></label>
                 <label class="co-filter-label" for="OpportunityStatusFilter">Status</label>
                 <asp:DropDownList ID="OpportunityStatusFilter" runat="server" CssClass="co-select"><asp:ListItem Value="all">All statuses</asp:ListItem><asp:ListItem Value="active">Active</asp:ListItem><asp:ListItem Value="draft">Draft</asp:ListItem><asp:ListItem Value="closed">Closed</asp:ListItem></asp:DropDownList>
-                <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" OnClick="ApplyFiltersButton_Click" />
+                <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" formnovalidate="formnovalidate" OnClick="ApplyFiltersButton_Click" />
             </div>
             <div class="co-opportunity-grid" aria-label="Your opportunities">
                 <asp:Repeater ID="OpportunitiesRepeater" runat="server" OnItemCommand="OpportunitiesRepeater_ItemCommand"><ItemTemplate>
@@ -34,7 +34,7 @@
                         data-status='<%# Attr(Eval("Status")) %>'
                         data-title='<%# Attr(Eval("Title")) %>'
                         data-deadline='<%# FormatDateInput(Eval("Deadline")) %>'
-                        data-seats='<%# Attr(Eval("Seats")) %>'
+                        data-seats='<%# Attr(Eval("TotalSeats")) %>'
                         data-duration='<%# Attr(Eval("Duration")) %>'
                         data-hours='<%# Attr(Eval("Hours")) %>'
                         data-work-mode='<%# Attr(Eval("WorkMode")) %>'
@@ -66,7 +66,7 @@
                 <div class="co-form-grid">
                     <label class="co-field co-field-wide">Internship title<asp:TextBox ID="OpportunityTitleInput" runat="server" ClientIDMode="Static" MaxLength="120" required="required" placeholder="e.g. Software Developer Intern" /></label>
                     <label class="co-field">Application deadline (optional)<asp:TextBox ID="OpportunityDeadlineInput" runat="server" ClientIDMode="Static" TextMode="Date" /></label>
-                    <label class="co-field">Available seats<asp:TextBox ID="OpportunitySeatsInput" runat="server" ClientIDMode="Static" TextMode="Number" min="1" max="500" required="required" /></label>
+                    <label class="co-field">Total training seats<asp:TextBox ID="OpportunitySeatsInput" runat="server" ClientIDMode="Static" TextMode="Number" min="1" max="500" required="required" /></label>
                     <label class="co-field">Duration<asp:TextBox ID="OpportunityDurationInput" runat="server" ClientIDMode="Static" MaxLength="80" placeholder="e.g. 8 weeks" /></label>
                     <label class="co-field">Required training hours<asp:TextBox ID="OpportunityHoursInput" runat="server" ClientIDMode="Static" TextMode="Number" min="0" max="10000" /></label>
                     <label class="co-field">Work mode<asp:DropDownList ID="OpportunityWorkModeInput" runat="server" ClientIDMode="Static"><asp:ListItem>OnSite</asp:ListItem><asp:ListItem>Hybrid</asp:ListItem><asp:ListItem>Remote</asp:ListItem></asp:DropDownList></label>

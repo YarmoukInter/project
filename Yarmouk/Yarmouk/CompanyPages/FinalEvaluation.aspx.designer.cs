@@ -87,6 +87,11 @@ namespace Yarmouk.CompanyPages
         protected global::System.Web.UI.WebControls.Panel EvaluationWorkspace;
 
         /// <summary>
+        /// EvaluationGuidance control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal EvaluationGuidance;
+
+        /// <summary>
         /// StudentInitials control.
         /// </summary>
         /// <remarks>
@@ -130,42 +135,6 @@ namespace Yarmouk.CompanyPages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Literal EvaluationStatus;
-
-        /// <summary>
-        /// CompanyScoreSummary control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal CompanyScoreSummary;
-
-        /// <summary>
-        /// ReportCount control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal ReportCount;
-
-        /// <summary>
-        /// ReportList control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater ReportList;
-
-        /// <summary>
-        /// ReportsEmpty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel ReportsEmpty;
 
         /// <summary>
         /// DetailsStudentName control.
@@ -247,15 +216,6 @@ namespace Yarmouk.CompanyPages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox CompanyFeedback;
-
-        /// <summary>
-        /// SaveDraft control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button SaveDraft;
 
         /// <summary>
         /// SubmitEvaluation control.

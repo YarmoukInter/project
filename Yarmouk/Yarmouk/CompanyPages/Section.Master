@@ -1,15 +1,19 @@
 <%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.CompanyPages.SectionMaster" %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=8") %>' defer></script>
 <title>UIMS</title>
 <link runat="server" href="~/Content/bootstrap.min.css?v=dashboard-assets-3" rel="stylesheet" />
 <link runat="server" href="~/Content/CompanyPages/shared.css?v=dashboard-assets-3" rel="stylesheet" />
-<link runat="server" href="~/Content/CompanyPages/sidebar.css?v=sidebar-logout-4" rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CompanyPages/sidebar.js") %>?v=sidebar-logout-4' defer></script>
+<link runat="server" href="~/Content/CompanyPages/sidebar.css?v=sidebar-brand-5" rel="stylesheet" />
+<link runat="server" href="~/Content/Shared/student-profile-images.css?v=1" rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CompanyPages/sidebar.js") %>?v=sidebar-brand-5' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/Shared/student-profile-images.js") %>?v=1' defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head>
 <body>
 <form id="form1" runat="server">
@@ -42,5 +46,6 @@
   </div>
 </div>
 </form>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>

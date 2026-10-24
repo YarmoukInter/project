@@ -15,7 +15,7 @@
             <div>
                 <p class="eyebrow">STUDENT TRAINING</p>
                 <h1 id="progress-title">My Progress</h1>
-                <p class="heading-copy">Complete 10 tasks to reach 100% internship progress.</p>
+                <p class="heading-copy">Submit 10 tasks to reach 100% task submission progress. Completion approval also requires reviewed work and approved hours.</p>
             </div>
             <div class="program-pill"><span class="status-dot"></span> Internship journey</div>
         </header>
@@ -38,13 +38,13 @@
                     <div class="progress-ring" id="progressRing" runat="server" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Internship completion progress">
                         <div class="ring-center">
                             <span class="completion-number"><asp:Literal ID="CompletionPercent" runat="server" /></span><span class="percent-sign">%</span>
-                            <span class="ring-caption">completed</span>
+                            <span class="ring-caption">submitted</span>
                         </div>
                     </div>
                     <div class="completion-summary">
-                        <p class="hours-total"><asp:Literal ID="CompletedTaskCount" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks completed</span></p>
-                        <p class="summary-copy">Each completed task adds 10% toward your internship progress.</p>
-                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Completed tasks" aria-valuemin="0" aria-valuemax="0">
+                        <p class="hours-total"><asp:Literal ID="CompletedTaskCount" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks submitted</span></p>
+                        <p class="summary-copy">Each submitted task adds 10% toward your internship progress.</p>
+                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Submitted tasks" aria-valuemin="0" aria-valuemax="0">
                             <span id="hoursTrack" runat="server"></span>
                         </div>
                         <div class="track-labels"><span>0 tasks</span><span><asp:Literal ID="TrackTarget" runat="server" /> tasks</span></div>
@@ -67,7 +67,7 @@
                 </div>
                 <div class="plan-divider"></div>
                 <div class="plan-detail"><span class="detail-icon calendar-icon" aria-hidden="true">✓</span><span><strong><asp:Literal ID="PlanApprovedHours" runat="server" /></strong><small>Approved hours so far</small></span></div>
-                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each completed task adds 10%</small></span></div>
+                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each submitted task adds 10%</small></span></div>
                 <p class="plan-note">Only tasks marked Completed count toward your progress.</p>
             </article>
         </div>
@@ -108,7 +108,7 @@
         </article>
 
         <div class="progress-bottom-grid">
-            <article class="progress-card next-step-card">
+            <asp:Panel ID="NextStepCard" runat="server" CssClass="progress-card next-step-card">
                 <div class="next-step-icon" aria-hidden="true">✦</div>
                 <div class="next-step-copy">
                     <p class="card-kicker">KEEP GOING</p>
@@ -116,11 +116,25 @@
                     <p>Check task feedback and requested revisions while you work toward completing your 10 required tasks.</p>
                 </div>
                 <a class="tasks-link" href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>">View my tasks <span aria-hidden="true">→</span></a>
-            </article>
+            </asp:Panel>
+            <asp:Panel ID="AcademicMeetingCard" runat="server" CssClass="progress-card academic-meeting-card" Visible="false">
+                <div class="meeting-card-icon" aria-hidden="true">◷</div>
+                <div class="meeting-card-copy">
+                    <p class="card-kicker">ACADEMIC REVIEW MEETING</p>
+                    <h2>Meet with your academic supervisor</h2>
+                    <p class="meeting-card-status"><asp:Literal ID="AcademicMeetingStatus" runat="server" /></p>
+                    <dl class="meeting-details">
+                        <div id="AcademicMeetingDateRow" runat="server"><dt>Date</dt><dd><asp:Literal ID="AcademicMeetingDate" runat="server" /></dd></div>
+                        <div id="AcademicMeetingNoteRow" runat="server"><dt>Note</dt><dd><asp:Literal ID="AcademicMeetingNote" runat="server" /></dd></div>
+                    </dl>
+                </div>
+                <asp:HyperLink ID="AcademicMeetingLink" runat="server" CssClass="meeting-link" Target="_blank" rel="noopener noreferrer" Visible="false">Join Zoom meeting <span aria-hidden="true">↗</span></asp:HyperLink>
+            </asp:Panel>
             <article class="progress-card completion-note-card">
                 <span class="certificate-icon" aria-hidden="true">▤</span>
                 <div><p class="card-kicker">COMPLETION REPORT</p><h2>Your certificate is the final milestone</h2><p>Once your internship is complete and approved by the coordinator, your completion certificate will be available here.</p></div>
-                <span class="locked-label"><span aria-hidden="true">⌑</span> After approval</span>
+                <asp:HyperLink ID="CompletionCertificateLink" runat="server" CssClass="completion-certificate-link" Target="_blank" rel="noopener noreferrer" Visible="false">Download certificate <span aria-hidden="true">↗</span></asp:HyperLink>
+                <asp:Panel ID="CertificatePendingLabel" runat="server" CssClass="locked-label"><span aria-hidden="true">⌑</span> After approval</asp:Panel>
             </article>
         </div>
         <p class="privacy-note"><span aria-hidden="true">●</span> Final supervisor evaluations are private. This page shows your training progress only.</p>

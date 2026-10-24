@@ -12,6 +12,8 @@
   };
   const defaultKeys = {name: nameKey('h3, h2, strong'), status: nameKey('[class*="status"], [class*="badge"]')};
   const configs = {
+    '/coordinatorpages/manageopportunities': [{list:'#coordinator-opportunity-list',item:'.op-card',label:'opportunities',search:true,export:true,pageSizes:[6,12,24],filters:[{label:'Training provider',allLabel:'All providers',key:el=>el.dataset.company},{label:'Status',allLabel:'All statuses',key:el=>text(el,'.op-status')}],keys:{name:nameKey('h3')},exportData:()=>window.uimsOpportunityExport()}],
+    '/coordinatorpages/applicationsreview': [{list:'#coordinator-application-list',item:'.op-card',label:'applications',search:true,export:true,pageSizes:[6,12,24],filters:[{label:'Training provider',allLabel:'All providers',key:el=>text(el,'.app-opportunity small')},{label:'Status',allLabel:'All statuses',key:el=>el.dataset.status}],sorts:[['-date','Newest applications first'],['date','Oldest applications first'],['name','Student · A–Z']],initial:'-date',keys:{name:nameKey('h3'),date:el=>Number(el.dataset.applied)||null},exportData:()=>window.uimsApplicationExport()}],
     '/academicpages/tasks': [{list:'#academic-task-rows', item:'tr', label:'tasks', search:true, student:true,
       statuses:[['done','Submitted'],['inprogress','In progress'],['todo','To do'],['completed','Completed']],
       keys:{name:el=>el.dataset.student, title:nameKey('.task-register-title'), date:dateKey('.task-due'), status:el=>el.dataset.status},
@@ -28,12 +30,13 @@
     '/companypages/managetasks': [{list:'.task-card-list',item:'.task-review-card',label:'tasks',search:true,keys:{name:nameKey('.task-card-student'),title:nameKey('.task-card-title'),date:dateKey('.task-card-deadline'),status:el=>el.dataset.status}}],
     '/companypages/finalevaluation': [{list:'.evaluation-trainee-list',item:'.evaluation-trainee-card',label:'trainees',search:true,keys:{name:nameKey('.evaluation-trainee-name'),status:el=>el.dataset.status}},
       {list:'#company-report-list',item:'.report-card',label:'reports',search:true,pageSizes:[3,6,12],keys:{name:nameKey('h4'),status:nameKey('.report-status')}}],
-    '/coordinatorpages/managestudents': [{list:'#roster-body',item:'tr:not(:has([colspan]))',label:'students',search:true,keys:{name:nameKey('.yr-person-name'),status:nameKey('.yr-status')}}],
-    '/coordinatorpages/managecompanies': [{list:'#roster-body',item:'tr:not(:has([colspan]))',label:'companies',search:true,keys:{name:nameKey('.yr-person-name'),status:nameKey('.yr-status')}}],
-    '/coordinatorpages/manageacademicsupervisors': [{list:'#roster-body',item:'tr:not(:has([colspan]))',label:'supervisors',search:true,keys:{name:nameKey('.yr-person-name'),status:nameKey('.yr-status')}}],
-    '/coordinatorpages/monitorplacements': [{list:'#mp-rows',item:'tr',label:'placements',search:'#mp-search',keys:{name:nameKey('.mp-person-copy strong'),status:nameKey('.mp-badge'),progress:el=>Number(text(el,'.mp-progress-label strong').replace('%',''))}}],
-    '/coordinatorpages/finalcompletionreview': [{list:'#fr-rows',item:'tr',label:'evaluations',search:'#fr-search',keys:{name:nameKey('td:first-child strong'),status:nameKey('.fr-badge')}}],
-    '/coordinatorpages/contactmessages': [{list:'#message-list',item:'.cm-message',label:'messages',search:true,keepSort:true,compact:true}],
+    '/coordinatorpages/managestudents': [{list:'#roster-body',item:'tr:not(:has([colspan]))',label:'students',search:true,export:true,statuses:[['active','Active'],['inactive','Inactive']],filters:[{label:'Department',allLabel:'All departments',key:el=>text(el,'.yr-column-department')},{label:'Supervisor',allLabel:'All supervisors',key:el=>el.querySelector('[data-assignment]')?.selectedOptions?.[0]?.textContent?.trim()}],keys:{name:nameKey('.yr-person-name'),status:nameKey('.yr-status')}}],
+    '/coordinatorpages/managecompanies': [{list:'#roster-body',item:'tr:not(:has([colspan]))',label:'companies',search:true,export:true,keys:{name:nameKey('.yr-person-name'),status:nameKey('.yr-status')}}],
+    '/coordinatorpages/manageacademicsupervisors': [{list:'#roster-body',item:'tr:not(:has([colspan]))',label:'supervisors',search:true,export:true,pageSizes:[6,12,24],statuses:[['active','Active'],['inactive','Inactive']],filters:[{label:'Department',allLabel:'All departments',key:el=>text(el,'.yr-column-department')},{label:'College',allLabel:'All colleges',key:el=>text(el,'.yr-column-college')},{label:'Assignments',allLabel:'All assignments',key:el=>Number(text(el,'.yr-number'))>0?'With assigned students':'No assigned students'}],sorts:[['name','Name · A–Z'],['-name','Name · Z–A'],['assigned','Fewest assigned students'],['-assigned','Most assigned students']],keys:{name:nameKey('.yr-person-name'),assigned:el=>Number(text(el,'.yr-number'))}}],
+    '/coordinatorpages/monitorplacements': [{list:'#mp-rows',item:'.mp-placement-card',label:'placements',search:'#mp-search',export:true,keys:{name:nameKey('.mp-person-copy strong'),status:nameKey('.mp-badge'),progress:el=>Number(text(el,'.mp-progress-label strong').replace('%',''))},exportData:()=>({headers:['Student','Student number','Training role','Training provider','Location','Academic supervisor','Progress','Tasks','Evaluations','Approved hours','Status','Last update'],rows:(window.uimsMonitorData||[]).map(row=>[row.name,row.id,row.role,row.company,row.city,row.supervisor,row.progress+'%',row.tasks,row.evaluations,row.hours,row.status,row.updated])})}],
+    '/coordinatorpages/finalcompletionreview': [{list:'#fr-rows',item:'tr',label:'evaluations',search:'#fr-search',export:true,keys:{name:nameKey('td:first-child strong'),status:nameKey('.fr-badge')},exportData:()=>({headers:['Student','Student number','Training provider','Opportunity','Company evaluation','Academic evaluation','Approved hours','Required hours','Status','Coordinator approved'],rows:(window.uimsFinalReviewExport||[]).map(record=>[record.name,record.studentId,record.company,record.opportunity,record.companySubmitted?'Received':'Pending',record.academicSubmitted?'Received':'Pending',record.approvedHours,record.hoursConfigured?record.requiredHours:'Not configured',record.status,record.coordinatorApproved?'Yes':'No'])})}],
+    '/coordinatorpages/contactmessages': [{list:'#message-list',item:'.cm-message',label:'messages',search:true,keepSort:true,compact:true,externalControl:'#message-sort',export:true,exportIcon:true,exportData:()=>({headers:['Sender','Email','Subject','Message','Received','Read','Archived'],rows:(window.uimsCoordinatorMessagesForExport?.()||[]).map(message=>[message.fullName,message.email,message.subject,message.message,message.createdAtUnixMs?new Date(message.createdAtUnixMs).toISOString():'',message.isRead?'Yes':'No',message.isArchived?'Yes':'No'])})}],
+    '/coordinatorpages/managetasks': [{list:'#coordinator-task-rows',item:'tr',label:'tasks',search:true,export:true,keys:{name:nameKey('.task-student-name'),title:nameKey('.task-title'),date:dateKey('.task-deadline'),status:nameKey('.task-status')}}],
     '/studentpages/opportunities': [{list:'#opportunityList',item:'.opportunity-card',label:'opportunities',search:false,keys:{name:nameKey('h3')},compact:true}],
     '/studentpages/myapplications': [{list:'#applicationList',item:'.application-card',label:'applications',search:false,keepSort:true}],
     '/studentpages/progress': [{list:'#academic-notes-list',item:'.academic-note',label:'notes',search:true,initial:'-date',keys:{name:nameKey('.academic-note-header strong'),date:el=>{const value=Date.parse(el.querySelector('time')?.dateTime||'');return Number.isFinite(value)?value:null;}}}]
@@ -93,18 +96,62 @@
     const student = config.student ? field('Student','select',[['','All students']]) : null;
     const group = config.group ? field(config.group.label,'select',[['','All providers']]) : null;
     const status = config.statuses ? field('Status','select',[['','All statuses'],...config.statuses]) : null;
+    const customFilters = (config.filters || []).map(filter => ({filter, control:field(filter.label,'select',[[ '', filter.allLabel || `All ${filter.label.toLowerCase()}` ]])}));
     let sorts = config.sorts || [['source','Default order'],['name','Name · A–Z'],['-name','Name · Z–A']];
     if (!config.sorts && config.keys?.date) sorts = [...sorts,['date','Date · earliest'],['-date','Date · latest']];
     if (!config.sorts && config.keys?.status) sorts.push(['status','Group by status']);
     if (config.keys?.progress) sorts.push(['progress','Progress · lowest'],['-progress','Progress · highest']);
     const sort = !config.keepSort ? field('Sort by','select',sorts) : null;
     if(sort && config.initial) sort.value = config.initial;
+    if (config.externalControl) {
+      const extra = document.querySelector(config.externalControl);
+      const wrapper = extra?.closest('.cm-list-toolbar');
+      if (wrapper) toolbar.appendChild(wrapper);
+    }
     const size = field('Per page','select',pageSizes.map(n=>[String(n),String(n)]));
     const reset = document.createElement('button');
     reset.type = 'button';
     reset.className = 'record-reset';
     reset.textContent = 'Clear filters';
     toolbar.append(reset);
+    if (config.export) {
+      const exportButton = document.createElement('button');
+      exportButton.type = 'button';
+      exportButton.className = 'record-export';
+      if (config.exportIcon) {
+        exportButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 16v4h14v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      } else exportButton.textContent = 'Export Excel';
+      exportButton.setAttribute('aria-label',`Export all ${config.label} to an Excel-compatible CSV file`);
+      exportButton.addEventListener('click',()=>{
+        if (!window.UimsExcelExport) return;
+        let headers, rows;
+        if (config.exportData) ({headers,rows}=config.exportData());
+        else {
+          const table = list.closest('table') || list.querySelector('table');
+          if (table) {
+            const headerCells = [...table.querySelectorAll('thead th')];
+            const included = headerCells.map((cell,index)=>({index,label:cell.textContent.trim()}))
+              .filter(column=>column.label && !/^(actions?|details?|review|select)$/i.test(column.label));
+            headers = included.map(column=>column.label);
+            rows = getItems().map(item=>included.map(column=>{
+              const cell=item.cells?.[column.index];
+              const selected=cell?.querySelector('select')?.selectedOptions?.[0]?.textContent?.trim();
+              return selected || cell?.innerText?.trim() || '';
+            }));
+          } else {
+            headers = ['Record'];
+            rows = getItems().map(item=>{
+              const clean=item.cloneNode(true);
+              clean.querySelectorAll('button,a,input,select,textarea,svg,[aria-hidden="true"]').forEach(node=>node.remove());
+              return [clean.innerText.trim()];
+            });
+          }
+        }
+        const slug=location.pathname.split('/').pop().replace(/\.aspx$/i,'').replace(/[^a-z0-9_-]/gi,'-').toLowerCase() || config.label;
+        window.UimsExcelExport.download(`${slug}-${new Date().toISOString().slice(0,10)}.csv`,headers,rows);
+      });
+      toolbar.append(exportButton);
+    }
     const noMatches = document.createElement('p');
     noMatches.className = 'record-no-matches';
     noMatches.textContent = config.emptyMessage || `No ${config.label} match. Try another search or clear your filters.`;
@@ -140,8 +187,16 @@
           group.value=values.includes(selected)?selected:'';
         }
       }
+      customFilters.forEach(({filter,control})=>{
+        const values=[...new Set(items.map(filter.key).filter(Boolean))].sort(compare);
+        const selected=control.value;
+        if(control.options.length!==values.length+1 || values.some((value,index)=>control.options[index+1]?.value!==value)) {
+          control.replaceChildren(new Option(filter.allLabel || `All ${filter.label.toLowerCase()}`,''), ...values.map(value=>new Option(value,value)));
+          control.value=values.includes(selected)?selected:'';
+        }
+      });
       const query = normalize(search?.value);
-      const filtered = items.filter(el=>!el.hidden && (!query || normalize(el.textContent).includes(query)) && (!student?.value || el.dataset.student === student.value) && (!group?.value || config.group.key(el)===group.value) && (!status?.value || el.dataset.status === status.value));
+      const filtered = items.filter(el=>!el.hidden && (!query || normalize(el.textContent).includes(query)) && (!student?.value || el.dataset.student === student.value) && (!group?.value || config.group.key(el)===group.value) && (!status?.value || el.dataset.status === status.value) && customFilters.every(({filter,control})=>!control.value||filter.key(el)===control.value));
       const sorting = sort?.value || 'source';
       const descending = sorting.startsWith('-');
       const key = sorting.replace(/^-/,'');
@@ -167,7 +222,7 @@
       const start = (currentPage-1)*pageSize;
       const shown = new Set(visible.slice(start,start+pageSize));
       items.forEach(el=>el.toggleAttribute('data-record-hidden',!shown.has(el)));
-      const hasOwnFilter = Boolean(query || student?.value || status?.value || group?.value);
+      const hasOwnFilter = Boolean(query || student?.value || status?.value || group?.value || customFilters.some(({control})=>control.value));
       noMatches.hidden = visible.length>0 || !items.length || !(hasOwnFilter||config.emptyWhenFiltered);
       toolbar.hidden = !items.length && lastTotal<=0;
       reset.hidden = !hasOwnFilter;
@@ -203,7 +258,7 @@
     fields.forEach(control=>control.addEventListener(control.type==='search'?'input':'change',()=>{
       pageSize=Number(size.value); currentPage=1; render();
     }));
-    reset.addEventListener('click',()=>{ if(search)search.value=''; if(student)student.value=''; if(status)status.value=''; if(group)group.value=''; currentPage=1;render(); search?.focus(); });
+    reset.addEventListener('click',()=>{ if(search)search.value=''; if(student)student.value=''; if(status)status.value=''; if(group)group.value=''; customFilters.forEach(({control})=>control.value=''); currentPage=1;render(); search?.focus(); });
     toolbar.addEventListener('keydown',event=>{ if(event.key==='Enter' && event.target.matches('input[type="search"]')) event.preventDefault(); });
     const main = list.closest('main') || document.body;
     ['input','change','click'].forEach(eventName=>main.addEventListener(eventName,event=>{

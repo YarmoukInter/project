@@ -6,29 +6,29 @@
     const $$ = (selector, scope = team) => Array.from(scope.querySelectorAll(selector));
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const teamMembers = [
-        { id:'01', nameEn:'Wissam Khreisat', role:'Scrum Methodology Coordinator (Scrum Master)', badgeRole:'Scrum Master', icon:'fa-compass-drafting', imgUrl:'../Content/Images/Team/wessam_khraisat-transparent.png', bio:'Coordinates work within the Scrum framework, organizes development sprints, tracks the removal of blockers, and ensures that system components integrate smoothly.', duties:['Sprint planning','Facilitating team collaboration','Monitoring module integration'], areas:['Scrum framework coordination','Development progress tracking','System component integration'], social:{ linkedin:'https://www.linkedin.com/in/divbux', github:'https://github.com/wessamkhraisat98' } },
-        { id:'02', nameEn:'Amneh Al-Hazaimeh', role:'Product Owner', badgeRole:'Product Owner', icon:'fa-crown', imgUrl:'../Content/Images/Team/Amneh Al-hazaimeh-transparent.png', bio:'Defines the product vision and analyzes its requirements to meet the needs of Yarmouk University, while keeping the user experience of each role in focus.', duties:['Analyzing system requirements','Managing the product requirements backlog','Mapping user journeys'], areas:['Product analysis','User journey design','Development requirements management'], social:{ linkedin:'https://www.linkedin.com/in/amneh-alhazaimeh-a01a7a340/?isSelfProfile=true', github:'https://github.com/amneh-01' } },
-        { id:'03', nameEn:'Ghaith Ammourah', role:'Quality Assurance Engineer', badgeRole:'QA Engineer', icon:'fa-shield-halved', imgUrl:'../Content/Images/Team/ghaith-amourah-transparent.png', bio:'Tests system functions, reviews user roles and permissions, and checks data flow to confirm that it meets the project requirements.', duties:['System function testing','Role and permission review','Data integrity verification'], areas:['Quality testing','Authentication and permissions review','Documenting technical findings'], social:{ github:'https://github.com/gh2ith' } },
-        { id:'04', nameEn:'Sief Alkhatatbeh', role:'Full-Stack Developer', badgeRole:'Full-Stack Developer', icon:'fa-wand-magic-sparkles', imgUrl:'../Content/Images/Team/Sief Alkhatatbeh-transparent.png', bio:'Designs and builds the system interfaces and user experience, develops system functions with ASP.NET C#, and connects them to Firebase services.', duties:['Interface and user experience design','Developing system functions with ASP.NET C#','Integration with Firebase services'], areas:['Interface development','Back-end development','User experience design'], social:{ linkedin:'https://www.linkedin.com/in/saif-khatatbeh-1a6ab1317/?isSelfProfile=true', github:'https://github.com/saifkhatatbeh17-droid' } },
-        { id:'05', nameEn:'Dana Al-Khatib', role:'Full-Stack Developer', badgeRole:'Full-Stack Developer', icon:'fa-laptop-code', imgUrl:'../Content/Images/Team/Dana Alkhateeb-transparent.png', bio:'Develops role-based interfaces, carries out the application and placement procedures, and follows student progress during field training.', duties:['Role-based interface development','Organizing application and placement procedures','Tracking student progress'], areas:['User interfaces','System development with ASP.NET Web Forms','Workflow procedures'], social:{ linkedin:'https://www.linkedin.com/in/dana-alkhateeb-3636a5422?utm_source=share_via&utm_content=profile&utm_medium=member_ios', github:'https://github.com/DanaAlkhateeb123' } },
-        { id:'06', nameEn:'Haya Ahmad', role:'Full-Stack Developer', badgeRole:'Full-Stack Developer', icon:'fa-layer-group', imgUrl:'../Content/Images/Team/Haya Ahmed-transparent.png', bio:'Develops the functions for managing training opportunities and daily tasks, along with academic and field assessment forms.', duties:['Training opportunity management','Field task tracking','Academic and field assessment forms'], areas:['Task management','Assessment procedure development','Data synchronization'], social:{ linkedin:'https://www.linkedin.com/in/haya-ahmed-5a1314333/', github:'https://github.com/Haya155' } },
-        { id:'07', nameEn:'Amani', role:'Full-Stack Developer', badgeRole:'Full-Stack Developer', icon:'fa-microchip', imgUrl:'../Content/Images/Team/Amani Alazzam-transparent.png', bio:'Develops sign-in and user and permission management with Firebase Authentication, and builds responsive Arabic interfaces.', duties:['Sign-in management','User and permission management','Responsive Arabic interface development'], areas:['Firebase Authentication','Permission management','Cloud data modeling'], social:{ linkedin:'http://www.linkedin.com/in/amani-azzam-57359936a', github:'https://github.com/amanialazzam04/Amaniazzam' } }
+        { id: '01', nameEn: 'Wissam Khreisat', role: 'Scrum Methodology Coordinator (Scrum Master)', badgeRole: 'Scrum Master', icon: 'fa-compass-drafting', imgUrl: '../Content/Images/Team/wessam_khraisat-transparent.png', bio: 'Coordinates work within the Scrum framework, organizes development sprints, tracks the removal of blockers, and ensures that system components integrate smoothly.', duties: ['Sprint planning', 'Facilitating team collaboration', 'Monitoring module integration'], areas: ['Scrum framework coordination', 'Development progress tracking', 'System component integration'], social: { linkedin: 'https://www.linkedin.com/in/divbux', github: 'https://github.com/wessamkhraisat98' } },
+        { id: '02', nameEn: 'Amneh Al-Hazaimeh', role: 'Product Owner', badgeRole: 'Product Owner', icon: 'fa-crown', imgUrl: '../Content/Images/Team/Amneh Al-hazaimeh-transparent.png', bio: 'Defines the product vision and analyzes its requirements to meet the needs of Yarmouk University, while keeping the user experience of each role in focus.', duties: ['Analyzing system requirements', 'Managing the product requirements backlog', 'Mapping user journeys'], areas: ['Product analysis', 'User journey design', 'Development requirements management'], social: { linkedin: 'https://www.linkedin.com/in/amneh-alhazaimeh-a01a7a340/?isSelfProfile=true', github: 'https://github.com/amneh-01' } },
+        { id: '03', nameEn: 'Ghaith Ammourah', role: 'Quality Assurance Engineer', badgeRole: 'QA Engineer', icon: 'fa-shield-halved', imgUrl: '../Content/Images/Team/ghaith-amourah-transparent.png', bio: 'Tests system functions, reviews user roles and permissions, and checks data flow to confirm that it meets the project requirements.', duties: ['System function testing', 'Role and permission review', 'Data integrity verification'], areas: ['Quality testing', 'Authentication and permissions review', 'Documenting technical findings'], social: { linkedin: 'https://www.linkedin.com/in/ghaith-amourah-0916b8434', github: 'https://github.com/gh2ith' } },
+        { id: '04', nameEn: 'Saif Khatatbeh', role: 'Full-Stack Developer', badgeRole: 'Full-Stack Developer', icon: 'fa-wand-magic-sparkles', imgUrl: '../Content/Images/Team/Sief Alkhatatbeh-transparent.png', bio: 'Designs and builds the system interfaces and user experience, develops system functions with ASP.NET C#, and connects them to Firebase services.', duties: ['Interface and user experience design', 'Developing system functions with ASP.NET C#', 'Integration with Firebase services'], areas: ['Interface development', 'Back-end development', 'User experience design'], social: { linkedin: 'https://www.linkedin.com/in/saif-khatatbeh-1a6ab1317/?isSelfProfile=true', github: 'https://github.com/saifkhatatbeh17-droid' } },
+        { id: '05', nameEn: 'Dana Al-Khatib', role: 'Full-Stack Developer', badgeRole: 'Full-Stack Developer', icon: 'fa-laptop-code', imgUrl: '../Content/Images/Team/Dana Alkhateeb-transparent.png', bio: 'Develops role-based interfaces, carries out the application and placement procedures, and follows student progress during field training.', duties: ['Role-based interface development', 'Organizing application and placement procedures', 'Tracking student progress'], areas: ['User interfaces', 'System development with ASP.NET Web Forms', 'Workflow procedures'], social: { linkedin: 'https://www.linkedin.com/in/dana-alkhateeb-3636a5422?utm_source=share_via&utm_content=profile&utm_medium=member_ios', github: 'https://github.com/DanaAlkhateeb123' } },
+        { id: '06', nameEn: 'Haya Ahmad', role: 'Full-Stack Developer', badgeRole: 'Full-Stack Developer', icon: 'fa-layer-group', imgUrl: '../Content/Images/Team/Haya Ahmed-transparent.png', bio: 'Develops the functions for managing training opportunities and daily tasks, along with academic and field assessment forms.', duties: ['Training opportunity management', 'Field task tracking', 'Academic and field assessment forms'], areas: ['Task management', 'Assessment procedure development', 'Data synchronization'], social: { linkedin: 'https://www.linkedin.com/in/haya-ahmed-5a1314333/', github: 'https://github.com/Haya155' } },
+        { id: '07', nameEn: 'Amani', role: 'Full-Stack Developer', badgeRole: 'Full-Stack Developer', icon: 'fa-microchip', imgUrl: '../Content/Images/Team/Amani Alazzam-transparent.png', bio: 'Develops sign-in and user and permission management with Firebase Authentication, and builds responsive Arabic interfaces.', duties: ['Sign-in management', 'User and permission management', 'Responsive Arabic interface development'], areas: ['Firebase Authentication', 'Permission management', 'Cloud data modeling'], social: { linkedin: 'http://www.linkedin.com/in/amani-azzam-57359936a', github: 'https://github.com/amanialazzam04/Amaniazzam' } }
     ];
     const roster = $('#roster');
     const panel = $('#dossier-panel');
     const dossier = $('#dossier');
     let activeIndex = 0;
-    const safeText = (value) => value.replace(/[&<>"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+    const safeText = (value) => value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
     function placeholder(member) {
-        const initials = member.nameEn.split(/\s+/).map((part) => part[0]).slice(0,2).join('');
+        const initials = member.nameEn.split(/\s+/).map((part) => part[0]).slice(0, 2).join('');
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 425"><rect width="340" height="425" fill="#DDE6DD"/><text x="170" y="236" text-anchor="middle" font-family="Georgia,serif" font-size="96" fill="#0C3026">' + initials + '</text></svg>');
     }
     function setImage(image, member) {
         image.onerror = () => { image.onerror = null; image.src = placeholder(member); };
         image.src = member.imgUrl;
     }
-    roster.innerHTML = teamMembers.map((member,index) => '<button class="roster-tab" type="button" role="tab" id="tab-' + index + '" aria-controls="dossier-panel" aria-selected="false" tabindex="-1" data-index="' + index + '"><span class="roster-num">' + member.id + '</span><img class="roster-thumb" src="' + safeText(member.imgUrl) + '" alt="" width="52" height="52" loading="lazy" decoding="async"><span class="roster-text"><span class="roster-name">' + safeText(member.nameEn) + '</span><span class="roster-role">' + safeText(member.role) + '</span></span></button>').join('');
-    $$('.roster-thumb').forEach((image,index) => setImage(image,teamMembers[index]));
+    roster.innerHTML = teamMembers.map((member, index) => '<button class="roster-tab" type="button" role="tab" id="tab-' + index + '" aria-controls="dossier-panel" aria-selected="false" tabindex="-1" data-index="' + index + '"><span class="roster-num">' + member.id + '</span><img class="roster-thumb" src="' + safeText(member.imgUrl) + '" alt="" width="52" height="52" loading="lazy" decoding="async"><span class="roster-text"><span class="roster-name">' + safeText(member.nameEn) + '</span><span class="roster-role">' + safeText(member.role) + '</span></span></button>').join('');
+    $$('.roster-thumb').forEach((image, index) => setImage(image, teamMembers[index]));
     function render(index) {
         const member = teamMembers[index];
         $('#dossierNum').textContent = member.id;
@@ -62,8 +62,8 @@
         $('#dossierAreas').innerHTML = member.areas.map((item) => '<li class="chip">' + safeText(item) + '</li>').join('');
         const image = $('#dossierImg');
         image.alt = 'Portrait of ' + member.nameEn;
-        setImage(image,member);
-        panel.setAttribute('aria-labelledby','tab-' + index);
+        setImage(image, member);
+        panel.setAttribute('aria-labelledby', 'tab-' + index);
         $('#activeCounter').textContent = member.id;
     }
     function applySelection(index, focus) {
@@ -121,11 +121,11 @@
                     { duration: 260, easing: 'cubic-bezier(.22, .86, .2, 1)', fill: 'both' }
                 );
             }
-        }).catch(() => {});
+        }).catch(() => { });
         transition.finished.then(clearTransitionNames, clearTransitionNames);
     }
-    roster.addEventListener('click',(event) => { const tab = event.target.closest('.roster-tab'); if (tab) select(Number(tab.dataset.index),true); });
-    roster.addEventListener('keydown',(event) => { const step = {ArrowDown:1,ArrowRight:1,ArrowUp:-1,ArrowLeft:-1}[event.key]; if (step !== undefined) { event.preventDefault(); select(activeIndex + step,true); } else if (event.key === 'Home') { event.preventDefault(); select(0,true); } else if (event.key === 'End') { event.preventDefault(); select(teamMembers.length - 1,true); } });
+    roster.addEventListener('click', (event) => { const tab = event.target.closest('.roster-tab'); if (tab) select(Number(tab.dataset.index), true); });
+    roster.addEventListener('keydown', (event) => { const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]; if (step !== undefined) { event.preventDefault(); select(activeIndex + step, true); } else if (event.key === 'Home') { event.preventDefault(); select(0, true); } else if (event.key === 'End') { event.preventDefault(); select(teamMembers.length - 1, true); } });
     function revealSelectedDossier() {
         const panelTop = panel.getBoundingClientRect().top + window.scrollY;
         const navbar = document.querySelector('.yu-public-navbar');
@@ -138,10 +138,10 @@
         select(index, false);
         window.requestAnimationFrame(() => window.requestAnimationFrame(revealSelectedDossier));
     }
-    $('#prevMember').addEventListener('click',() => selectAndReveal(activeIndex - 1));
-    $('#nextMember').addEventListener('click',() => selectAndReveal(activeIndex + 1));
-    panel.addEventListener('pointermove',(event) => { if (event.pointerType !== 'mouse' || reduceMotion.matches) return; const rect = panel.getBoundingClientRect(); panel.style.setProperty('--tilt-x',((.5 - (event.clientY - rect.top) / rect.height) * 3) + 'deg'); panel.style.setProperty('--tilt-y',(((event.clientX - rect.left) / rect.width - .5) * 4) + 'deg'); });
-    panel.addEventListener('pointerleave',() => { panel.style.setProperty('--tilt-x','0deg'); panel.style.setProperty('--tilt-y','0deg'); });
+    $('#prevMember').addEventListener('click', () => selectAndReveal(activeIndex - 1));
+    $('#nextMember').addEventListener('click', () => selectAndReveal(activeIndex + 1));
+    panel.addEventListener('pointermove', (event) => { if (event.pointerType !== 'mouse' || reduceMotion.matches) return; const rect = panel.getBoundingClientRect(); panel.style.setProperty('--tilt-x', ((.5 - (event.clientY - rect.top) / rect.height) * 3) + 'deg'); panel.style.setProperty('--tilt-y', (((event.clientX - rect.left) / rect.width - .5) * 4) + 'deg'); });
+    panel.addEventListener('pointerleave', () => { panel.style.setProperty('--tilt-x', '0deg'); panel.style.setProperty('--tilt-y', '0deg'); });
     const pauseReasons = new Set();
     const setPauseReason = (reason, active) => {
         if (active) pauseReasons.add(reason);
@@ -443,7 +443,7 @@
         setPauseReason('hidden', document.hidden);
     });
     const initialTab = roster.querySelector('.roster-tab');
-    initialTab.setAttribute('aria-selected','true');
+    initialTab.setAttribute('aria-selected', 'true');
     initialTab.tabIndex = 0;
     render(0);
 })();

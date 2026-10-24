@@ -70,43 +70,9 @@ namespace Yarmouk.Services
         public async Task ConfirmOfferAsync(Application application, Student student, Opportunity opportunity,
             string verifiedUid, string idToken)
         {
-            if (application == null || student == null || opportunity == null)
-                throw new ArgumentException("Application, student, and opportunity are required.");
-            if (application.StudentUid != verifiedUid)
-                throw new UnauthorizedAccessException("Student mismatch.");
-
-            string placementId = "PLC_" + application.Id;
-            var company = await firebase.GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, idToken)
-                .ConfigureAwait(false);
-            var placement = new Placement
-            {
-                Id = placementId,
-                ApplicationId = application.Id,
-                StudentUid = verifiedUid,
-                CompanyId = opportunity.CompanyId,
-                OpportunityId = opportunity.Id,
-                AcademicSupervisorUid = student.AcademicSupervisorId,
-                CompanySupervisorUid = company == null ? string.Empty : company.SupervisorUid,
-                Status = "confirmed",
-                RequiredHours = opportunity.RequiredTrainingHours
-            };
-
-            // Create the placement first so the company workspace can never receive an
-            // accepted application without the record it uses to display the trainee.
-            await firebase.SaveAsync(DatabasePaths.Placements + "/" + placementId, placement, idToken).ConfigureAwait(false);
-            await firebase.UpdateAsync(DatabasePaths.Students + "/" + verifiedUid, new
-            {
-                acceptedApplicationId = application.Id,
-                companyId = opportunity.CompanyId,
-                internshipStatus = "confirmed",
-                requiredTrainingHours = opportunity.RequiredTrainingHours
-            }, idToken).ConfigureAwait(false);
-            await SetStatusAsync(application.Id, "accepted", idToken).ConfigureAwait(false);
-
-            var otherApplications = await GetForStudentAsync(verifiedUid, idToken).ConfigureAwait(false);
-            foreach (var other in otherApplications.Where(item => item.Id != application.Id &&
-                Normalize(item.Status) != "rejected" && Normalize(item.Status) != "declined" && Normalize(item.Status) != "withdrawn"))
-                await SetStatusAsync(other.Id, "withdrawn", idToken).ConfigureAwait(false);
+            // Keep older callers on the same capacity-checked confirmation path.
+            await new StudentService().SetAcceptedApplicationAsync(verifiedUid,
+                application == null ? null : application.Id, idToken).ConfigureAwait(false);
         }
 
         private static string Normalize(string value)

@@ -136,7 +136,9 @@ namespace Yarmouk.StudentPages
                 var task = tasks.FirstOrDefault(t => Text(t.Value, "id", t.Key) == x.Key).Value;
                 var status = Text(x.Value, "reviewStatus", Text(x.Value, "status", "Reviewed"));
                 return new { Task = Text(task, "title", "Task"), Date = FormatDate(Number(x.Value, "submittedAtUnixMs")),
-                    Feedback = Text(x.Value, "feedback", Text(x.Value, "reviewFeedback", Text(x.Value, "companyFeedback", "No feedback provided."))),
+                    Feedback = (x.Value["grade"] != null && x.Value["grade"].Type != JTokenType.Null
+                        ? "Grade: " + Text(x.Value, "grade") + " / 10. " : "")
+                        + Text(x.Value, "instructorFeedback", Text(x.Value, "feedback", Text(x.Value, "reviewFeedback", Text(x.Value, "companyFeedback", "No feedback provided.")))),
                     Status = Humanize(status), BadgeClass = BadgeClass(status), Reviewed = IsReviewed(x.Value) };
             }).Where(x => x.Reviewed).Take(3).ToList();
             RecentReviews.DataSource = rows;
@@ -224,8 +226,10 @@ namespace Yarmouk.StudentPages
         private static bool IsReviewed(JObject submission)
         {
             var status = Normalize(Text(submission, "reviewStatus", Text(submission, "status")));
-            return status == "reviewed" || status == "revisionrequested" || status == "needsrevision" || status == "resubmit"
-                || Text(submission, "feedback", Text(submission, "reviewFeedback", Text(submission, "companyFeedback"))) != "";
+            return status == "reviewed" || status == "completed" || status == "complete" || status == "approved"
+                || submission["grade"] != null && submission["grade"].Type != JTokenType.Null
+                || status == "revisionrequested" || status == "needsrevision" || status == "resubmit"
+                || Text(submission, "instructorFeedback", Text(submission, "feedback", Text(submission, "reviewFeedback", Text(submission, "companyFeedback")))) != "";
         }
         private static string BadgeClass(string status)
         {

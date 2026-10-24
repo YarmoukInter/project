@@ -236,6 +236,7 @@ namespace Yarmouk.CompanyPages
         public string Title { get; set; }
         public System.Collections.Generic.List<string> Majors { get; set; }
         public int Seats { get; set; }
+        public int TotalSeats { get; set; }
         public string Deadline { get; set; }
         public string Status { get; set; }
         public int Applications { get; set; }
@@ -252,6 +253,7 @@ namespace Yarmouk.CompanyPages
         public string Id { get; set; }
         public string StudentUid { get; set; }
         public string Name { get; set; }
+        public string ProfileImageUrl { get; set; }
         public string Number { get; set; }
         public string Major { get; set; }
         public string Email { get; set; }
@@ -325,8 +327,18 @@ namespace Yarmouk.CompanyPages
             row["duration"] = input.Duration ?? string.Empty;
             row["requiredTrainingHours"] = input.Hours;
             row["workMode"] = workMode == "onsite" ? "OnSite" : workMode == "hybrid" ? "Hybrid" : "Remote";
-            await firebase.SaveAsync(Yarmouk.Helpers.DatabasePaths.Opportunities + "/" + id, row, idToken);
             var apps = await GetMapAsync(Yarmouk.Helpers.DatabasePaths.Applications, idToken);
+            if (existing == null)
+                await firebase.SaveAsync(Yarmouk.Helpers.DatabasePaths.Opportunities + "/" + id, row, idToken);
+            else
+                await firebase.TransactAsync(Yarmouk.Helpers.DatabasePaths.Opportunities + "/" + id, idToken, current => {
+                    if (current == null || !Same(Text(current, "companyId"), companyId)) throw new System.UnauthorizedAccessException();
+                    if (input.Seats < OccupiedSeats(id, current, apps))
+                        throw new System.ArgumentException("Total seats cannot be fewer than the seats already reserved.");
+                    foreach (string field in new[] { "title", "description", "eligibleMajorIds", "availablePositions", "isActive", "status", "deadline", "location", "applicationQuestions", "requirements", "duration", "requiredTrainingHours", "workMode" })
+                        current[field] = row[field].DeepClone();
+                    return true;
+                });
             return ToOpportunity(id, row, apps);
         }
 
@@ -376,6 +388,14 @@ namespace Yarmouk.CompanyPages
                     : string.IsNullOrWhiteSpace(status) || status == "pending" || status == "new" || status == "submitted" ? "new"
                     : "unknown";
                 string acceptedApplicationId = Text(student, "acceptedApplicationId");
+                bool confirmedHere = Same(acceptedApplicationId, Text(app, "id") ?? entry.Key)
+                    || placements.Values.Any(placement => placement != null
+                        && Same(Text(placement, "applicationId"), Text(app, "id") ?? entry.Key)
+                        && IsConfirmedPlacementStatus(Text(placement, "status")));
+                // Older records can still say Offered after the student has
+                // confirmed the offer. The placement/student relationship is
+                // authoritative, so never present a confirmed trainee as pending.
+                if (confirmedHere) status = "accepted";
                 bool confirmedElsewhere = !string.IsNullOrWhiteSpace(acceptedApplicationId)
                     && !Same(acceptedApplicationId, Text(app, "id") ?? entry.Key);
                 confirmedElsewhere = confirmedElsewhere || placements.Values.Any(placement => placement != null
@@ -386,6 +406,7 @@ namespace Yarmouk.CompanyPages
                     Id = entry.Key,
                     StudentUid = studentUid,
                     Name = First(Text(user, "fullName"), "Student"),
+                    ProfileImageUrl = StudentProfileImages.GetUrl(Text(student, "profileImageFileName")),
                     Number = First(Text(student, "studentNumber"), Text(student, "studentId"), Text(user, "studentId"), "—"),
                     Major = First(Text(major, "name"), Text(student, "majorId"), Text(user, "majorId"), "—"),
                     Email = First(Text(user, "email"), ""),
@@ -418,6 +439,8 @@ namespace Yarmouk.CompanyPages
         public async System.Threading.Tasks.Task SetApplicationStatusAsync(string companyId, string reviewerUid, string id, string status, string reason, string idToken)
         {
             ValidateKey(id);
+            reason = (reason ?? string.Empty).Trim();
+            if (reason.Length > 500) throw new System.ArgumentException("The rejection reason must be 500 characters or fewer.");
             var app = await firebase.GetAsync<JObject>(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, idToken);
             if (app == null) throw new System.ArgumentException("Application not found.");
             var opportunity = await firebase.GetAsync<JObject>(Yarmouk.Helpers.DatabasePaths.Opportunities + "/" + Text(app, "opportunityId"), idToken);
@@ -443,7 +466,7 @@ namespace Yarmouk.CompanyPages
                     && IsConfirmedPlacementStatus(Text(placement, "status"))))
                     throw new System.InvalidOperationException("This student has already confirmed another internship placement.");
             }
-            await firebase.UpdateAsync(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, new { companyId = companyId, status = value, rejectionReason = value == "Rejected" ? reason.Trim() : string.Empty, reviewedByUid = reviewerUid, reviewedAtUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, idToken);
+            await firebase.UpdateAsync(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, new { companyId = companyId, status = value, rejectionReason = value == "Rejected" ? reason : string.Empty, reviewedByUid = reviewerUid, reviewedAtUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, idToken);
         }
 
         private async System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, JObject>> GetMapAsync(string path, string token)
@@ -456,8 +479,18 @@ namespace Yarmouk.CompanyPages
             if (string.IsNullOrWhiteSpace(status)) status = Bool(row, "isActive") ? "active" : "closed";
             int count = 0;
             foreach (var app in apps.Values) if (Same(Text(app, "opportunityId"), id)) count++;
-            return new CompanyOpportunityItem { Id = id, Title = Text(row, "title") ?? string.Empty, Majors = Strings(row["eligibleMajorIds"]), Seats = Integer(row, "availablePositions"), Deadline = Text(row, "deadline") ?? string.Empty, Status = Normalize(status), Applications = count, Duration = Text(row, "duration") ?? string.Empty, Hours = Integer(row, "requiredTrainingHours"), WorkMode = Text(row, "workMode") ?? "OnSite", Description = Text(row, "description") ?? string.Empty, Requirements = Text(row, "requirements") ?? string.Empty, Questions = Strings(row["applicationQuestions"]) };
+            return new CompanyOpportunityItem { Id = id, Title = Text(row, "title") ?? string.Empty, Majors = Strings(row["eligibleMajorIds"]), Seats = Math.Max(0, Integer(row, "availablePositions") - OccupiedSeats(id, row, apps)), TotalSeats = Integer(row, "availablePositions"), Deadline = Text(row, "deadline") ?? string.Empty, Status = Normalize(status), Applications = count, Duration = Text(row, "duration") ?? string.Empty, Hours = Integer(row, "requiredTrainingHours"), WorkMode = Text(row, "workMode") ?? "OnSite", Description = Text(row, "description") ?? string.Empty, Requirements = Text(row, "requirements") ?? string.Empty, Questions = Strings(row["applicationQuestions"]) };
         }
+        private static int OccupiedSeats(string id, JObject row, System.Collections.Generic.Dictionary<string, JObject> apps)
+        {
+            var occupied = new System.Collections.Generic.HashSet<string>(apps.Values
+                .Where(a => Same(Text(a, "opportunityId"), id) && Normalize(Text(a, "status")) == "accepted")
+                .Select(a => Text(a, "studentUid")).Where(uid => !string.IsNullOrWhiteSpace(uid)), System.StringComparer.Ordinal);
+            var reservations = row["seatReservations"] as JObject;
+            if (reservations != null) occupied.UnionWith(reservations.Properties().Select(p => p.Name));
+            return System.Math.Max(Integer(row, "filledPositions"), occupied.Count);
+        }
+
         private static void Validate(CompanyOpportunityInput input)
         {
             if (input == null) throw new System.ArgumentException("Opportunity details are required.");

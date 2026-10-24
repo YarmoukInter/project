@@ -3,7 +3,7 @@
 <script src="<%= ResolveUrl("~/Scripts/StudentPages/MyTasks.js?v=organized-board-4") %>" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
-<link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css?v=dark-task-board-2") %>" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/StudentPages/MyTasks.css?v=mobile-empty-columns-3") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="my-tasks-page" aria-labelledby="tasks-heading">

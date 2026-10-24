@@ -2,6 +2,61 @@
 (function () {
   'use strict';
 
+  var editModal = document.getElementById('edit-task-modal');
+  var editOpener = null;
+  function closeEdit() {
+    if (!editModal) return;
+    editModal.hidden = true;
+    document.getElementById('edit-task-fields').disabled = true;
+    document.body.classList.remove('task-edit-open');
+    if (editOpener && document.contains(editOpener)) editOpener.focus();
+  }
+  document.addEventListener('click', function (event) {
+    var edit = event.target.closest('[data-task-edit]');
+    if (edit && editModal) {
+      editOpener = edit;
+      document.getElementById('edit-task-fields').disabled = false;
+      ['id', 'number', 'title', 'deadline', 'description', 'url'].forEach(function (field) {
+        var input = document.getElementById('edit-task-' + field);
+        input.value = edit.dataset['task' + field.charAt(0).toUpperCase() + field.slice(1)] || '';
+        input.setCustomValidity('');
+      });
+      editModal.hidden = false;
+      document.body.classList.add('task-edit-open');
+      document.getElementById('edit-task-title').focus();
+    }
+    if (event.target.closest('[data-close-task-edit]') || event.target === editModal) closeEdit();
+    if (event.target.closest('[data-task-delete]') && !window.confirm('Delete this task and remove its submissions from the active task list?'))
+      event.preventDefault();
+  });
+  if (editModal) {
+    var editForm = editModal.closest('form');
+    editForm.addEventListener('submit', function (event) {
+      if (!event.submitter || event.submitter.name !== 'taskManagementAction' || event.submitter.value !== 'edit') return;
+      var inputs = editModal.querySelectorAll('input:not([type="hidden"]), textarea');
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].setCustomValidity(inputs[i].value.trim() ? '' : 'Please complete this field.');
+        if (!inputs[i].reportValidity()) { event.preventDefault(); return; }
+      }
+    });
+    editModal.addEventListener('input', function (event) {
+      if (event.target.setCustomValidity) event.target.setCustomValidity('');
+    });
+    document.addEventListener('keydown', function (event) {
+      if (editModal.hidden) return;
+      if (event.key === 'Escape') { event.preventDefault(); closeEdit(); return; }
+      if (event.key !== 'Tab') return;
+      var focusable = Array.prototype.filter.call(editModal.querySelectorAll('button, input:not([type="hidden"]), textarea'), function (node) { return !node.disabled && node.offsetParent !== null; });
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+    if (!editModal.hidden) {
+      document.body.classList.add('task-edit-open');
+      document.getElementById('edit-task-title').focus();
+    }
+  }
+
   var reviewModal = document.getElementById('task-review-modal');
   var reviewDialog = reviewModal && reviewModal.querySelector('.task-review-dialog');
   var reviewScore = document.getElementById('task-review-score');
@@ -130,12 +185,27 @@
     return true;
   };
 
-  document.querySelectorAll('input[name="targetStudentUid"]').forEach(function (checkbox) {
-    checkbox.addEventListener('change', function () {
-      var summary = document.querySelector('.trainee-picker summary');
-      if (!summary) return;
-      var count = document.querySelectorAll('input[name="targetStudentUid"]:checked').length;
-      summary.textContent = count ? count + (count === 1 ? ' student selected' : ' students selected') : 'Choose one or more students';
-    });
+  var allStudents = document.getElementById('target-all-students');
+  var traineeChoices = document.querySelectorAll('input[name="targetStudentUid"]');
+  function syncTrainees() {
+    var count = document.querySelectorAll('input[name="targetStudentUid"]:checked').length;
+    if (allStudents) {
+      allStudents.checked = count > 0 && count === traineeChoices.length;
+      allStudents.indeterminate = count > 0 && count < traineeChoices.length;
+      allStudents.disabled = traineeChoices.length === 0;
+    }
+    var summary = document.querySelector('.trainee-picker summary');
+    if (summary) summary.textContent = count ? (allStudents && allStudents.checked ? 'All ' : '') + count
+      + (count === 1 ? ' student selected' : ' students selected') : 'Choose one or more students';
+  }
+  if (allStudents) allStudents.addEventListener('change', function () {
+    traineeChoices.forEach(function (choice) { choice.checked = allStudents.checked; });
+    syncTrainees();
   });
+  traineeChoices.forEach(function (checkbox) { checkbox.addEventListener('change', syncTrainees); });
+  if (allStudents) syncTrainees();
+  if (addModal && !addModal.hidden) {
+    var firstField = document.getElementById('new-task-number');
+    if (firstField) firstField.focus();
+  }
 })();

@@ -23,6 +23,7 @@
         document.title = 'Final Completion Review — UIMS';
 
         const records = Array.isArray(window.uimsFinalReviewData) ? window.uimsFinalReviewData : [];
+        window.uimsFinalReviewExport = records;
         const message = window.uimsFinalReviewMessage || '';
         const script = Array.from(document.scripts).find(item => /\/CoordinatorPages\/FinalCompletionReview\.js(?:\?|$)/i.test(item.src));
         const root = script ? new URL('../../CoordinatorPages/', script.src) : new URL('./', location.href);
@@ -32,17 +33,16 @@
             missing: ['Evidence incomplete', 'missing'],
             approved: ['Completion approved', 'approved']
         };
+        const requestToken = window.uimsFinalReviewRequestToken || '';
 
-        const header = document.querySelector('.yu-dashboard-main>header');
         const footer = document.querySelector('.yu-dashboard-main>footer');
-        if (header) header.innerHTML = `<a class="co-brand" href="${route('Dashboard.aspx')}"><img src="${new URL('../../assets/yarmouk-logo-on-light.svg', script ? script.src : location.href).href}" alt="Yarmouk University" width="112" height="43"><span class="co-brand-copy"><strong>Yarmouk University</strong><span>Internship administration</span></span></a><div class="co-header-actions"><a class="co-notifications" href="${route('ContactMessages.aspx')}" aria-label="Contact messages">${icon('info')}</a><a class="co-account" href="${route('Account.aspx')}"><span class="co-avatar">YU</span><span>University coordinator</span></a></div>`;
         if (footer) footer.innerHTML = '<span>Yarmouk University</span><span>Faculty of Information Technology and Computer Science</span>';
 
         const count = status => records.filter(record => record.status === status).length;
         const providers = Array.from(new Set(records.map(record => record.company).filter(Boolean))).sort((a, b) => a.localeCompare(b));
         page.innerHTML = `
             <div class="fr-heading"><div><p class="fr-eyebrow">${icon('check')} COMPLETION WORKFLOW</p><h1 id="fr-title">Final completion review</h1><p class="fr-intro">Review company and academic final evaluations alongside approved training hours before making a completion decision.</p></div><div class="fr-heading-actions"><a class="fr-button" href="${route('MonitorPlacements.aspx')}">← Back to placement monitoring</a></div></div>
-            <aside class="fr-preview" role="note">${icon('info')} <strong>Coordinator decision required.</strong> Review the source evaluations and university requirements before approving completion. Evaluation scores are shown separately; no combined score is calculated.</aside>
+            <aside class="fr-preview" role="note">${icon('info')} <strong>Coordinator decision required.</strong> Review the source evaluations and university requirements before approving completion. The final score uses 40% company evaluation and 60% academic evaluation.</aside>
             ${message ? `<div class="fr-alert" role="status">${escapeHtml(message)}</div>` : ''}
             <section class="fr-stats" aria-label="Completion review summary"><article class="fr-stat"><span class="fr-stat-label">Evaluation records</span><strong>${records.length}</strong><span class="fr-hint">Loaded from the system</span></article><article class="fr-stat"><span class="fr-stat-label">Ready for review</span><strong>${count('ready')}</strong><span class="fr-hint">Required evidence currently present</span></article><article class="fr-stat"><span class="fr-stat-label">Evidence incomplete</span><strong>${count('missing')}</strong><span class="fr-hint">At least one prerequisite is outstanding</span></article><article class="fr-stat"><span class="fr-stat-label">Approved</span><strong>${count('approved')}</strong><span class="fr-hint">Recorded coordinator decisions</span></article></section>
             <section class="fr-panel" aria-labelledby="fr-list-title"><div class="fr-panel-head"><h2 id="fr-list-title">Completion evaluations</h2><p>Open a record to review both evaluations, approved hours, and prerequisite status.</p></div>
@@ -66,8 +66,9 @@
                 && `${record.name} ${record.studentId} ${record.company} ${record.program}`.toLocaleLowerCase().includes(query));
             body.innerHTML = visible.map(record => {
                 const state = labels[record.status] || labels.missing;
-                return `<tr><td><div class="fr-person"><span class="fr-avatar">${escapeHtml(record.initials)}</span><span class="fr-person-copy"><strong>${escapeHtml(record.name)}</strong><span>${escapeHtml(record.studentId || 'Student ID unavailable')}${record.program ? ` · ${escapeHtml(record.program)}` : ''}</span></span></div></td><td><span class="fr-provider"><strong>${escapeHtml(record.company)}</strong><span>${escapeHtml(record.opportunity || '')}</span></span></td><td><span class="fr-docs">Company ${record.companySubmitted ? 'received' : 'pending'} · Academic ${record.academicSubmitted ? 'received' : 'pending'}</span></td><td><span class="fr-date">${record.hoursConfigured ? `${Number(record.approvedHours)} / ${Number(record.requiredHours)} hours` : `${Number(record.approvedHours)} hours · requirement not configured`}</span></td><td><span class="fr-badge fr-${state[1]}">${state[0]}</span></td><td><button type="button" class="fr-open" data-open="${escapeHtml(record.id)}">Review record</button></td></tr>`;
+                return `<tr><td><div class="fr-person"><span class="fr-avatar uims-student-photo-avatar" data-student-photo-url="${escapeHtml(record.profileImageUrl || '')}"><span>${escapeHtml(record.initials)}</span></span><span class="fr-person-copy"><strong>${escapeHtml(record.name)}</strong><span>${escapeHtml(record.studentId || 'Student ID unavailable')}${record.program ? ` · ${escapeHtml(record.program)}` : ''}</span></span></div></td><td><span class="fr-provider"><strong>${escapeHtml(record.company)}</strong><span>${escapeHtml(record.opportunity || '')}</span></span></td><td><span class="fr-docs">Company ${record.companySubmitted ? 'received' : 'pending'} · Academic ${record.academicSubmitted ? 'received' : 'pending'}</span></td><td><span class="fr-date">${record.hoursConfigured ? `${Number(record.approvedHours)} / ${Number(record.requiredHours)} hours` : `${Number(record.approvedHours)} hours · requirement not configured`}</span></td><td><span class="fr-badge fr-${state[1]}">${state[0]}</span></td><td><button type="button" class="fr-open" data-open="${escapeHtml(record.id)}">Review record</button></td></tr>`;
             }).join('');
+            if (window.UimsStudentPhotos) window.UimsStudentPhotos.enhance(body);
             table.hidden = visible.length === 0;
             empty.hidden = visible.length > 0;
             empty.textContent = records.length ? 'No matching evaluations. Try changing the search or filters.' : (message || 'No final evaluation records are available yet.');
@@ -75,14 +76,72 @@
             page.querySelector('#fr-footer-count').textContent = `Matches ${visible.length} of ${records.length} records`;
         }
 
+        async function downloadCertificate(record, button, keepButtonState) {
+            const original = button.textContent;
+            if (!keepButtonState) { button.disabled = true; button.textContent = 'Downloading…'; }
+            try {
+                const form = new URLSearchParams({ action: 'download', evaluationId: record.id, requestToken });
+                const response = await fetch(route('CompletionReviewAction.ashx'), {
+                    method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: form
+                });
+                if (!response.ok || !String(response.headers.get('content-type') || '').includes('application/pdf')) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.message || 'The official PDF could not be downloaded.');
+                }
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url; link.download = 'internship-completion-certificate.pdf';
+                document.body.appendChild(link); link.click(); link.remove();
+                window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } finally {
+                if (!keepButtonState) { button.disabled = false; button.textContent = original; }
+            }
+        }
+
+        async function completeAction(record, action, button) {
+            const isCertificate = action === 'certificate';
+            button.disabled = true;
+            const original = button.textContent;
+            button.textContent = action === 'approve' ? 'Approving…' : 'Generating…';
+            try {
+                const form = new URLSearchParams({ action, evaluationId: record.id, requestToken });
+                const response = await fetch(route('CompletionReviewAction.ashx'), {
+                    method: 'POST', credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: form
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok || !payload.success) throw new Error(payload.message || 'The completion action could not be completed.');
+                if (isCertificate) await downloadCertificate(record, button, true);
+                window.alert(payload.message || 'The completion record was updated.');
+                window.location.reload();
+            } catch (error) {
+                button.disabled = false;
+                button.textContent = original;
+                window.alert(error && error.message ? error.message : 'The completion action could not be completed.');
+            }
+        }
+
         function showDetails(record) {
             const state = labels[record.status] || labels.missing;
             page.querySelector('#fr-dialog-title').textContent = record.name || 'Evaluation details';
             page.querySelector('#fr-dialog-subtitle').textContent = `${record.id} · ${record.studentId || 'Student ID unavailable'}`;
             const checks = (record.checks || []).map(item => `<li class="${item.complete ? '' : 'pending'}"><strong>${item.complete ? '✓' : '!' } ${escapeHtml(item.label)}</strong><span> — ${escapeHtml(item.detail)}</span></li>`).join('');
-            page.querySelector('#fr-dialog-body').innerHTML = `<div class="fr-details"><div class="fr-detail"><span>Training provider</span><strong>${escapeHtml(record.company)}</strong></div><div class="fr-detail"><span>Opportunity</span><strong>${escapeHtml(record.opportunity || 'Not recorded')}</strong></div><div class="fr-detail"><span>Review status</span><strong><span class="fr-badge fr-${state[1]}">${state[0]}</span></strong></div><div class="fr-detail"><span>Coordinator decision</span><strong>${record.coordinatorApproved ? 'Approved' : 'Not approved'}</strong></div></div><h3>Final evaluations</h3><div class="fr-review-grid"><div class="fr-detail"><span>Company supervisor evaluation</span><strong>${escapeHtml(record.companyScore)}</strong></div><div class="fr-detail"><span>Academic supervisor evaluation</span><strong>${escapeHtml(record.academicScore)}</strong></div></div><h3>Completion requirements</h3><ul class="fr-checklist">${checks}</ul><p class="fr-note">Final approval belongs to the coordinator. The approval and official PDF delivery actions are not available until this project provides the required coordinator write permission and student report delivery route.</p><div class="fr-dialog-actions"><button type="button" class="fr-button" id="fr-close-secondary">Close</button><button type="button" class="fr-button" disabled title="Coordinator write workflow is not configured">Approve completion</button><button type="button" class="fr-button" disabled title="Official report generation and student delivery are not configured">Generate and send official PDF</button></div>`;
+            const canApprove = record.status === 'ready' && !record.coordinatorApproved;
+            const canGenerate = record.coordinatorApproved;
+            const download = record.officialCertificateGenerated ? `<button type="button" class="fr-button" id="fr-download">Download official PDF</button>` : '';
+            page.querySelector('#fr-dialog-body').innerHTML = `<div class="fr-details"><div class="fr-detail"><span>Training provider</span><strong>${escapeHtml(record.company)}</strong></div><div class="fr-detail"><span>Opportunity</span><strong>${escapeHtml(record.opportunity || 'Not recorded')}</strong></div><div class="fr-detail"><span>Review status</span><strong><span class="fr-badge fr-${state[1]}">${state[0]}</span></strong></div><div class="fr-detail"><span>Coordinator decision</span><strong>${record.coordinatorApproved ? 'Approved' : 'Not approved'}</strong></div></div><h3>Final result</h3><div class="fr-review-grid"><div class="fr-detail fr-overall-score"><span>Weighted final score</span><strong>${escapeHtml(record.overallScore || 'Score unavailable')}</strong><small>40% company + 60% academic evaluation</small></div></div><h3>Completion requirements</h3><ul class="fr-checklist">${checks}</ul><p class="fr-note">Approval is enabled only after both final evaluations and all required approved training hours are recorded. Generating the PDF marks the official certificate as available to the student.</p><div class="fr-dialog-actions"><button type="button" class="fr-button" id="fr-close-secondary">Close</button>${download}<button type="button" class="fr-button fr-button-primary" id="fr-approve" ${canApprove ? '' : 'disabled'} title="${canApprove ? 'Approve this completed internship' : 'Complete every requirement before approving'}">Approve completion</button><button type="button" class="fr-button fr-button-primary" id="fr-certificate" ${canGenerate ? '' : 'disabled'} title="${canGenerate ? 'Generate and download the official certificate PDF' : 'Approve completion before generating the official PDF'}">Generate and send official PDF</button></div>`;
             dialog.showModal();
             page.querySelector('#fr-close-secondary').onclick = () => dialog.close();
+            const approve = page.querySelector('#fr-approve');
+            const certificate = page.querySelector('#fr-certificate');
+            const downloadButton = page.querySelector('#fr-download');
+            if (approve) approve.addEventListener('click', () => completeAction(record, 'approve', approve));
+            if (certificate) certificate.addEventListener('click', () => completeAction(record, 'certificate', certificate));
+            if (downloadButton) downloadButton.addEventListener('click', async () => {
+                try { await downloadCertificate(record, downloadButton, false); }
+                catch (error) { window.alert(error && error.message ? error.message : 'The official PDF could not be downloaded.'); }
+            });
         }
 
         page.querySelectorAll('[data-status]').forEach(button => button.addEventListener('click', () => {

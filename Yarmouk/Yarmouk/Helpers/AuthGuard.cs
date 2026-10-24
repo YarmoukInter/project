@@ -20,8 +20,11 @@ namespace Yarmouk.Helpers
             var session = context.Session[SessionKey] as AuthSession;
             try
             {
-                if (session == null)
-                { Redirect(context, "~/PublicPages/Login"); return; }
+                if (session == null || session.ExpiresUtc <= DateTime.UtcNow)
+                {
+                    context.Session.Remove(SessionKey);
+                    Redirect(context, "~/PublicPages/Login?expired=1"); return;
+                }
                 var user = await new StudentService().GetUserAsync(session.Uid, session.IdToken);
                 if (!AuthPolicy.ValidUser(user, session.Uid)) throw new AuthException("Account unavailable.");
                 user.Role = AuthPolicy.NormalizeRole(user.Role);

@@ -30,62 +30,6 @@ namespace Yarmouk.CompanyPages
             }
         }
 
-        protected void ReportList_ItemCommand(object source, RepeaterCommandEventArgs e)
-        {
-            if (e.CommandName != "review") return;
-            var decision = e.Item.FindControl("ReviewDecision") as DropDownList;
-            var feedback = e.Item.FindControl("ReviewFeedback") as TextBox;
-            string status = decision == null ? string.Empty : decision.SelectedValue;
-            string notes = feedback == null ? string.Empty : feedback.Text;
-            string submissionId = Convert.ToString(e.CommandArgument, CultureInfo.InvariantCulture);
-            RegisterAsyncTask(new PageAsyncTask(async () =>
-            {
-                try
-                {
-                    var auth = GetSupervisorSession("company");
-                    string companyId = await EnsureCompanyIdAsync(auth);
-                    await service.SaveReportReviewAsync(auth.Uid, companyId, auth.IdToken, SelectedPlacementId.Value,
-                        submissionId, status, notes);
-                    ShowMessage("The report review was saved to Firebase.", true);
-                    await BindPageAsync();
-                }
-                catch (ArgumentException error) { ShowMessage(error.Message, false); await BindPageAsync(); }
-                catch (Exception error)
-                {
-                    System.Diagnostics.Trace.TraceWarning("Company report review failed: " + error.GetType().Name + ": " + error.Message);
-                    ShowMessage("The report review could not be saved. Check your Firebase rules and try again.", false);
-                    await BindPageAsync();
-                }
-            }));
-        }
-
-        protected void ReportList_ItemDataBound(object sender, RepeaterItemEventArgs e)
-        {
-            if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem) return;
-            var row = e.Item.DataItem as CompanyReportRow;
-            if (row == null) return;
-            var fileLink = e.Item.FindControl("ReportFileLink") as HyperLink;
-            Uri link;
-            if (fileLink != null && Uri.TryCreate(row.SubmissionUrl, UriKind.Absolute, out link)
-                && (link.Scheme == Uri.UriSchemeHttps || link.Scheme == Uri.UriSchemeHttp))
-            {
-                fileLink.NavigateUrl = link.AbsoluteUri;
-                fileLink.Visible = true;
-            }
-            var decision = e.Item.FindControl("ReviewDecision") as DropDownList;
-            if (decision != null)
-            {
-                var existing = decision.Items.FindByValue(row.Status);
-                if (existing != null) decision.SelectedValue = row.Status;
-                bool reviewed = string.Equals(row.Status, "Approved", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(row.Status, "RevisionRequested", StringComparison.OrdinalIgnoreCase);
-                decision.Enabled = !reviewed;
-                var button = e.Item.FindControl("SaveReportReview") as Button;
-                if (button != null) button.Enabled = !reviewed;
-            }
-        }
-
-        protected void SaveDraft_Click(object sender, EventArgs e) { RegisterAsyncTask(new PageAsyncTask(() => SaveEvaluationAsync(false))); }
         protected void SubmitEvaluation_Click(object sender, EventArgs e) { RegisterAsyncTask(new PageAsyncTask(() => SaveEvaluationAsync(true))); }
 
         private async System.Threading.Tasks.Task SaveEvaluationAsync(bool submit)
@@ -149,6 +93,7 @@ namespace Yarmouk.CompanyPages
                     StudentName = string.IsNullOrWhiteSpace(x.StudentName) ? "Student" : x.StudentName,
                     StudentNumber = string.IsNullOrWhiteSpace(x.StudentNumber) ? "Student number not recorded" : x.StudentNumber,
                     Initials = GetInitials(x.StudentName),
+                    ProfileImageUrl = x.ProfileImageUrl,
                     CanEvaluate = !string.IsNullOrWhiteSpace(x.PlacementId) && !x.Locked,
                     ToolTip = string.IsNullOrWhiteSpace(x.PlacementId) ? "A placement record must be linked before reports or evaluations can be opened." : string.Empty,
                     CssClass = string.IsNullOrWhiteSpace(x.PlacementId) ? "trainee-row is-unlinked"
@@ -184,6 +129,7 @@ namespace Yarmouk.CompanyPages
                 StudentNumber.Text = EncodeOrDash(selected.StudentNumber);
                 DetailsStudentNumber.Text = EncodeOrDash(selected.StudentNumber);
                 StudentInitials.Text = HttpUtility.HtmlEncode(GetInitials(selected.StudentName));
+                StudentProfileImageUrl = HttpUtility.HtmlAttributeEncode(selected.ProfileImageUrl ?? string.Empty);
                 PlacementLabel.Text = EncodeOrDash(selected.CompanyName);
                 DetailsCompany.Text = EncodeOrDash(selected.CompanyName);
                 DetailsStatus.Text = EncodeOrDash(selected.PlacementStatus);
@@ -192,19 +138,22 @@ namespace Yarmouk.CompanyPages
                 EvaluationStatus.Text = selected.Locked ? (selected.Submitted ? "Submitted to academic supervisor" : "Locked") : "Draft · editable";
                 CompanyScore.Text = selected.Score ?? string.Empty;
                 CompanyFeedback.Text = selected.Feedback ?? string.Empty;
-                CompanyScoreSummary.Text = string.IsNullOrWhiteSpace(selected.Score) ? "—" : HttpUtility.HtmlEncode(selected.Score + " / 100");
                 CriteriaMarkup.Text = BuildCriteriaMarkup(selected.Criteria, selected.Locked);
                 CompanyScore.Enabled = !selected.Locked;
                 CompanyFeedback.Enabled = !selected.Locked;
-                SaveDraft.Enabled = !selected.Locked;
-                SubmitEvaluation.Enabled = !selected.Locked;
-                if (selected.Locked) { SaveDraft.ToolTip = "This evaluation is locked after submission."; }
+                bool hasAcademicSupervisor = !string.IsNullOrWhiteSpace(selected.AcademicSupervisorUid);
+                SubmitEvaluation.Enabled = !selected.Locked && hasAcademicSupervisor;
+                SubmitEvaluation.Attributes["data-academic-supervisor-assigned"] = hasAcademicSupervisor ? "true" : "false";
+                SubmitEvaluation.Attributes["data-evaluation-locked"] = selected.Locked ? "true" : "false";
+                SubmitEvaluation.ToolTip = selected.Locked
+                    ? "This evaluation is locked after submission."
+                    : (hasAcademicSupervisor ? string.Empty : "Assign an academic supervisor before sending the final evaluation.");
+                EvaluationGuidance.Text = selected.Locked
+                    ? "This evaluation is locked after submission."
+                    : (hasAcademicSupervisor
+                        ? "Complete all 18 criteria and enter an overall score from 0 to 100 to enable submission. Sending the evaluation locks it and shares it with the assigned academic supervisor."
+                        : "Assign an academic supervisor to enable final submission. Changes are not saved until the evaluation is submitted.");
 
-                var reports = await service.GetReportsAsync(auth.Uid, companyId, auth.IdToken, selected.PlacementId);
-                ReportList.DataSource = reports;
-                ReportList.DataBind();
-                ReportCount.Text = reports.Count.ToString(CultureInfo.InvariantCulture);
-                ReportsEmpty.Visible = reports.Count == 0;
             }
             catch (UnauthorizedAccessException error)
             {
@@ -273,6 +222,8 @@ namespace Yarmouk.CompanyPages
             return string.Concat(words.Take(2).Select(x => x.Substring(0, 1).ToUpperInvariant()));
         }
 
+        protected string StudentProfileImageUrl { get; private set; }
+
         private static string EncodeOrDash(string value)
         { return string.IsNullOrWhiteSpace(value) ? "—" : HttpUtility.HtmlEncode(value); }
 
@@ -302,6 +253,7 @@ namespace Yarmouk.CompanyPages
             public string StudentName { get; set; }
             public string StudentNumber { get; set; }
             public string Initials { get; set; }
+            public string ProfileImageUrl { get; set; }
             public string StatusLabel { get; set; }
             public bool CanEvaluate { get; set; }
             public string ToolTip { get; set; }

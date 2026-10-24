@@ -42,7 +42,7 @@
   outline: 3px solid var(--wp-focus, #207b54);
   outline-offset: 3px;
 }
-.record-reset, .record-page-controls button {
+.record-reset, .record-export, .record-page-controls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -59,6 +59,9 @@
   transition: background-color 160ms ease-out, border-color 160ms ease-out;
 }
 .record-reset { color: var(--wp-green, #076541); }
+.record-export { border-color: var(--wp-green, #076541); background: var(--wp-green, #076541); color: #fff; }
+.record-export:hover { border-color: #075638; background: #075638; color: #fff; }
+[data-theme="dark"] .record-export,[data-theme="dark"] .record-export:hover { border-color:#087a50; background:#087a50; color:#fff; }
 .record-page-controls button:hover:not(:disabled), .record-reset:hover { background: var(--wp-soft, #f1f6f3); border-color: var(--wp-green, #076541); }
 .record-page-controls button[aria-current="page"] { border-color: #076541; background: #076541; color: #fff; }
 .record-page-controls button:disabled { color: var(--wp-muted, #576d60); opacity: .5; cursor: default; }
@@ -192,5 +195,5 @@
   .record-tools *, .record-pagination * { transition: none; }
 }
 @media print {
-  .record-tools, .record-pagination, .record-reset, .task-board-tools, .task-board-more { display: none !important; }
+  .record-tools, .record-pagination, .record-reset, .record-export, .task-board-tools, .task-board-more { display: none !important; }
 }

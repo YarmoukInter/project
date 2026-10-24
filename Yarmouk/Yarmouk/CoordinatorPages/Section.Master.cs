@@ -27,7 +27,7 @@ namespace Yarmouk.CoordinatorPages
                 var user = session == null ? null : session.User;
                 if (user == null || !user.IsActive || AuthPolicy.NormalizeRole(user.Role) != "coordinator") return "null";
                 return JsonConvert.SerializeObject(new {
-                    databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"],
+                    databaseUrl = SiteSettingsStore.GetFirebaseDatabaseUrl(),
                     idToken = session.IdToken,
                     inboxUrl = ResolveUrl("~/CoordinatorPages/ContactMessages.aspx")
                 }, new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
@@ -58,6 +58,7 @@ namespace Yarmouk.CoordinatorPages
     {
         protected string BackendJson { get; private set; } = "null";
         protected string CsrfToken { get { return (string)Session["CoordinatorCsrf"]; } }
+        protected virtual int MaxAdminPayloadLength { get { return 16000; } }
         protected readonly CoordinatorService Service = new CoordinatorService();
         protected abstract Task<object> LoadDataAsync(AuthSession session);
         protected virtual Task<string> SaveDataAsync(string action, JObject details, AuthSession session)
@@ -86,11 +87,21 @@ namespace Yarmouk.CoordinatorPages
             {
                 if (Request.HttpMethod == "POST")
                 {
-                    if (string.IsNullOrEmpty(CsrfToken) || Request.Form["adminCsrf"] != CsrfToken)
+                    // Site settings may contain HTML snippets. Read the small
+                    // settings POST through the unvalidated collection from the
+                    // outset so ASP.NET request validation does not reject it
+                    // while parsing an unrelated CSRF/action field.
+                    var postedForm = Request.Unvalidated.Form;
+                    if (string.IsNullOrEmpty(CsrfToken) || postedForm["adminCsrf"] != CsrfToken)
                         throw new ArgumentException("Your form expired. Reload this page before trying again.");
-                    string payload = Request.Form["adminPayload"] ?? "{}";
-                    if (payload.Length > 16000) throw new ArgumentException("The submitted form is too large.");
-                    notice = await SaveDataAsync(Request.Form["adminAction"], JObject.Parse(payload), session);
+                    string action = postedForm["adminAction"];
+                    // Settings can contain coordinator-supplied head/body snippets; read only
+                    // that serialized field unvalidated, then validate its structured values.
+                    string payload = action == "save-site-settings"
+                        ? (postedForm["adminPayload"] ?? "{}")
+                        : (Request.Form["adminPayload"] ?? "{}");
+                    if (payload.Length > MaxAdminPayloadLength) throw new ArgumentException("The submitted form is too large.");
+                    notice = await SaveDataAsync(action, JObject.Parse(payload), session);
                     Session["CoordinatorNotice"] = notice;
                     // Redirect after saving so refresh never repeats a write or account registration.
                     Response.Redirect(Request.RawUrl, false);
@@ -124,7 +135,7 @@ namespace Yarmouk.CoordinatorPages
         private static readonly HttpClient Client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
         private readonly HttpClient client;
         private readonly string url;
-        public CoordinatorDatabase() : this(Client, ConfigurationManager.AppSettings["FirebaseDatabaseUrl"]) { }
+        public CoordinatorDatabase() : this(Client, SiteSettingsStore.GetFirebaseDatabaseUrl()) { }
         public CoordinatorDatabase(HttpClient client, string url)
         {
             if (string.IsNullOrWhiteSpace(url) || !Uri.IsWellFormedUriString(url, UriKind.Absolute)

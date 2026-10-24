@@ -1020,6 +1020,11 @@ body.co-modal-open {
 .co-candidate-card .co-row-open { grid-column: auto; grid-row: auto; }
 .co-candidate-meta,.co-candidate-status { font-size: .84rem; }
 
+/* Keep the pagination controls inset from the edge of the candidate panel. */
+.co-candidate-panel .record-pagination {
+    padding-inline: 1rem;
+}
+
 [data-theme="dark"] .co-applications .co-search { background: transparent; }
 [data-theme="dark"] .co-applications .co-search input { background: transparent; }
 

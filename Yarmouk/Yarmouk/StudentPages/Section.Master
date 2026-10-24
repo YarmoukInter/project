@@ -1,15 +1,19 @@
 <%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.StudentPages.SectionMaster" %>
 <!DOCTYPE html>
-<html lang="en" class="student-app">
+<html lang="en" class="student-app" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=8") %>' defer></script>
 <title><%: Page.Title %> — Student Workspace</title>
 <link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/StudentPages/shared.css") %>" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/Shared/sidebar.css") %>?v=shared-sidebar-1" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/StudentPages/student-shell.css") %>?v=sidebar-account-compact-1" rel="stylesheet" />
+<link href="<%= ResolveUrl("~/Content/Shared/student-profile-images.css") %>?v=1" rel="stylesheet" />
+<script src="<%= ResolveUrl("~/Scripts/Shared/student-profile-images.js") %>?v=1" defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head>
 <body class="student-app">
 <form id="form1" runat="server">
@@ -24,7 +28,7 @@
       <nav class="yu-sidebar-nav" aria-label="Student workspace"><span class="yu-sidebar-section">Workspace</span><div class="yu-sidebar-links" data-sidebar-links><a class="yu-sidebar-link" href="<%= ResolveUrl("~/StudentPages/Dashboard.aspx") %>" title="Dashboard" aria-label="Dashboard"><svg aria-hidden="true"><use href="#ys-icon-grid"></use></svg><span>Dashboard</span></a><a class="yu-sidebar-link" href="<%= ResolveUrl("~/StudentPages/Opportunities.aspx") %>" title="Opportunities" aria-label="Opportunities"><svg aria-hidden="true"><use href="#ys-icon-briefcase"></use></svg><span>Opportunities</span></a><a class="yu-sidebar-link" href="<%= ResolveUrl("~/StudentPages/MyApplications.aspx") %>" title="Applications" aria-label="Applications"><svg aria-hidden="true"><use href="#ys-icon-send"></use></svg><span>Applications</span></a><a class="yu-sidebar-link" href="<%= ResolveUrl("~/StudentPages/MyTasks.aspx") %>" title="My tasks" aria-label="My tasks"><svg aria-hidden="true"><use href="#ys-icon-tasks"></use></svg><span>My tasks</span></a><a class="yu-sidebar-link" href="<%= ResolveUrl("~/StudentPages/Progress.aspx") %>" title="Progress" aria-label="Progress"><svg aria-hidden="true"><use href="#ys-icon-chart"></use></svg><span>Progress</span></a></div></nav>
       <div class="yu-sidebar-bottom">
         <span class="yu-sidebar-section">Account</span>
-        <a class="yu-sidebar-profile" data-sidebar-profile href="<%= ResolveUrl("~/StudentPages/Profile.aspx") %>" aria-label="Student profile" title="Profile"><span class="student-sidebar-avatar"><asp:Literal ID="StudentSidebarInitials" runat="server" Text="ST" /></span><span class="student-sidebar-identity"><strong><asp:Literal ID="StudentSidebarName" runat="server" Text="Student" /></strong><small class="student-sidebar-email"><asp:Literal ID="StudentSidebarEmail" runat="server" Text="" /></small></span></a>
+        <a class="yu-sidebar-profile" data-sidebar-profile href="<%= ResolveUrl("~/StudentPages/Profile.aspx") %>" aria-label="Student profile" title="Profile"><span class="student-sidebar-avatar uims-student-photo-avatar" data-student-photo-url="<%= StudentProfileImageUrl %>"><span><asp:Literal ID="StudentSidebarInitials" runat="server" Text="ST" /></span></span><span class="student-sidebar-identity"><strong><asp:Literal ID="StudentSidebarName" runat="server" Text="Student" /></strong><small class="student-sidebar-email"><asp:Literal ID="StudentSidebarEmail" runat="server" Text="" /></small></span></a>
         <button type="button" class="yu-sidebar-theme" data-sidebar-theme aria-label="Switch to dark mode" title="Change appearance"><svg aria-hidden="true"><use href="#ys-icon-moon"></use></svg><span>Dark mode</span></button>
         <asp:LinkButton ID="SignOutButton" runat="server" CssClass="yu-sidebar-logout" OnClick="SignOut_Click" CausesValidation="false" formnovalidate="formnovalidate" ToolTip="Sign out" aria-label="Sign out"><svg aria-hidden="true"><use href="#ys-icon-logout"></use></svg><span>Sign out</span></asp:LinkButton>
         <button type="button" class="yu-sidebar-pin" data-sidebar-pin role="switch" aria-checked="false" aria-label="Keep sidebar open"><span>Keep sidebar open</span><span class="yu-sidebar-pin-track" aria-hidden="true"></span></button>
@@ -34,7 +38,7 @@
   <div class="yu-sidebar-shade" hidden aria-hidden="true"></div>
 
 <div class="student-content yu-dashboard-main">
-<header class="student-topline"><div class="dashboard-account student-topline-account"><span class="avatar"><asp:Literal ID="StudentTopInitials" runat="server" Text="ST" /></span><span class="account-copy"><strong><asp:Literal ID="StudentTopName" runat="server" Text="Student" /></strong><small>Student</small></span></div><button type="button" class="yu-sidebar-menu" data-sidebar-menu aria-controls="student-navigation" aria-expanded="false" hidden><svg aria-hidden="true"><use href="#ys-icon-menu"></use></svg><span>Menu</span></button></header>
+<header class="student-topline"><div class="dashboard-account student-topline-account"><span class="avatar uims-student-photo-avatar" data-student-photo-url="<%= StudentProfileImageUrl %>"><span><asp:Literal ID="StudentTopInitials" runat="server" Text="ST" /></span></span><span class="account-copy"><strong><asp:Literal ID="StudentTopName" runat="server" Text="Student" /></strong><small>Student</small></span></div><button type="button" class="yu-sidebar-menu" data-sidebar-menu aria-controls="student-navigation" aria-expanded="false" hidden><svg aria-hidden="true"><use href="#ys-icon-menu"></use></svg><span>Menu</span></button></header>
 <main class="student-main"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
 <footer class="student-footer">
   <div class="student-footer-inner"><a href="<%= ResolveUrl("~/StudentPages/Dashboard.aspx") %>">Yarmouk University</a><span>Internship Management System · Student Workspace</span><span>© <span data-student-year>2026</span> Faculty of IT and Computer Science</span></div>
@@ -44,5 +48,6 @@
 </form>
 <script src="<%= ResolveUrl("~/Scripts/Shared/sidebar.js") %>?v=sidebar-profile-name-1" defer></script>
 <script src="<%= ResolveUrl("~/Scripts/StudentPages/student-shell.js") %>?v=shared-sidebar-1" defer></script>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>

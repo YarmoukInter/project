@@ -1,18 +1,21 @@
 <%@ Page Title="Home" Language="C#" AutoEventWireup="true" CodeBehind="Home.aspx.cs" Inherits="Yarmouk.PublicPages.Home" %>
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>Yarmouk University — Your practical training journey</title>
-  <meta name="description" content="Explore practical training at Yarmouk University. Discover an opportunity, confirm your placement, develop your skills and complete your internship.">
+  <script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=9") %>' defer></script>
+  <title><%: Yarmouk.Helpers.SiteSettingsStore.Read(Server)["homeTitle"] %></title>
+  <meta id="HomeDescriptionMeta" runat="server" name="description" content="Explore practical training at Yarmouk University. Discover an opportunity, confirm your placement, develop your skills and complete your internship.">
+  <meta id="HomeKeywordsMeta" runat="server" name="keywords" content="Yarmouk University, practical training, internship">
   <link rel="icon" runat="server" href="~/assets/yarmouk-mark.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=emblem-reveal-21" />
   <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=public-routes-1' defer></script>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head>
 <body data-scene="discover" data-home-root='<%= ResolveUrl("~/") %>'>
   <form id="form1" runat="server">
@@ -129,7 +132,7 @@
     </section>
 
     <section class="home-section opportunities-section" id="opportunities" aria-labelledby="opportunities-heading">
-      <div class="section-heading"><div><h2 id="opportunities-heading">Find your<br> first opening.</h2></div><div class="section-heading-aside"><p>Explore a few of the roles available to your faculty. Full details and applications are available after login.</p><a class="section-link" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Explore opportunities <span aria-hidden="true">↗</span></a></div></div>
+      <div class="section-heading"><div><h2 id="opportunities-heading">Find your<br> first opening.</h2></div><div class="section-heading-aside"><p>Explore sample opportunity summaries. Live availability, full details, and applications are available after login.</p><a class="section-link" href='<%= ResolveUrl("~/PublicPages/Login") %>'>Explore live opportunities <span aria-hidden="true">↗</span></a></div></div>
       <div class="opportunity-filters"><div class="opportunity-search"><label for="public-search">Search opportunities</label><input id="public-search" type="search" placeholder="Role, company or location" autocomplete="off" aria-controls="home-opportunities"></div><div class="opportunity-major-filter"><label for="public-major">Your field</label><select id="public-major"><option value="">All six majors</option><option value="cs">Computer Science</option><option value="cis">Computer Information Systems</option><option value="bit">Business Information Technology</option><option value="cys">Cybersecurity</option><option value="dai">Data Science and Artificial Intelligence</option><option value="drg">Digital Reality and Game Development</option></select></div><span id="public-opportunity-count" role="status" aria-live="polite"></span></div>
       <div class="opportunity-carousel-controls"><p id="opportunity-carousel-hint">Browse at your pace. Hover or focus on a card to pause.</p><div><button type="button" id="opportunity-previous" aria-label="Previous opportunities">←</button><button type="button" id="opportunity-motion" aria-pressed="false">Pause motion</button><button type="button" id="opportunity-next" aria-label="Next opportunities">→</button></div></div><div id="home-opportunities" class="opportunity-carousel" role="region" aria-label="Internship opportunity cards" aria-describedby="opportunity-carousel-hint" tabindex="0" aria-busy="true"><p>Loading opportunity summaries…</p></div>
     </section>
@@ -209,6 +212,7 @@
   <p id="a11y-announcer" class="a11y-sr-only" aria-live="polite" aria-atomic="true"></p>
   <noscript><p class="noscript-banner">Use the links below to explore your training journey. The interactive scene requires JavaScript.</p></noscript>
   </form>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>
 

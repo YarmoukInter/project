@@ -91,3 +91,5 @@
 [data-theme="dark"] .submission-url { border-color:#3b5948; background:#102018; color:#e1eee6; }
 [data-theme="dark"] .completed-panel { background:#203c2b; color:#a8e4bd; }
 [data-theme="dark"] .completed-panel p { color:#b6cfc0; }
+
+@media(max-width:560px){.task-column{min-height:0}.task-column-list{min-height:0;flex:0 1 auto;grid-auto-rows:auto}.task-column-empty{min-height:44px}.task-board{align-items:start}}

@@ -80,7 +80,7 @@ namespace Yarmouk.StudentPages
 
         private string GetFirebaseUrl(string path, AuthSession auth)
         {
-            var databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"];
+            var databaseUrl = Yarmouk.Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             if (string.IsNullOrWhiteSpace(databaseUrl) || !Uri.IsWellFormedUriString(databaseUrl, UriKind.Absolute)
                 || new Uri(databaseUrl).Scheme != Uri.UriSchemeHttps)
                 throw new ConfigurationErrorsException("Set FirebaseDatabaseUrl to a valid HTTPS URL in Web.config.");

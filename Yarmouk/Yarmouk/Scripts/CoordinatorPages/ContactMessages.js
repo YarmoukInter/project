@@ -4,13 +4,15 @@
     if (!root) return;
     document.body.classList.add('co-roster-page','co-inbox-page');
     document.title = 'Contact messages — Yarmouk University';
-    const header = document.querySelector('.yu-dashboard-main > header');
-    if (header) header.innerHTML = '<a class="yr-header-brand" href="Dashboard.aspx"><strong>Yarmouk University</strong><span>Internship administration</span></a><a class="yr-header-account" href="Account.aspx" aria-label="My coordinator account"><span aria-hidden="true">YU</span><span>University coordinator</span></a>';
-
     const state = window.CoordinatorBackend.state();
     let messages = state.data || [];
+    window.uimsCoordinatorMessages = messages;
     const read = new Set(messages.filter(m => m.isRead).map(m => m.id));
     const archived = new Set(messages.filter(m => m.isArchived).map(m => m.id));
+    window.uimsCoordinatorMessagesForExport = () => messages.map(message => ({
+        fullName: message.fullName, email: message.email, subject: message.subject, message: message.message,
+        createdAtUnixMs: message.createdAtUnixMs, isRead: read.has(message.id), isArchived: archived.has(message.id)
+    }));
     let saved = {};
     try { saved = JSON.parse(sessionStorage.getItem('coordinatorInboxView') || '{}'); } catch (_) { }
     let view = ['inbox','unread','archived'].includes(saved.view) ? saved.view : 'inbox';
@@ -35,6 +37,10 @@
     const deleteDialog = root.querySelector('[data-message-delete]');
     const compact = matchMedia('(max-width:740px)');
     const reduceMotion = matchMedia('(prefers-reduced-motion:reduce)');
+    if (selectedId && !messages.some(message => message.id === selectedId)) selectedId = null;
+    // On desktop, open the newest visible message as a reading preview. This
+    // does not mark it read; the coordinator explicitly controls read state.
+    if (!selectedId && !compact.matches) selectedId = filteredMessages()[0]?.id || null;
     let lastOpenedId = null;
     const escape = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const icons = {
@@ -60,6 +66,8 @@
         const inbox = activeMessages();
         const unread = inbox.filter(message => !read.has(message.id)).length;
         const counts = {inbox:inbox.length,unread,archived:messages.length-inbox.length};
+        root.querySelector('[data-total-messages]').textContent = `${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`;
+        root.querySelector('[data-overview-unread]').textContent = `${unread} unread`;
         root.querySelectorAll('[data-count]').forEach(span => { span.textContent = counts[span.dataset.count]; });
         root.querySelector('[data-unread-summary]').textContent = `${unread} unread`;
         root.style.setProperty('--cm-view-index', String(['inbox','unread','archived'].indexOf(view)));
@@ -70,7 +78,7 @@
             <strong class="cm-message-subject">${escape(message.subject)}</strong><span class="cm-message-snippet">${escape(message.message.replace(/\n+/g,' '))}</span></button>`).join('') : `<div class="cm-list-empty"><strong>${view === 'archived' ? 'No archived messages' : view === 'unread' ? 'You’re all caught up' : 'Your inbox is empty'}</strong><span>${view === 'unread' ? 'There are no unread messages to review.' : view === 'archived' ? 'Messages you archive will appear here.' : 'Messages from the contact form will appear here.'}</span></div>`;
         const message = messages.find(item => item.id === selectedId);
         if (!message) {
-            reader.innerHTML = `<div class="cm-reader-empty">${icon('mail')}<h3>Select a message</h3><p>Choose a message from the list to read it and manage your inbox.</p></div>`;
+            reader.innerHTML = `<div class="cm-reader-empty"><span class="cm-empty-art">${icon('mail')}</span><p class="cm-empty-eyebrow">YOUR INBOX</p><h3>${messages.length ? 'Choose a message to read' : 'Your inbox is ready'}</h3><p>${messages.length ? 'Select a conversation from the list to view its details, reply, archive or mark it unread.' : 'Messages sent through the Contact Us page will appear here.'}</p><span class="cm-empty-hint">Select a message from the list</span></div>`;
             return;
         }
         const initials = message.fullName.split(/\s+/).slice(0,2).map(name => name[0]).join('');

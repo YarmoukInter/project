@@ -58,6 +58,58 @@ namespace Yarmouk.Services
                 }, idToken).ConfigureAwait(false);
         }
 
+        public async Task RecordApprovedHoursAsync(string placementId, string academicUid, string idToken,
+            int hours, string note)
+        {
+            RequireIdentity(academicUid, idToken);
+            if (!IsValidFirebaseKey(placementId))
+                throw new SupervisorWorkflowException("Select a valid student placement.");
+            if (hours < 1 || hours > 1000)
+                throw new SupervisorWorkflowException("Enter between 1 and 1,000 verified hours.");
+            note = (note ?? string.Empty).Trim();
+            if (note.Length > 500)
+                throw new SupervisorWorkflowException("The verification note must be 500 characters or fewer.");
+
+            var data = await LoadDataAsync(idToken).ConfigureAwait(false);
+            var academicUser = Find(data.Users, academicUid);
+            if (academicUser == null || AuthPolicy.NormalizeRole(Read(academicUser, "role")) != "academic")
+                throw new UnauthorizedAccessException("An academic supervisor account is required.");
+            var assigned = BuildProgressRows(data, row =>
+            {
+                var student = Find(data.Students, row.StudentUid);
+                return student != null && Same(Read(student, "academicSupervisorId"), academicUid);
+            }).FirstOrDefault(row => Same(row.PlacementId, placementId));
+            if (assigned == null)
+                throw new SupervisorWorkflowException("This student is not assigned to your academic account.");
+
+            int updatedHours = assigned.ApprovedHours + hours;
+            if (assigned.RequiredHours > 0 && updatedHours > assigned.RequiredHours)
+                throw new SupervisorWorkflowException("Approved hours cannot exceed the required training hours.");
+
+            string logId = "LOG_" + Guid.NewGuid().ToString("N");
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var changes = new Dictionary<string, object>
+            {
+                [DatabasePaths.TrainingLogs + "/" + logId] = new
+                {
+                    id = logId,
+                    studentUid = assigned.StudentUid,
+                    placementId = assigned.PlacementId,
+                    academicSupervisorUid = academicUid,
+                    academicSupervisorName = Read(academicUser, "fullName", "Academic supervisor"),
+                    hours = hours,
+                    status = "approved",
+                    isApproved = true,
+                    note = note,
+                    approvedAtUnixMs = now,
+                    createdAtUnixMs = now
+                },
+                [DatabasePaths.Students + "/" + assigned.StudentUid + "/approvedTrainingHours"] = updatedHours,
+                [DatabasePaths.Placements + "/" + assigned.PlacementId + "/approvedHours"] = updatedHours
+            };
+            await firebase.UpdateRootAsync(changes, idToken).ConfigureAwait(false);
+        }
+
         public async Task<List<SupervisorStudentProgress>> GetCompanyTraineesAsync(string companySupervisorUid, string idToken)
         {
             RequireIdentity(companySupervisorUid, idToken);
@@ -315,6 +367,7 @@ namespace Yarmouk.Services
                 StudentUid = row.StudentUid,
                 StudentName = studentName,
                 Initials = GetInitials(studentName),
+                ProfileImageUrl = StudentProfileImages.GetUrl(Read(student, "profileImageFileName")),
                 StudentNumber = Read(student, "studentId", Read(student, "studentNumber", "—")),
                 StudentEmail = Read(user, "email", "Not provided"),
                 StudentPhone = Read(user, "phone", "Not provided"),
@@ -352,15 +405,9 @@ namespace Yarmouk.Services
             string proposed = "Waiting for company evaluation";
             if (companySubmitted && hasAcademicScore)
             {
-                double academicWeight = ReadDouble(record, "academicWeight", 0.6);
-                double companyWeight = ReadDouble(record, "companyWeight", 0.4);
-                double totalWeight = academicWeight + companyWeight;
-                if (totalWeight <= 0) { academicWeight = 0.6; companyWeight = 0.4; totalWeight = 1; }
-                double score = ReadDouble(record, "academicScore", 0) * academicWeight / totalWeight
-                    + ReadDouble(record, "companyScore", 0) * companyWeight / totalWeight;
-                proposed = coordinatorApproved && HasNumber(record, "finalScore")
-                    ? Read(record, "finalScore") + " / 100 (approved)"
-                    : score.ToString("0.##") + " / 100 · awaiting university approval";
+                double score = Evaluation.CalculateFinalScore(ReadDouble(record, "companyScore", 0), ReadDouble(record, "academicScore", 0));
+                proposed = score.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
+                    + (coordinatorApproved ? " / 100 (approved)" : " / 100 · awaiting university approval");
             }
             return new AcademicEvaluationItem
             {
@@ -368,6 +415,8 @@ namespace Yarmouk.Services
                 EvaluationId = evaluation == null ? string.Empty : evaluation.Id,
                 StudentUid = row.StudentUid,
                 StudentName = row.StudentName,
+                Initials = row.Initials,
+                ProfileImageUrl = row.ProfileImageUrl,
                 StudentNumber = row.StudentNumber,
                 CompanyName = row.CompanyName,
                 PlacementStatus = row.PlacementStatus,

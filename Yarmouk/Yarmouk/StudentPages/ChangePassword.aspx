@@ -1,4 +1,4 @@
-<%@ Page Title="Change Password" Language="C#" MasterPageFile="~/StudentPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ChangePassword.aspx.cs" Inherits="Yarmouk.StudentPages.ChangePassword" %>
+<%@ Page Title="Change Password" Language="C#" MasterPageFile="~/PublicPages/AccountSetup.Master" Async="true" AutoEventWireup="true" CodeBehind="ChangePassword.aspx.cs" Inherits="Yarmouk.StudentPages.ChangePassword" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="<%= ResolveUrl("~/Content/StudentPages/ChangePassword.css") %>" rel="stylesheet" />
 <script src="<%= ResolveUrl("~/Scripts/StudentPages/ChangePassword.js") %>" defer></script>

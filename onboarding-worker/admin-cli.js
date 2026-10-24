@@ -1,16 +1,15 @@
 'use strict';
 
 const path = require('node:path');
-const { initializeApp, cert, deleteApp } = require('firebase-admin/app');
+const { initializeApp, cert, applicationDefault, deleteApp } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const { getDatabase } = require('firebase-admin/database');
 
-const credentialPath = process.env.YARMOUK_FIREBASE_SERVICE_ACCOUNT
-  || path.resolve(__dirname, '..', 'yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json');
+const credentialPath = process.env.YARMOUK_FIREBASE_SERVICE_ACCOUNT || process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
 initializeApp({
-  credential: cert(require(credentialPath)),
-  databaseURL: 'https://yarmouk-uims-default-rtdb.firebaseio.com'
+  credential: credentialPath ? cert(require(path.resolve(credentialPath))) : applicationDefault(),
+  databaseURL: process.env.YARMOUK_FIREBASE_DATABASE_URL || 'https://yarmouk-uims-default-rtdb.firebaseio.com'
 });
 
 const auth = getAuth();

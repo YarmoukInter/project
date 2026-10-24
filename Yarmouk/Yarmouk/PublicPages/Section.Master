@@ -1,16 +1,18 @@
 <%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.PublicPages.SectionMaster" %>
 <%@ Register Src="~/Controls/PublicPages/SiteFooter.ascx" TagPrefix="yu" TagName="SiteFooter" %>
 <!DOCTYPE html>
-<html lang="en" class="yu-footer-page">
+<html lang="en" class="yu-footer-page" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=9") %>' defer></script>
 <title><%: Page.Title %> — Yarmouk University</title>
 <link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/PublicPages/shared.css") %>" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/PublicPages/navbar.css") %>?v=1" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/PublicPages/yarmouk-footer.css") %>?v=1" rel="stylesheet" />
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head>
 <body class="yu-footer-page">
 <form id="form1" runat="server" class="yu-page-form">
@@ -34,5 +36,6 @@
 </form>
 <script src="<%= ResolveUrl("~/Scripts/PublicPages/navbar.js") %>?v=1" defer></script>
 <script src="<%= ResolveUrl("~/Scripts/PublicPages/yarmouk-footer.js") %>?v=1" defer></script>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>

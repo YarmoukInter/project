@@ -13,6 +13,8 @@ namespace Yarmouk.Models
         public bool CompanySubmitted { get; set; }
         public bool CoordinatorApproved { get; set; }
         // Display only after both evaluations and coordinator approval.
-        public double WeightedScore { get { return System.Math.Round(AcademicScore * 0.60 + CompanyScore * 0.40, 2); } }
+        public double WeightedScore { get { return CalculateFinalScore(CompanyScore, AcademicScore); } }
+        public static double CalculateFinalScore(double companyScore, double academicScore)
+        { return System.Math.Round(academicScore * 0.60 + companyScore * 0.40, 2); }
     }
 }

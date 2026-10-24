@@ -24,6 +24,8 @@ namespace Yarmouk.AcademicPages
         protected global::System.Web.UI.WebControls.Panel ProgressError;
         protected global::System.Web.UI.WebControls.Panel ProgressSuccess;
 
+        protected global::System.Web.UI.WebControls.Literal ProgressSuccessText;
+
         /// <summary>
         /// ProgressErrorText control.
         /// </summary>
@@ -90,5 +92,11 @@ namespace Yarmouk.AcademicPages
         protected global::System.Web.UI.WebControls.Label NoteBodyLabel;
         protected global::System.Web.UI.WebControls.TextBox NoteBody;
         protected global::System.Web.UI.WebControls.Button SaveProgressNoteButton;
+        protected global::System.Web.UI.WebControls.HiddenField HoursPlacementId;
+        protected global::System.Web.UI.WebControls.Label ApprovedHoursLabel;
+        protected global::System.Web.UI.WebControls.TextBox ApprovedHoursInput;
+        protected global::System.Web.UI.WebControls.Label ApprovedHoursNoteLabel;
+        protected global::System.Web.UI.WebControls.TextBox ApprovedHoursNote;
+        protected global::System.Web.UI.WebControls.Button SaveApprovedHoursButton;
     }
 }

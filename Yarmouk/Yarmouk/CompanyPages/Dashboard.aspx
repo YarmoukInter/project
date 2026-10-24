@@ -91,7 +91,7 @@
                         <thead><tr><th scope="col">Applicant</th><th scope="col">Opportunity</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Action</span></th></tr></thead>
                         <tbody>
                             <asp:Repeater ID="ApplicationsRepeater" runat="server"><ItemTemplate>
-                                <tr data-search-row><td><span class="person-cell"><span class="person-avatar"><%#: Eval("Initials") %></span><span><strong><%#: Eval("Name") %></strong><small><%#: Eval("Major") %></small></span></span></td><td><%#: Eval("Opportunity") %></td><td><%#: Eval("Applied") %></td><td><span class="status-pill status-pending">Pending review</span></td><td><a class="row-action" href="<%= ResolveUrl("~/CompanyPages/ApplicationsReview.aspx") %>" aria-label="Review application"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td></tr>
+                                <tr data-search-row><td><span class="person-cell"><span class="person-avatar uims-student-photo-avatar" data-student-photo-url='<%#: Eval("ProfileImageUrl") %>'><span><%#: Eval("Initials") %></span></span><span><strong><%#: Eval("Name") %></strong><small><%#: Eval("Major") %></small></span></span></td><td><%#: Eval("Opportunity") %></td><td><%#: Eval("Applied") %></td><td><span class="status-pill status-pending">Pending review</span></td><td><a class="row-action" href="<%= ResolveUrl("~/CompanyPages/ApplicationsReview.aspx") %>" aria-label="Review application"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td></tr>
                             </ItemTemplate></asp:Repeater>
                         </tbody>
                     </table>
@@ -106,7 +106,7 @@
                         <thead><tr><th scope="col">Trainee</th><th scope="col">Task</th><th scope="col">Submitted</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Action</span></th></tr></thead>
                         <tbody>
                             <asp:Repeater ID="SubmissionsRepeater" runat="server"><ItemTemplate>
-                                <tr data-search-row><td><span class="person-cell"><span class="person-avatar"><%#: Eval("Initials") %></span><span><strong><%#: Eval("Name") %></strong><small>Trainee</small></span></span></td><td><%#: Eval("Task") %></td><td><%#: Eval("Submitted") %></td><td><span class="status-pill status-review">Needs review</span></td><td><a class="row-action" href="<%= ResolveUrl("~/CompanyPages/ManageTasks.aspx") %>" aria-label="Review submission"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td></tr>
+                                <tr data-search-row><td><span class="person-cell"><span class="person-avatar uims-student-photo-avatar" data-student-photo-url='<%#: Eval("ProfileImageUrl") %>'><span><%#: Eval("Initials") %></span></span><span><strong><%#: Eval("Name") %></strong><small>Trainee</small></span></span></td><td><%#: Eval("Task") %></td><td><%#: Eval("Submitted") %></td><td><span class="status-pill status-review">Needs review</span></td><td><a class="row-action" href="<%= ResolveUrl("~/CompanyPages/ManageTasks.aspx") %>" aria-label="Review submission"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td></tr>
                             </ItemTemplate></asp:Repeater>
                         </tbody>
                     </table>
@@ -135,7 +135,7 @@
         <section class="panel trainees-panel" aria-labelledby="traineesTitle">
             <div class="panel-heading"><div><h2 id="traineesTitle">Trainee progress</h2><p>Active trainees and their task completion.</p></div><a class="text-link" href="<%= ResolveUrl("~/CompanyPages/MyTrainees.aspx") %>">View trainees <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
             <div class="trainee-list"><asp:Repeater ID="TraineesRepeater" runat="server"><ItemTemplate>
-                <div class="trainee-row"><span class="person-avatar"><%#: Eval("Initials") %></span><div class="trainee-name"><strong><%#: Eval("Name") %></strong><small><%#: Eval("Program") %></small></div><div class="trainee-progress"><div class="progress-caption"><span>Tasks submitted</span><strong><%#: Eval("Completed") %> of <%#: Eval("Total") %></strong></div><div class="progress-track"><span style='width:<%#: Eval("Percent") %>%'></span></div></div><span class="progress-value"><%#: Eval("Percent") %>%</span></div>
+                <div class="trainee-row"><span class="person-avatar uims-student-photo-avatar" data-student-photo-url='<%#: Eval("ProfileImageUrl") %>'><span><%#: Eval("Initials") %></span></span><div class="trainee-name"><strong><%#: Eval("Name") %></strong><small><%#: Eval("Program") %></small></div><div class="trainee-progress"><div class="progress-caption"><span>Tasks submitted</span><strong><%#: Eval("Completed") %> of <%#: Eval("Total") %></strong></div><div class="progress-track"><span style='width:<%#: Eval("Percent") %>%'></span></div></div><span class="progress-value"><%#: Eval("Percent") %>%</span></div>
             </ItemTemplate></asp:Repeater></div>
             <p id="NoTrainees" runat="server" class="empty-state" visible="false">No active trainees found.</p>
         </section>

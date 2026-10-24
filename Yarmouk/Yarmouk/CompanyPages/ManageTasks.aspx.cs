@@ -25,7 +25,12 @@ namespace Yarmouk.CompanyPages
         {
             public string StudentUid;
             public string StudentName;
+            public string ProfileImageUrl;
+            public string StudentInitials;
             public string Id;
+            public string RecordId;
+            public string Description;
+            public string TaskUrl;
             public string Number;
             public string Title;
             public string Status;
@@ -38,10 +43,32 @@ namespace Yarmouk.CompanyPages
             public string PlacementId;
         }
 
+        protected string TaskCreationToken
+        {
+            get {
+                if (Session["TaskCreationToken"] == null) Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
+                return (string)Session["TaskCreationToken"];
+            }
+        }
+
+        protected bool TaskEditFailed { get; private set; }
+        protected bool TaskAddFailed { get; private set; }
+        protected string TaskAddError { get; private set; }
+        protected string PostedEditValue(string name) { return HttpUtility.HtmlEncode(Request.Form[name] ?? string.Empty); }
+        protected override void OnInit(EventArgs e)
+        {
+            ViewStateUserKey = Session.SessionID;
+            base.OnInit(e);
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                if (Session["TaskCreatedMessage"] != null) {
+                    ShowSuccess((string)Session["TaskCreatedMessage"]);
+                    Session.Remove("TaskCreatedMessage");
+                }
                 if (Request.QueryString["placementId"] != null) { RedirectToFilters(Request.QueryString["studentUid"], Request.QueryString["status"], Request.QueryString["q"]); return; }
                 RegisterAsyncTask(new PageAsyncTask(() => LoadPageAsync(
                     SafeFilter(Request.QueryString["studentUid"]),
@@ -62,12 +89,42 @@ namespace Yarmouk.CompanyPages
             }
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
-                if (addTask == "1")
+                if (!string.IsNullOrWhiteSpace(Request.Form["taskManagementAction"]))
+                    await ProcessManagementAsync(Request.Form["taskManagementAction"], selectedStudentUid, selectedStatus, searchText);
+                else if (addTask == "1")
                     await CreateTaskAsync(selectedStudentUid);
                 else if (!string.IsNullOrWhiteSpace(action))
                     await ProcessDecisionAsync(action, selectedStudentUid);
-                await LoadPageAsync(selectedStudentUid, selectedStatus, searchText);
+                if (!Response.IsRequestBeingRedirected) await LoadPageAsync(selectedStudentUid, selectedStatus, searchText);
             }));
+        }
+
+        private async Task ProcessManagementAsync(string action, string studentUid, string status, string search)
+        {
+            try
+            {
+                if (Request.Form["taskCreationToken"] != TaskCreationToken)
+                    throw new ArgumentException("This form has expired. Refresh the task list and try again.");
+                var auth = Session[AuthGuard.SessionKey] as AuthSession;
+                if (auth == null) throw new UnauthorizedAccessException("Sign in again before managing tasks.");
+                var service = new CompanyTaskService();
+                if (action == "edit")
+                    await service.UpdateAsync(Request.Form["editTaskId"], auth.Uid, auth.IdToken,
+                        Request.Form["editTaskNumber"], Request.Form["editTaskTitle"], Request.Form["editTaskDescription"],
+                        Request.Form["editTaskUrl"], Request.Form["editTaskDeadline"]);
+                else if (action.StartsWith("delete|", StringComparison.Ordinal))
+                    await service.DeleteAsync(action.Substring(7), auth.Uid, auth.IdToken);
+                else throw new ArgumentException("Choose a valid task action.");
+                Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
+                Session["TaskCreatedMessage"] = action == "edit" ? "Task changes saved." : "Task deleted from the active task list.";
+                RedirectToFilters(studentUid, status, search);
+            }
+            catch (Exception error)
+            {
+                TaskEditFailed = action == "edit";
+                ShowError(error is ArgumentException || error is UnauthorizedAccessException || error is InvalidOperationException
+                    ? error.Message : "The task could not be saved. Please try again.");
+            }
         }
 
         private void RedirectToFilters(string studentUid, string status, string search)
@@ -89,7 +146,7 @@ namespace Yarmouk.CompanyPages
 
         private string GetFirebaseUrl(string path, AuthSession auth)
         {
-            var databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"];
+            var databaseUrl = Yarmouk.Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             if (string.IsNullOrWhiteSpace(databaseUrl) || !Uri.IsWellFormedUriString(databaseUrl, UriKind.Absolute)
                 || new Uri(databaseUrl).Scheme != Uri.UriSchemeHttps)
                 throw new ConfigurationErrorsException("FirebaseDatabaseUrl must be a valid HTTPS URL.");
@@ -175,7 +232,7 @@ namespace Yarmouk.CompanyPages
                     .ToDictionary(group => group.Key, group => group.First().Id, StringComparer.Ordinal);
                 var rows = options.SelectMany(option => BuildTaskRows(option.Uid, taskData, submissionData,
                         placementByStudent.ContainsKey(option.Uid) ? placementByStudent[option.Uid] : string.Empty)
-                    .Select(row => { row.StudentUid = option.Uid; row.StudentName = option.Name; return row; }))
+                    .Select(row => { var trainee = trainees.FirstOrDefault(item => item.StudentUid == option.Uid); row.StudentUid = option.Uid; row.StudentName = option.Name; row.ProfileImageUrl = trainee == null ? string.Empty : trainee.ProfileImageUrl; row.StudentInitials = GetInitials(option.Name); return row; }))
                     .Where(row => selected == null || row.StudentUid == selected.Uid)
 
                     .Where(row => string.IsNullOrWhiteSpace(statusFilter) || row.Status == statusFilter)
@@ -292,10 +349,14 @@ namespace Yarmouk.CompanyPages
 
         private async Task CreateTaskAsync(string selectedStudentUid)
         {
+            TaskAddFailed = true;
             var auth = Session[AuthGuard.SessionKey] as AuthSession;
             if (auth == null) { ShowError("Your sign-in has expired. Sign in again."); return; }
             try
             {
+                string requestToken = Request.Form["taskCreationToken"];
+                if (string.IsNullOrEmpty(requestToken) || requestToken != TaskCreationToken)
+                { ShowError("This task form has already been submitted. Refresh before creating another task."); return; }
                 var number = (Request.Form["newTaskNumber"] ?? string.Empty).Trim();
                 var title = (Request.Form["newTaskTitle"] ?? string.Empty).Trim();
                 var deadlineText = (Request.Form["newTaskDeadline"] ?? string.Empty).Trim();
@@ -313,9 +374,6 @@ namespace Yarmouk.CompanyPages
                 if (dueAt <= DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()) { ShowError("The task deadline must be in the future (Jordan time)."); return; }
                 if (!IsHttpUrl(taskUrl)) { ShowError("Enter a valid HTTPS task link."); return; }
 
-                var targetUids = selectedUids.Where(uid => !string.IsNullOrWhiteSpace(uid)).Distinct(StringComparer.Ordinal).ToList();
-                if (targetUids.Count == 0) { ShowError("Select at least one trainee student."); return; }
-
                 var companiesTask = GetFirebaseObjectAsync(DatabasePaths.Companies, auth);
                 var studentsTask = GetFirebaseObjectAsync(DatabasePaths.Students, auth);
                 var usersTask = GetFirebaseObjectAsync(DatabasePaths.Users, auth);
@@ -328,8 +386,7 @@ namespace Yarmouk.CompanyPages
                 var placementByStudent = assignedTrainees.Where(x => !string.IsNullOrWhiteSpace(x.PlacementId))
                     .GroupBy(x => x.StudentUid, StringComparer.Ordinal)
                     .ToDictionary(group => group.Key, group => group.First().PlacementId, StringComparer.Ordinal);
-                if (targetUids.Any(uid => !assignedUids.Contains(uid)))
-                { ShowError("Only students assigned to your company can receive this task."); return; }
+                var targetUids = CompanyTaskService.ResolveRecipients(selectedUids, assignedUids, Request.Form["targetAllStudents"] == "1");
 
                 var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 var additions = new JObject();
@@ -338,9 +395,7 @@ namespace Yarmouk.CompanyPages
                     var opportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(uid, auth.IdToken);
                     if (string.IsNullOrWhiteSpace(opportunityId))
                     { ShowError("Every selected trainee must have an accepted, active internship opportunity before receiving tasks."); return; }
-                    var safeUid = new string(uid.Where(char.IsLetterOrDigit).ToArray());
-                    var suffix = safeUid.Length > 6 ? safeUid.Substring(safeUid.Length - 6) : safeUid;
-                    var recordId = number + "-" + suffix + "-" + Guid.NewGuid().ToString("N").Substring(0, 6);
+                    var recordId = "TASK_" + requestToken + "_" + uid;
                     additions[recordId] = new JObject
                     {
                         ["id"] = recordId,
@@ -358,23 +413,39 @@ namespace Yarmouk.CompanyPages
                         ["createdAtUnixMs"] = now
                     };
                 }
-                await PatchFirebaseObjectAsync(DatabasePaths.Tasks, additions, auth);
-                ShowSuccess("Task " + number + " was added to " + targetUids.Count + (targetUids.Count == 1 ? " student" : " students") + " in To do.");
+                // Stable request keys make network retries safe. Do not overwrite
+                // an assignment already created by this form submission.
+                foreach (var addition in additions.Properties())
+                {
+                    await new FirebaseHelper().TransactAsync(DatabasePaths.Tasks + "/" + addition.Name, auth.IdToken, record => {
+                        if (record != null) return false;
+                        return true;
+                    }, (JObject)addition.Value);
+                }
+                Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
+                Session["TaskCreatedMessage"] = "Task " + number + " was added to " + targetUids.Count + (targetUids.Count == 1 ? " student" : " students") + " in To do.";
+                RedirectToFilters(selectedStudentUid, Request.Form[TaskStatusSelector.UniqueID], Request.Form[TaskSearchTextBox.UniqueID]);
             }
-            catch (Exception)
+            catch (ArgumentException error) { ShowError(error.Message); }
+            catch (UnauthorizedAccessException error) { ShowError(error.Message); }
+            catch (Exception error)
             {
+                System.Diagnostics.Trace.TraceWarning("Task creation failed: " + error.GetType().Name);
                 ShowError("The task could not be saved to Firebase. Check the connection and try again.");
             }
         }
 
-        private static string RenderStudentChoices(List<StudentOption> options)
+        private string RenderStudentChoices(List<StudentOption> options)
         {
             if (options.Count == 0) return "<p class=\"picker-empty\">No trainee students are assigned to this company.</p>";
             var html = new StringBuilder();
+            var selected = new HashSet<string>(Request.Form.GetValues("targetStudentUid") ?? new string[0], StringComparer.Ordinal);
+            bool all = Request.Form["targetAllStudents"] == "1";
             foreach (var option in options)
             {
                 html.Append("<label class=\"trainee-option\"><input type=\"checkbox\" name=\"targetStudentUid\" value=\"")
-                    .Append(HttpUtility.HtmlAttributeEncode(option.Uid)).Append("\" /><span>")
+                    .Append(HttpUtility.HtmlAttributeEncode(option.Uid)).Append("\"")
+                    .Append(all || selected.Contains(option.Uid) ? " checked" : "").Append(" /><span>")
                     .Append(HttpUtility.HtmlEncode(option.Name)).Append("</span></label>");
             }
             return html.ToString();
@@ -447,6 +518,14 @@ namespace Yarmouk.CompanyPages
             return FirstNonEmpty(fullName, uid);
         }
 
+        private static string GetInitials(string name)
+        {
+            var parts = (name ?? string.Empty).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0) return "ST";
+            return parts.Length == 1 ? parts[0].Substring(0, 1).ToUpperInvariant()
+                : (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpperInvariant();
+        }
+
         private static JProperty FindStudentRecord(JObject students, string uid)
         {
             if (students == null || string.IsNullOrWhiteSpace(uid)) return null;
@@ -474,7 +553,8 @@ namespace Yarmouk.CompanyPages
                 var gradeText = FirstNonEmpty(Value(task, "grade"), Value(submitted, "grade"), Value(task, "score"), Value(submitted, "score"));
                 rows.Add(new TaskRow
                 {
-                    Id = taskId, Number = FirstNonEmpty(Value(task, "taskNumber"), taskId),
+                    Id = taskId, RecordId = item.Name, Number = FirstNonEmpty(Value(task, "taskNumber"), taskId),
+                    Description = Value(task, "description"), TaskUrl = Value(task, "taskPdfUrl"),
                     Title = FirstNonEmpty(Value(task, "title"), "Untitled task"), Status = status,
                     StatusLabel = LabelForStatus(status), SolutionUrl = IsGitHubSolutionUrl(url) ? url : string.Empty,
                     SubmissionNotes = FirstNonEmpty(Value(submitted, "notes"), Value(submitted, "submissionNotes"), Value(task, "submissionNotes")),
@@ -497,13 +577,13 @@ namespace Yarmouk.CompanyPages
             {
                 var id = HttpUtility.HtmlAttributeEncode(row.Id);
                 html.Append("<article class=\"task-review-card\" data-status=\"").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">")
-                    .Append("<div class=\"task-review-card__student\"><span class=\"task-card-label\">Student</span><strong class=\"task-card-student\">").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</strong></div>")
+                    .Append("<div class=\"task-review-card__student\"><span class=\"task-card-label\">Student</span><span class=\"task-review-student uims-student-photo-avatar\" data-student-photo-url=\"").Append(HttpUtility.HtmlAttributeEncode(row.ProfileImageUrl)).Append("\"><span>").Append(HttpUtility.HtmlEncode(row.StudentInitials)).Append("</span></span><strong class=\"task-card-student\">").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</strong></div>")
                     .Append("<div class=\"task-review-card__task\"><span class=\"task-card-label\">Task</span><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-card-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></div>")
                     .Append("<div class=\"task-review-card__deadline\"><span class=\"task-card-label\">Deadline</span><time class=\"task-card-deadline\">").Append(row.DueAt > 0 ? HttpUtility.HtmlEncode(FormatDate(row.DueAt)) : "—").Append("</time></div>")
                     .Append("<div class=\"task-review-card__status\"><span class=\"task-card-label\">Status</span><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></div>")
                     .Append("<div class=\"task-review-card__grade\"><span class=\"task-card-label\">Evaluation</span><span class=\"task-grade\">").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : "—").Append(" <small>/ 10</small></span></div><div class=\"task-review-card__action\">");
                 if (row.Status == "done" || row.Status == "completed")
-                    html.Append("<button type=\"button\" class=\"review-open-button\" data-review-id=\"").Append(id)
+                    html.Append("<button type=\"button\" class=\"review-open-button task-icon-button\" data-review-id=\"").Append(id)
                         .Append("\" data-review-student-uid=\"").Append(HttpUtility.HtmlAttributeEncode(row.StudentUid))
                         .Append("\" data-review-title=\"").Append(HttpUtility.HtmlAttributeEncode(row.Title))
                         .Append("\" data-review-status=\"").Append(HttpUtility.HtmlAttributeEncode(row.Status))
@@ -511,8 +591,20 @@ namespace Yarmouk.CompanyPages
                         .Append("\" data-review-solution=\"").Append(HttpUtility.HtmlAttributeEncode(row.SolutionUrl))
                         .Append("\" data-review-notes=\"").Append(HttpUtility.HtmlAttributeEncode(row.SubmissionNotes))
                         .Append("\" data-review-grade=\"").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : string.Empty)
-                        .Append("\">").Append(row.Status == "done" ? "Review submission" : "View review").Append("</button>");
+                        .Append("\" aria-label=\"").Append(row.Status == "done" ? "Review submission" : "View review")
+                        .Append("\" title=\"").Append(row.Status == "done" ? "Review submission" : "View review")
+                        .Append("\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg></button>");
                 else html.Append("<span class=\"muted\">Available after submission</span>");
+                string editData = " data-task-id=\"" + HttpUtility.HtmlAttributeEncode(row.RecordId) + "\""
+                    + " data-task-number=\"" + HttpUtility.HtmlAttributeEncode(row.Number) + "\""
+                    + " data-task-title=\"" + HttpUtility.HtmlAttributeEncode(row.Title) + "\""
+                    + " data-task-description=\"" + HttpUtility.HtmlAttributeEncode(row.Description) + "\""
+                    + " data-task-url=\"" + HttpUtility.HtmlAttributeEncode(row.TaskUrl) + "\""
+                    + " data-task-deadline=\"" + (row.DueAt > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(row.DueAt).ToOffset(TimeSpan.FromHours(3)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "") + "\"";
+                html.Append("<button type=\"button\" class=\"task-icon-button task-icon-button--labelled\" data-task-edit" + editData + " aria-label=\"Edit task " + HttpUtility.HtmlAttributeEncode(row.Number) + "\" title=\"Edit task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m16 3 5 5-12 12-6 1 1-6zM14 5l5 5\"/></svg><span>Edit</span></button>")
+                    .Append("<button type=\"submit\" class=\"task-icon-button task-icon-button--delete task-icon-button--labelled\" name=\"taskManagementAction\" value=\"delete|")
+                    .Append(HttpUtility.HtmlAttributeEncode(row.RecordId)).Append("\" data-task-delete formnovalidate aria-label=\"Delete task ")
+                    .Append(HttpUtility.HtmlAttributeEncode(row.Number)).Append("\" title=\"Delete task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7\"/></svg><span>Delete</span></button>");
                 html.Append("</div></article>");
             }
             html.Append("</div>");
@@ -632,6 +724,7 @@ namespace Yarmouk.CompanyPages
 
         private void ShowError(string message)
         {
+            if (TaskAddFailed) TaskAddError = message;
             PageMessage.Text = "<div class=\"page-alert error\" role=\"alert\">" + HttpUtility.HtmlEncode(message) + "</div>";
         }
 

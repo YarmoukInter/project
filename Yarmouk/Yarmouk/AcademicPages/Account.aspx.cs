@@ -72,7 +72,7 @@ namespace Yarmouk.AcademicPages
             if (field != "fullName" && field != "phone")
                 throw new ArgumentException("Only profile fields can be updated.", "field");
 
-            string databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"];
+            string databaseUrl = Yarmouk.Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             if (string.IsNullOrWhiteSpace(databaseUrl) || !Uri.IsWellFormedUriString(databaseUrl, UriKind.Absolute)
                 || new Uri(databaseUrl).Scheme != Uri.UriSchemeHttps)
                 throw new ConfigurationErrorsException("Set FirebaseDatabaseUrl to a valid HTTPS URL in Web.config.");

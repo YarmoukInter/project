@@ -185,6 +185,7 @@ namespace Yarmouk.CoordinatorPages
                     name = studentName,
                     id = GetText(studentRecord, "studentId"),
                     initials = GetInitials(studentName),
+                    profileImageUrl = StudentProfileImages.GetUrl(GetText(studentRecord, "profileImageFileName")),
                     role = string.IsNullOrWhiteSpace(opportunityTitle) ? "Internship placement" : opportunityTitle,
                     company = string.IsNullOrWhiteSpace(companyName) ? "Training provider unavailable" : companyName,
                     city = GetText(companyRecord, "location"),
@@ -344,6 +345,7 @@ namespace Yarmouk.CoordinatorPages
             public string name { get; set; }
             public string id { get; set; }
             public string initials { get; set; }
+            public string profileImageUrl { get; set; }
             public string role { get; set; }
             public string company { get; set; }
             public string city { get; set; }

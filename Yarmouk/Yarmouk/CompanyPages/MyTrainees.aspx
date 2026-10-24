@@ -22,13 +22,13 @@
     <HeaderTemplate><div class="trainees-grid"></HeaderTemplate>
     <ItemTemplate>
       <article class="trainee-card" data-trainee-status="<%#: Eval("PlacementStatus") %>" data-search='<%#: Eval("StudentName") %> <%#: Eval("StudentNumber") %> <%#: Eval("CompanyName") %>'>
-        <header class="trainee-card-header"><div class="trainee-person"><span class="trainee-avatar"><%#: Eval("Initials") %></span><div><h3><%#: Eval("StudentName") %></h3><p>Student ID <%#: Eval("StudentNumber") %></p></div></div><span class="trainee-status"><i aria-hidden="true"></i><%#: Eval("PlacementStatus") %></span></header>
+        <header class="trainee-card-header"><div class="trainee-person"><span class="trainee-avatar uims-student-photo-avatar" data-student-photo-url='<%#: Eval("ProfileImageUrl") %>'><span><%#: Eval("Initials") %></span></span><div><h3><%#: Eval("StudentName") %></h3><p>Student ID <%#: Eval("StudentNumber") %></p></div></div><span class="trainee-status"><i aria-hidden="true"></i><%#: Eval("PlacementStatus") %></span></header>
         <div class="trainee-company"><span class="trainee-company-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V4h11v17M15 10h5v11M2 21h20M8 8h1m3 0h1M8 12h1m3 0h1M8 16h1m3 0h1m6-2h1m-1 4h1" /></svg></span><div><small>HOST COMPANY</small><strong><%#: Eval("CompanyName") %></strong></div></div>
         <div class="trainee-progress"><div class="trainee-progress-label"><span>Task submission progress</span><strong><%#: Eval("TaskProgressLabel") %></strong><b><%#: Eval("ProgressPercent") %>%</b></div><div class="trainee-track" role="progressbar" aria-label="Task submission progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow='<%# Eval("ProgressPercent") %>'><span style='width:<%# Eval("ProgressPercent") %>%'></span></div><div class="trainee-progress-foot"><span><%#: Eval("HoursProgressLabel") %></span></div></div>
         <div class="trainee-card-meta"><div><small>TRAINING PERIOD</small><strong><%#: Eval("TrainingPeriodLabel") %></strong></div><div><small>TASKS FOR REVIEW</small><strong><%#: Eval("SubmittedTasks") %></strong></div></div>
         <div class="trainee-card-actions">
           <button type="button" class="trainee-action trainee-action--secondary" data-info-trigger="true"
-            data-name="<%#: Eval("StudentName") %>" data-number="<%#: Eval("StudentNumber") %>"
+            data-name="<%#: Eval("StudentName") %>" data-number="<%#: Eval("StudentNumber") %>" data-profile-image-url="<%#: Eval("ProfileImageUrl") %>" data-initials="<%#: Eval("Initials") %>"
             data-email="<%#: Eval("StudentEmail") %>" data-phone="<%#: Eval("StudentPhone") %>"
             data-major="<%#: Eval("StudentMajor") %>" data-academic-status="<%#: Eval("StudentAcademicStatus") %>"
             data-gpa="<%#: Eval("StudentGpa") %>" aria-haspopup="dialog">
@@ -46,7 +46,7 @@
   <p id="traineeSearchEmpty" class="trainee-search-empty" hidden>No trainees match your search.</p>
 </section>
 <dialog id="traineeInfoDialog" class="trainee-dialog" aria-labelledby="traineeDialogTitle">
-  <div class="trainee-dialog-top"><span class="trainee-dialog-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3m-3 4h3"/></svg></span><button type="button" class="trainee-dialog-close" data-dialog-close aria-label="Close student details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="trainee-dialog-top"><span class="trainee-dialog-icon uims-student-photo-avatar" data-dialog-photo data-student-photo-url=""><span data-dialog-initials>ST</span></span><button type="button" class="trainee-dialog-close" data-dialog-close aria-label="Close student details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <span class="trainees-eyebrow">STUDENT PROFILE</span><h2 id="traineeDialogTitle">Student information</h2><p class="trainee-dialog-subtitle">Basic academic and contact details for this trainee.</p>
   <dl class="trainee-profile-grid">
     <div><dt>Full name</dt><dd data-profile-field="name">—</dd></div>
