@@ -25,7 +25,7 @@
                 <label class="co-search"><span aria-hidden="true">⌕</span><asp:TextBox ID="OpportunitySearchTextBox" runat="server" TextMode="Search" placeholder="Search opportunities…" aria-label="Search opportunities" /></label>
                 <label class="co-filter-label" for="OpportunityStatusFilter">Status</label>
                 <asp:DropDownList ID="OpportunityStatusFilter" runat="server" CssClass="co-select"><asp:ListItem Value="all">All statuses</asp:ListItem><asp:ListItem Value="active">Active</asp:ListItem><asp:ListItem Value="draft">Draft</asp:ListItem><asp:ListItem Value="closed">Closed</asp:ListItem></asp:DropDownList>
-                <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" OnClick="ApplyFiltersButton_Click" />
+                <asp:Button ID="ApplyFiltersButton" runat="server" CssClass="co-button co-button-quiet" Text="Apply" CausesValidation="false" formnovalidate="formnovalidate" OnClick="ApplyFiltersButton_Click" />
             </div>
             <div class="co-opportunity-grid" aria-label="Your opportunities">
                 <asp:Repeater ID="OpportunitiesRepeater" runat="server" OnItemCommand="OpportunitiesRepeater_ItemCommand"><ItemTemplate>
