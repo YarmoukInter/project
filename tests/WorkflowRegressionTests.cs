@@ -229,6 +229,37 @@ class WorkflowRegressionTests
         await helper.TransactAsync("tasks/stable-request", "token", row => row == null, task);
         Check(((JObject)db["tasks"]).Count == 1 && (string)db["tasks"]["stable-request"]["status"] == "completed",
             "Retrying task creation cannot duplicate or overwrite a reviewed assignment");
+        db["users"]["reviewer"] = JObject.Parse("{'role':'company','isActive':true,'companyId':'company'}");
+        db["users"]["intruder"] = JObject.Parse("{'role':'company','isActive':true,'companyId':'other'}");
+        db["companies"]["other"] = JObject.Parse("{'isApproved':true,'supervisorUid':'intruder'}");
+        db["tasks"]["edit-task"] = JObject.Parse("{'id':'legacy-edit-id','taskNumber':'TASK001','title':'Original title','description':'Original instructions','taskPdfUrl':'https://example.com/task.pdf','studentUid':'a','placementId':'PLACEMENT_offer-a','opportunityId':'op','supervisorUid':'reviewer','status':'completed','grade':9,'dueAtUnixMs':1577836800000}");
+        db["taskSubmissions"] = JObject.Parse("{'reviewed':{'taskId':'legacy-edit-id','studentUid':'a','reviewStatus':'completed','grade':9},'unrelated':{'taskId':'another-task','studentUid':'a'},'orphan':{'studentUid':'a'}}");
+        var taskService = new CompanyTaskService();
+        string submissionBefore = db["taskSubmissions"]["reviewed"].ToString();
+        await taskService.UpdateAsync("edit-task", "reviewer", "token", "TASK002", "Updated title", "Updated instructions", "https://example.com/new.pdf", "2020-01-01");
+        Check((string)db["tasks"]["edit-task"]["title"] == "Updated title"
+            && (string)db["tasks"]["edit-task"]["status"] == "completed" && (int)db["tasks"]["edit-task"]["grade"] == 9
+            && db["taskSubmissions"]["reviewed"].ToString() == submissionBefore,
+            "Editing a completed task preserves its grade, status and submitted work");
+        try { await taskService.UpdateAsync("edit-task", "reviewer", "token", "TASK002", "", "Instructions", "https://example.com/task.pdf", "2020-01-01"); throw new Exception("Empty title accepted"); }
+        catch (ArgumentException) { Check(true, "Task edits validate details on the server"); }
+        try { await taskService.DeleteAsync("edit-task", "intruder", "token"); throw new Exception("Another company deleted a task"); }
+        catch (UnauthorizedAccessException) { Check(true, "Other companies cannot delete a task"); }
+        try { await taskService.UpdateAsync("edit-task", "intruder", "token", "TASK002", "Unauthorized edit", "Instructions", "https://example.com/task.pdf", "2020-01-01"); throw new Exception("Another company edited a task"); }
+        catch (UnauthorizedAccessException) { Check(true, "Other companies cannot edit a task"); }
+        var rowBuilder = typeof(Yarmouk.CompanyPages.ManageTasks).GetMethod("BuildTaskRows", BindingFlags.Static | BindingFlags.NonPublic);
+        var taskRows = rowBuilder.Invoke(null, new object[] { "a", db["tasks"], db["taskSubmissions"], "PLACEMENT_offer-a" });
+        var tableBuilder = typeof(Yarmouk.CompanyPages.ManageTasks).GetMethod("RenderTaskTable", BindingFlags.Static | BindingFlags.NonPublic);
+        string html = (string)tableBuilder.Invoke(null, new object[] { taskRows, false });
+        Check(html.Contains("data-task-id=\"edit-task\"") && html.Contains("data-task-delete") && html.Contains("<svg"),
+            "Task cards render edit/delete icons using the actual database key");
+        await taskService.DeleteAsync("edit-task", "reviewer", "token");
+        Check(db["tasks"]["edit-task"] == null && db["taskSubmissions"]["reviewed"] == null
+            && db["taskSubmissions"]["unrelated"] != null && db["taskSubmissions"]["orphan"] != null,
+            "Deleting removes only the selected task and its matching submissions");
+        Check((int)db["deletedTasks"]["edit-task"]["task"]["grade"] == 9
+            && db["deletedTasks"]["edit-task"]["submissions"]["reviewed"] != null,
+            "Task deletion retains an audit archive with the original submitted work");
     }
 
     sealed class FirebaseFixture : HttpMessageHandler
@@ -272,7 +303,8 @@ class WorkflowRegressionTests
                 if (parent[parts[i]] == null) parent[parts[i]] = new JObject();
                 parent = parent[parts[i]];
             }
-            parent[parts[parts.Length - 1]] = value.DeepClone();
+            if (value.Type == JTokenType.Null) ((JObject)parent).Property(parts[parts.Length - 1])?.Remove();
+            else parent[parts[parts.Length - 1]] = value.DeepClone();
         }
     }
 }

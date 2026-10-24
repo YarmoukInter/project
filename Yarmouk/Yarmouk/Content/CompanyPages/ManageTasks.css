@@ -24,7 +24,7 @@
 .task-card-list { display:grid; gap:10px; padding:12px; }
 .task-review-card {
   display:grid;
-  grid-template-columns:minmax(145px,1.1fr) minmax(190px,1.5fr) minmax(125px,.85fr) minmax(110px,.75fr) minmax(105px,.65fr) minmax(150px,1.1fr);
+  grid-template-columns:minmax(120px,1fr) minmax(170px,1.5fr) minmax(115px,.85fr) minmax(100px,.75fr) minmax(95px,.65fr) minmax(218px,auto);
   align-items:center; gap:16px; min-width:0; padding:17px 18px;
   border:1px solid #e3ebe6; border-radius:13px; background:#fbfdfb; color:#29483c;
   transition:border-color .16s ease,background .16s ease;
@@ -84,7 +84,19 @@
 [data-theme="dark"] .manage-tasks-page .task-empty-state strong { color:#e2eee6; }
 [data-theme="dark"] .manage-tasks-page .task-empty-state span { color:#adc1b4; }
 
-@media(max-width:1050px) {
+.task-review-card > .task-review-card__action { display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; justify-content:flex-end; gap:8px; }
+.task-review-card__action .review-open-button { flex:0 0 auto; min-height:38px; padding:8px 12px; white-space:nowrap; }
+.task-icon-button { display:inline-flex; flex:0 0 38px; box-sizing:border-box; align-items:center; justify-content:center; width:38px; height:38px; padding:8px; border:1px solid #c9ded2; border-radius:10px; background:#f1faf4; color:#11603b; cursor:pointer; }
+.task-icon-button svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+.task-icon-button:hover { background:#e1f4e8; }
+.task-icon-button--delete { border-color:#edcece; background:#fff7f7; color:#b63232; }
+.task-icon-button--delete:hover { background:#ffe8e8; }
+.task-icon-button:focus-visible { outline:3px solid #459d78; outline-offset:3px; }
+.task-edit-open { overflow:hidden; }
+#edit-task-fields { min-width:0; margin:0; padding:0; border:0; }
+[data-theme="dark"] .manage-tasks-page .task-icon-button { background:#264432; border-color:#52765d; color:#d7f0dc; }
+[data-theme="dark"] .manage-tasks-page .task-icon-button--delete { background:#422929; border-color:#795151; color:#ffc0c0; }
+@media(max-width:1200px) {
   .task-review-card { grid-template-columns:minmax(140px,1fr) minmax(190px,1.4fr) minmax(115px,.8fr) minmax(110px,.8fr); }
   .task-review-card__action { grid-column:3 / -1; }
 }
@@ -92,4 +104,5 @@
   .task-card-list { padding:10px; }
   .task-review-card { grid-template-columns:minmax(0,1fr) minmax(105px,.75fr); gap:14px; padding:15px; }
   .task-review-card__student,.task-review-card__task,.task-review-card__action { grid-column:1 / -1; }
+  .task-review-card > .task-review-card__action { justify-content:flex-start; padding-top:10px; border-top:1px solid #e3ebe6; }
 }

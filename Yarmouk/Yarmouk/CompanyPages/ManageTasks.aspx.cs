@@ -28,6 +28,9 @@ namespace Yarmouk.CompanyPages
             public string ProfileImageUrl;
             public string StudentInitials;
             public string Id;
+            public string RecordId;
+            public string Description;
+            public string TaskUrl;
             public string Number;
             public string Title;
             public string Status;
@@ -46,6 +49,14 @@ namespace Yarmouk.CompanyPages
                 if (Session["TaskCreationToken"] == null) Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
                 return (string)Session["TaskCreationToken"];
             }
+        }
+
+        protected bool TaskEditFailed { get; private set; }
+        protected string PostedEditValue(string name) { return HttpUtility.HtmlEncode(Request.Form[name] ?? string.Empty); }
+        protected override void OnInit(EventArgs e)
+        {
+            ViewStateUserKey = Session.SessionID;
+            base.OnInit(e);
         }
 
         protected void Page_Load(object sender, EventArgs e)
@@ -76,12 +87,42 @@ namespace Yarmouk.CompanyPages
             }
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
-                if (addTask == "1")
+                if (!string.IsNullOrWhiteSpace(Request.Form["taskManagementAction"]))
+                    await ProcessManagementAsync(Request.Form["taskManagementAction"], selectedStudentUid, selectedStatus, searchText);
+                else if (addTask == "1")
                     await CreateTaskAsync(selectedStudentUid);
                 else if (!string.IsNullOrWhiteSpace(action))
                     await ProcessDecisionAsync(action, selectedStudentUid);
                 if (!Response.IsRequestBeingRedirected) await LoadPageAsync(selectedStudentUid, selectedStatus, searchText);
             }));
+        }
+
+        private async Task ProcessManagementAsync(string action, string studentUid, string status, string search)
+        {
+            try
+            {
+                if (Request.Form["taskCreationToken"] != TaskCreationToken)
+                    throw new ArgumentException("This form has expired. Refresh the task list and try again.");
+                var auth = Session[AuthGuard.SessionKey] as AuthSession;
+                if (auth == null) throw new UnauthorizedAccessException("Sign in again before managing tasks.");
+                var service = new CompanyTaskService();
+                if (action == "edit")
+                    await service.UpdateAsync(Request.Form["editTaskId"], auth.Uid, auth.IdToken,
+                        Request.Form["editTaskNumber"], Request.Form["editTaskTitle"], Request.Form["editTaskDescription"],
+                        Request.Form["editTaskUrl"], Request.Form["editTaskDeadline"]);
+                else if (action.StartsWith("delete|", StringComparison.Ordinal))
+                    await service.DeleteAsync(action.Substring(7), auth.Uid, auth.IdToken);
+                else throw new ArgumentException("Choose a valid task action.");
+                Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
+                Session["TaskCreatedMessage"] = action == "edit" ? "Task changes saved." : "Task deleted from the active task list.";
+                RedirectToFilters(studentUid, status, search);
+            }
+            catch (Exception error)
+            {
+                TaskEditFailed = action == "edit";
+                ShowError(error is ArgumentException || error is UnauthorizedAccessException || error is InvalidOperationException
+                    ? error.Message : "The task could not be saved. Please try again.");
+            }
         }
 
         private void RedirectToFilters(string studentUid, string status, string search)
@@ -507,7 +548,8 @@ namespace Yarmouk.CompanyPages
                 var gradeText = FirstNonEmpty(Value(task, "grade"), Value(submitted, "grade"), Value(task, "score"), Value(submitted, "score"));
                 rows.Add(new TaskRow
                 {
-                    Id = taskId, Number = FirstNonEmpty(Value(task, "taskNumber"), taskId),
+                    Id = taskId, RecordId = item.Name, Number = FirstNonEmpty(Value(task, "taskNumber"), taskId),
+                    Description = Value(task, "description"), TaskUrl = Value(task, "taskPdfUrl"),
                     Title = FirstNonEmpty(Value(task, "title"), "Untitled task"), Status = status,
                     StatusLabel = LabelForStatus(status), SolutionUrl = IsGitHubSolutionUrl(url) ? url : string.Empty,
                     SubmissionNotes = FirstNonEmpty(Value(submitted, "notes"), Value(submitted, "submissionNotes"), Value(task, "submissionNotes")),
@@ -546,6 +588,16 @@ namespace Yarmouk.CompanyPages
                         .Append("\" data-review-grade=\"").Append(row.Grade.HasValue ? row.Grade.Value.ToString(CultureInfo.InvariantCulture) : string.Empty)
                         .Append("\">").Append(row.Status == "done" ? "Review submission" : "View review").Append("</button>");
                 else html.Append("<span class=\"muted\">Available after submission</span>");
+                string editData = " data-task-id=\"" + HttpUtility.HtmlAttributeEncode(row.RecordId) + "\""
+                    + " data-task-number=\"" + HttpUtility.HtmlAttributeEncode(row.Number) + "\""
+                    + " data-task-title=\"" + HttpUtility.HtmlAttributeEncode(row.Title) + "\""
+                    + " data-task-description=\"" + HttpUtility.HtmlAttributeEncode(row.Description) + "\""
+                    + " data-task-url=\"" + HttpUtility.HtmlAttributeEncode(row.TaskUrl) + "\""
+                    + " data-task-deadline=\"" + (row.DueAt > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(row.DueAt).ToOffset(TimeSpan.FromHours(3)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "") + "\"";
+                html.Append("<button type=\"button\" class=\"task-icon-button\" data-task-edit" + editData + " aria-label=\"Edit task " + HttpUtility.HtmlAttributeEncode(row.Number) + "\" title=\"Edit task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m16 3 5 5-12 12-6 1 1-6zM14 5l5 5\"/></svg></button>")
+                    .Append("<button type=\"submit\" class=\"task-icon-button task-icon-button--delete\" name=\"taskManagementAction\" value=\"delete|")
+                    .Append(HttpUtility.HtmlAttributeEncode(row.RecordId)).Append("\" data-task-delete formnovalidate aria-label=\"Delete task ")
+                    .Append(HttpUtility.HtmlAttributeEncode(row.Number)).Append("\" title=\"Delete task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7\"/></svg></button>");
                 html.Append("</div></article>");
             }
             html.Append("</div>");

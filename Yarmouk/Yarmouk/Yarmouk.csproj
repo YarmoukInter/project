@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Helpers\StudentProfileImages.cs" />
     <Compile Include="Helpers\PdfText.cs" />
+    <Compile Include="Services\CompanyTaskService.cs" />
     <Reference Include="PdfSharp-gdi">
       <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath>
       <Private>True</Private>

@@ -1,10 +1,10 @@
 <%@ Page Title="Manage Tasks" Language="C#" MasterPageFile="~/CompanyPages/Section.Master" Async="true" AutoEventWireup="true" CodeBehind="ManageTasks.aspx.cs" Inherits="Yarmouk.CompanyPages.ManageTasks" %>
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
-<script src="../Scripts/CompanyPages/ManageTasks.js?v=review-modal-1" defer></script>
+<script src="../Scripts/CompanyPages/ManageTasks.js?v=task-edit-delete-2" defer></script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
 <script src="../Scripts/Shared/record-lists.js?v=record-cards-3" defer></script>
-<link href="../Content/CompanyPages/ManageTasks.css?v=filter-icon-center-1" rel="stylesheet" />
+<link href="../Content/CompanyPages/ManageTasks.css?v=task-actions-row-3" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <section class="manage-tasks-page">
@@ -61,6 +61,22 @@
         <button class="save-add-task" type="submit" name="addTaskAction" value="1" onclick="return validateNewTask()">Add task</button>
       </div>
     </div>
+  </section>
+</div>
+<div id="edit-task-modal" class="add-task-modal" <%= TaskEditFailed ? "" : "hidden" %>>
+  <section class="add-task-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-task-heading" tabindex="-1">
+    <button type="button" class="close-add-task" data-close-task-edit aria-label="Close task editor">×</button>
+    <p class="eyebrow">Assignment details</p><h2 id="edit-task-heading">Edit task</h2>
+    <p class="dialog-intro">Update the assignment details. Existing submissions, review status and grades are preserved.</p>
+    <fieldset id="edit-task-fields" class="add-task-form" <%= TaskEditFailed ? "" : "disabled" %>>
+      <input type="hidden" id="edit-task-id" name="editTaskId" value="<%= PostedEditValue("editTaskId") %>" />
+      <label for="edit-task-number">Task number</label><input id="edit-task-number" name="editTaskNumber" maxlength="40" required value="<%= PostedEditValue("editTaskNumber") %>" />
+      <label for="edit-task-title">Task title</label><input id="edit-task-title" name="editTaskTitle" minlength="2" maxlength="160" required value="<%= PostedEditValue("editTaskTitle") %>" />
+      <label for="edit-task-deadline">Deadline</label><input id="edit-task-deadline" name="editTaskDeadline" type="date" required value="<%= PostedEditValue("editTaskDeadline") %>" />
+      <label for="edit-task-description">What should the student do?</label><textarea id="edit-task-description" name="editTaskDescription" rows="4" minlength="2" maxlength="4000" required><%= PostedEditValue("editTaskDescription") %></textarea>
+      <label for="edit-task-url">Task link (PDF or instructions)</label><input id="edit-task-url" name="editTaskUrl" type="url" maxlength="2048" required value="<%= PostedEditValue("editTaskUrl") %>" />
+      <div class="dialog-actions"><button type="button" class="cancel-add-task" data-close-task-edit>Cancel</button><button type="submit" class="save-add-task" name="taskManagementAction" value="edit" formnovalidate>Save changes</button></div>
+    </fieldset>
   </section>
 </div>
 <div id="task-review-modal" class="task-review-modal" hidden>
