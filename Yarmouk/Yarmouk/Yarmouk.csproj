@@ -45,9 +45,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Helpers\StudentProfileImages.cs" />
-    <Reference Include="PdfSharp-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath><Private>True</Private></Reference>
-    <Reference Include="MigraDoc.DocumentObjectModel-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.DocumentObjectModel-gdi.dll</HintPath><Private>True</Private></Reference>
-    <Reference Include="MigraDoc.Rendering-gdi"><HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.Rendering-gdi.dll</HintPath><Private>True</Private></Reference>
+    <Reference Include="PdfSharp-gdi">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MigraDoc.DocumentObjectModel-gdi">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.DocumentObjectModel-gdi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MigraDoc.Rendering-gdi">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\MigraDoc.Rendering-gdi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
@@ -190,7 +199,7 @@
     <Content Include="CompanyPages\Dashboard.aspx" />
     <Content Include="Content\CompanyPages\Dashboard.css" />
     <Content Include="Scripts\CompanyPages\Dashboard.js" />
-      <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
+    <Content Include="Scripts\CompanyPages\ApplicationsReview.js" />
     <Content Include="CompanyPages\ManageOpportunities.aspx" />
     <Content Include="Content\CompanyPages\ManageOpportunities.css" />
     <Content Include="CompanyPages\ApplicationsReview.aspx" />
@@ -651,11 +660,17 @@
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\CompanyEvaluationPdf.cs" />
     <Compile Include="Services\CompletionCertificatePdf.cs" />
-    <Compile Include="AcademicPages\CompanyEvaluationPdf.ashx.cs"><DependentUpon>CompanyEvaluationPdf.ashx</DependentUpon></Compile>
+    <Compile Include="AcademicPages\CompanyEvaluationPdf.ashx.cs">
+      <DependentUpon>CompanyEvaluationPdf.ashx</DependentUpon>
+    </Compile>
     <Content Include="AcademicPages\CompanyEvaluationPdf.ashx" />
-    <Compile Include="CoordinatorPages\CompletionReviewAction.ashx.cs"><DependentUpon>CompletionReviewAction.ashx</DependentUpon></Compile>
+    <Compile Include="CoordinatorPages\CompletionReviewAction.ashx.cs">
+      <DependentUpon>CompletionReviewAction.ashx</DependentUpon>
+    </Compile>
     <Content Include="CoordinatorPages\CompletionReviewAction.ashx" />
-    <Compile Include="CoordinatorPages\CompletionCertificate.ashx.cs"><DependentUpon>CompletionCertificate.ashx</DependentUpon></Compile>
+    <Compile Include="CoordinatorPages\CompletionCertificate.ashx.cs">
+      <DependentUpon>CompletionCertificate.ashx</DependentUpon>
+    </Compile>
     <Content Include="CoordinatorPages\CompletionCertificate.ashx" />
     <Compile Include="Services\EvaluationService.cs" />
     <Compile Include="Services\SupervisorWorkspaceService.cs" />
@@ -673,6 +688,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\Videos\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
