@@ -249,6 +249,22 @@ namespace Yarmouk.CoordinatorPages
             await firebase.UpdateAsync(DatabasePaths.Users + "/" + uid, new { isActive = active }, session.IdToken);
             return active ? "Account reactivated." : "Account deactivated. Existing records were kept.";
         }
+        public async Task<string> SetOpportunityPausedAsync(string opportunityId, bool paused, AuthSession session)
+        {
+            RequireCoordinator(session);
+            CheckId(opportunityId);
+            var opportunity = await firebase.GetAsync<Opportunity>(DatabasePaths.Opportunities + "/" + opportunityId, session.IdToken);
+            if (opportunity == null) throw new ArgumentException("This opportunity is no longer available.");
+            string current = Normalize(opportunity.Status);
+            if (paused && current == "closed") throw new ArgumentException("A closed opportunity cannot be paused. Reopen it from the company workspace first.");
+            await firebase.UpdateAsync(DatabasePaths.Opportunities + "/" + opportunityId, new {
+                status = paused ? "paused" : "active",
+                isActive = !paused,
+                pausedAtUnixMs = paused ? (long?)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() : null,
+                updatedAtUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            }, session.IdToken);
+            return paused ? "Opportunity paused. Students can no longer apply until it is resumed." : "Opportunity resumed and is available for applications.";
+        }
         public async Task<string> AssignSupervisorAsync(string uid, string supervisorUid, AuthSession session)
         {
             await ManagedUserAsync(uid, "student", session);

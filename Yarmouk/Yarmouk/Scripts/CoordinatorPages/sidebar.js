@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const menus = {
-    coordinator: [['dashboard','Coordinator Dashboard','grid'],['students','Manage Students','people'],['companies','Manage Companies','building'],['opportunities','Training Opportunities','briefcase'],['applications','Opportunity Applications','send'],['supervisors','Manage Academic Supervisors','badge'],['progress','Monitor Placements & Progress','chart'],['tasks','Manage Tasks','tasks'],['completion','Final Completion Review','check'],['messages','Contact Messages','mail'],['settings','Site settings','check']]
+    coordinator: [['dashboard','Coordinator Dashboard','grid'],['students','Manage Students','people'],['supervisors','Academic Supervisors','badge'],['companies','Manage Companies','building'],['opportunities','Training Opportunities','briefcase'],['applications','Opportunity Applications','send'],['progress','Monitor Placements','chart'],['tasks','Manage Tasks','tasks'],['completion','Completion Review','check'],['messages','Contact Messages','mail'],['settings','Site settings','check']]
   };
   function initialize() {
     document.querySelectorAll('[data-dashboard-sidebar]').forEach(root => {
@@ -29,7 +29,7 @@
       const shade = root.querySelector('.yu-sidebar-shade'), theme = root.querySelector('[data-sidebar-theme]');
       const small = matchMedia('(max-width:1080px)');
       const storageKey = 'yarmouk:coordinator:sidebar:pinned';
-      let pinned = false, hovering = false, focused = false, manual = false, mobileOpen = false, suppressed = false, timer;
+      let pinned = false, focused = false, manual = false, mobileOpen = false, suppressed = false;
       try { pinned = sessionStorage.getItem(storageKey) === 'true'; } catch (_) {}
       list.replaceChildren();
       menus[role].forEach(([page,label,icon]) => {
@@ -45,7 +45,7 @@
       root.querySelector('[data-sidebar-home]').href = new URL('PublicPages/Home.aspx',base).href;
       root.classList.add('is-enhanced'); menu.hidden = false;
       function render() {
-        const open = small.matches ? mobileOpen : pinned || manual || (!suppressed && (hovering || focused));
+        const open = small.matches ? mobileOpen : pinned || manual || (!suppressed && focused);
         rail.classList.toggle('is-open',open && !small.matches);
         aside.classList.toggle('is-collapsed',!open); aside.classList.toggle('is-mobile-open',small.matches && mobileOpen);
         aside.inert = small.matches && !mobileOpen;
@@ -59,13 +59,11 @@
       }
       function save() { try { sessionStorage.setItem(storageKey,String(pinned)); } catch (_) {} }
       function closeMobile(restoreFocus) { mobileOpen=false;render();if (restoreFocus) menu.focus(); }
-      aside.addEventListener('pointerenter',event=>{if(small.matches || event.pointerType==='touch')return;clearTimeout(timer);hovering=true;suppressed=false;render();});
-      aside.addEventListener('pointerleave',()=>{if(small.matches)return;timer=setTimeout(()=>{hovering=false;if(!manual&&!pinned&&!focused)suppressed=false;render();},220);});
       aside.addEventListener('focusin',event=>{if(!small.matches && event.target.matches(':focus-visible')){focused=true;suppressed=false;render();}});
       aside.addEventListener('focusout',event=>{if(!aside.contains(event.relatedTarget)&&event.relatedTarget!==menu){focused=false;if(small.matches)closeMobile(false);else render();}});
       toggle.addEventListener('click',()=>{
         if(small.matches){closeMobile(true);return;}
-        if(rail.classList.contains('is-open')){pinned=false;manual=false;hovering=false;focused=false;suppressed=true;save();}
+        if(rail.classList.contains('is-open')){pinned=false;manual=false;focused=false;suppressed=true;save();}
         else {manual=true;suppressed=false;}
         render();
       });
@@ -73,7 +71,7 @@
       menu.addEventListener('click',()=>{
         if(small.matches){mobileOpen=!mobileOpen;render();if(mobileOpen)list.querySelector('a').focus();return;}
         const open=rail.classList.contains('is-open');
-        if(open){pinned=false;manual=false;hovering=false;focused=false;suppressed=true;save();}
+        if(open){pinned=false;manual=false;focused=false;suppressed=true;save();}
         else{manual=true;suppressed=false;}
         render();
       });
@@ -82,11 +80,11 @@
         if(event.key!=='Escape')return;
         if(mobileOpen){closeMobile(true);return;}
         if(!small.matches&&aside.contains(document.activeElement)){
-          manual=false;hovering=false;focused=false;suppressed=true;render();toggle.focus();
+          manual=false;focused=false;suppressed=true;render();toggle.focus();
         }
       });
       document.addEventListener('pointerdown',event=>{if(mobileOpen&&!aside.contains(event.target)&&!menu.contains(event.target))closeMobile(false);});
-      small.addEventListener('change',()=>{mobileOpen=false;hovering=false;focused=false;manual=false;render();});
+      small.addEventListener('change',()=>{mobileOpen=false;focused=false;manual=false;render();});
       function syncTheme() {
         const dark=document.documentElement.dataset.theme==='dark';
         theme.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');

@@ -11,8 +11,8 @@
 .is-enhanced .yu-sidebar-rail.is-open { width:284px; }
 .yu-sidebar { display:flex; flex-direction:column; position:relative; margin:8px; padding:8px; width:calc(100% - 16px); height:calc(100% - 16px); min-height:0; border:1px solid var(--ys-line); border-radius:16px; background:var(--ys-paper); box-shadow:0 4px 16px rgb(34 49 41 / .045); }
 .yu-sidebar-header { position:relative; display:flex; align-items:center; flex:none; height:72px; padding:8px 10px; margin:0 0 8px; }
-.yu-sidebar-brand { display:flex; align-items:center; min-height:44px; }
-.yu-sidebar-brand img { display:block; width:170px; height:52px; object-fit:contain; }
+.yu-sidebar-brand { display:flex; align-items:center; min-height:44px; width:100%; overflow:hidden; }
+.yu-sidebar-brand img { display:block; width:190px; max-width:100%; height:54px; object-fit:contain; object-position:left center; }
 .yu-sidebar-brand .yu-sidebar-crest { display:none; }
 .yu-sidebar-toggle { position:absolute; top:14px; right:-30px; z-index:2; display:none; place-items:center; width:44px; height:44px; padding:0; border:0; background:transparent; color:var(--ys-muted); }
 .is-enhanced .yu-sidebar-toggle { display:grid; }

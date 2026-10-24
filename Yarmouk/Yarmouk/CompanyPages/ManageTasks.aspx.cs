@@ -601,10 +601,10 @@ namespace Yarmouk.CompanyPages
                     + " data-task-description=\"" + HttpUtility.HtmlAttributeEncode(row.Description) + "\""
                     + " data-task-url=\"" + HttpUtility.HtmlAttributeEncode(row.TaskUrl) + "\""
                     + " data-task-deadline=\"" + (row.DueAt > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(row.DueAt).ToOffset(TimeSpan.FromHours(3)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "") + "\"";
-                html.Append("<button type=\"button\" class=\"task-icon-button\" data-task-edit" + editData + " aria-label=\"Edit task " + HttpUtility.HtmlAttributeEncode(row.Number) + "\" title=\"Edit task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m16 3 5 5-12 12-6 1 1-6zM14 5l5 5\"/></svg></button>")
-                    .Append("<button type=\"submit\" class=\"task-icon-button task-icon-button--delete\" name=\"taskManagementAction\" value=\"delete|")
+                html.Append("<button type=\"button\" class=\"task-icon-button task-icon-button--labelled\" data-task-edit" + editData + " aria-label=\"Edit task " + HttpUtility.HtmlAttributeEncode(row.Number) + "\" title=\"Edit task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m16 3 5 5-12 12-6 1 1-6zM14 5l5 5\"/></svg><span>Edit</span></button>")
+                    .Append("<button type=\"submit\" class=\"task-icon-button task-icon-button--delete task-icon-button--labelled\" name=\"taskManagementAction\" value=\"delete|")
                     .Append(HttpUtility.HtmlAttributeEncode(row.RecordId)).Append("\" data-task-delete formnovalidate aria-label=\"Delete task ")
-                    .Append(HttpUtility.HtmlAttributeEncode(row.Number)).Append("\" title=\"Delete task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7\"/></svg></button>");
+                    .Append(HttpUtility.HtmlAttributeEncode(row.Number)).Append("\" title=\"Delete task\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7\"/></svg><span>Delete</span></button>");
                 html.Append("</div></article>");
             }
             html.Append("</div>");

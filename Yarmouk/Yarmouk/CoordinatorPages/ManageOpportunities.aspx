@@ -2,12 +2,15 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=1" rel="stylesheet" />
-<link href="../Content/CoordinatorPages/ManageOpportunities.css?v=applications-3" rel="stylesheet" />
-<script src="../Scripts/CoordinatorPages/ManageOpportunities.js?v=applications-3" defer></script>
+<link href="../Content/CoordinatorPages/ManageOpportunities.css?v=opportunity-controls-1" rel="stylesheet" />
+<script src="../Scripts/CoordinatorPages/ManageOpportunities.js?v=opportunity-controls-1" defer></script>
 <script src="../Scripts/Shared/record-lists.js?v=applications-directory-4" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>
+<input type="hidden" name="adminCsrf" value="<%= CsrfToken %>" />
+<input type="hidden" name="adminAction" />
+<input type="hidden" name="adminPayload" />
 <section class="op-admin" aria-labelledby="op-title">
   <header class="op-hero"><div><p class="op-eyebrow">COORDINATOR WORKSPACE</p><h1 id="op-title">Training opportunities</h1><p>Explore training providers, available places, and application activity.</p></div><span class="op-total" data-op-total>Loading opportunities</span></header>
   <p data-op-feedback role="status" hidden></p>

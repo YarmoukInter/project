@@ -10,6 +10,14 @@ namespace Yarmouk.CoordinatorPages
 {
     public partial class ManageOpportunities : CoordinatorPage
     {
+        protected override async Task<string> SaveDataAsync(string action, Newtonsoft.Json.Linq.JObject details, AuthSession session)
+        {
+            if (action != "set-opportunity-paused") throw new ArgumentException("Unknown opportunity action.");
+            string id = (string)details["id"];
+            bool paused = (bool?)details["paused"] ?? false;
+            return await Service.SetOpportunityPausedAsync(id, paused, session);
+        }
+
         protected override async Task<object> LoadDataAsync(AuthSession session)
         {
             if (session == null || session.ExpiresUtc <= DateTime.UtcNow || session.User == null
