@@ -1,11 +1,13 @@
 <%@ Page Async="true" Title="Contact Us" Language="C#" AutoEventWireup="true" CodeBehind="ContactUs.aspx.cs" Inherits="Yarmouk.PublicPages.ContactUs" %>
 <!doctype html>
-<html lang="en" data-view="contact">
+<html lang="en" data-view="contact" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=9") %>' defer></script>
   <title>Yarmouk University — Contact Us</title>
 <link rel="stylesheet" runat="server" href="~/Content/PublicPages/ContactUs.css" />
-<script src='<%= ResolveUrl("~/Scripts/PublicPages/ContactUs.js") %>' defer></script></head>
+<script src='<%= ResolveUrl("~/Scripts/PublicPages/ContactUs.js") %>' defer></script><%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
+</head>
 <body>
 <form id="form1" runat="server">
   <a class="contact-skip" href="#main">Skip to content</a>
@@ -37,5 +39,6 @@
     </div>
   </main>
 </form>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>

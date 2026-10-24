@@ -1,0 +1,15 @@
+.yu-dashboard .yu-dashboard-main>.co-global-header{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:76px;padding-block:12px!important;border-color:var(--ys-line)!important;color:var(--ys-ink)}
+.co-global-account{display:inline-flex;align-items:center;gap:12px;min-width:0;color:inherit!important;text-decoration:none}
+.co-global-account>span:last-child{display:grid;gap:2px}
+.co-global-account strong{font-size:13px;font-weight:700;line-height:1.35}
+.co-global-account small{color:var(--ys-muted);font-size:11px}
+.co-global-avatar{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid var(--ys-line);border-radius:12px;background:var(--ys-hover);color:var(--ys-green);font-size:12px;font-weight:800;letter-spacing:.03em}
+.co-global-actions{display:flex;align-items:center;gap:10px;margin-inline-start:auto}
+.co-global-actions .cn-bell,.co-global-actions .co-notifications{display:inline-grid;place-items:center;width:42px;height:42px;margin:0;margin-inline-start:0;padding:9px;border:1px solid var(--ys-line);border-radius:11px;background:var(--ys-paper);color:var(--ys-green);text-decoration:none}
+.co-global-actions .cn-bell svg,.co-global-actions .co-notifications svg{width:20px;height:20px}
+.co-global-actions .yu-sidebar-menu{position:relative;inset:auto;display:grid;place-items:center;width:42px;height:42px;min-height:42px;padding:8px;border:1px solid var(--ys-line);border-radius:11px;background:var(--ys-paper);color:var(--ys-ink);box-shadow:none}
+.co-global-actions .yu-sidebar-menu svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}
+.co-global-actions .yu-sidebar-menu:hover,.co-global-actions .co-notifications:hover{border-color:var(--ys-green);background:var(--ys-hover);color:var(--ys-green)}
+.yu-dashboard .yu-sidebar-toggle{display:none!important}
+[data-theme=dark] .co-global-avatar{color:#9fe1bc}
+@media(max-width:600px){.yu-dashboard .yu-dashboard-main>.co-global-header{min-height:66px;gap:12px}.co-global-account{gap:9px}.co-global-avatar{flex-basis:36px;width:36px;height:36px}.co-global-account strong{font-size:12px}.co-global-account small{font-size:10px}.co-global-actions{gap:7px}.co-global-actions .cn-bell,.co-global-actions .co-notifications,.co-global-actions .yu-sidebar-menu{width:40px;height:40px;min-height:40px}}

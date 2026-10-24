@@ -94,7 +94,7 @@
         theme.querySelector('span').textContent=dark?'Light mode':'Dark mode';
         theme.querySelector('use').setAttribute('href','#ys-icon-'+(dark?'sun':'moon'));
       }
-      try {document.documentElement.dataset.theme=localStorage.getItem('yarmouk:portal-theme')==='dark'?'dark':'light';}catch(_){}
+      try {const savedTheme=localStorage.getItem('yarmouk:portal-theme');document.documentElement.dataset.theme=savedTheme?savedTheme:(document.documentElement.dataset.siteDefaultTheme==='dark'?'dark':'light');}catch(_){}
       theme.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('yarmouk:portal-theme',next);}catch(_){}syncTheme();document.dispatchEvent(new CustomEvent('yarmouk:themechange',{detail:{theme:next}}));});
       render();syncTheme();
     });

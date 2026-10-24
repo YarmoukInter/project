@@ -1081,6 +1081,10 @@ textarea.evaluation-control {
 .evaluation-dialog-body .evaluation-main{display:block;width:100%;min-width:0}
 .evaluation-dialog-body .evaluation-workspace{box-shadow:none;margin:0}
 .evaluation-dialog-body .evaluation-tabs{overflow-x:auto}
+.evaluation-loading{min-height:260px;display:grid;place-content:center;justify-items:center;gap:12px;color:var(--eval-muted,#607568);font-size:14px}
+.evaluation-loading p{margin:0}
+.evaluation-loading__spinner{width:32px;height:32px;border:3px solid #cfe0d5;border-top-color:#08734f;border-radius:50%;animation:evaluation-spin .75s linear infinite}
+@keyframes evaluation-spin{to{transform:rotate(360deg)}}
 @media(max-width:600px){.evaluation-dialog-body{padding:10px}}
 
 /* Responsive trainee cards and coordinated theme colors. */
@@ -1111,3 +1115,87 @@ textarea.evaluation-control {
 [data-theme="dark"] .company-evaluation .evaluation-button--primary { color:#fff; }
 [data-theme="dark"] .evaluation-dialog { background:#14271e; border-color:#355644; }
 [data-theme="dark"] .evaluation-dialog-body { color:#e3eee7; }
+.company-evaluation .evaluation-hero__copy > p:last-child{color:#53685c}
+[data-theme="dark"] .company-evaluation .evaluation-hero__copy > p:last-child{color:#b0c4b8}
+
+/* The report list is short enough to scan directly; keep its pagination only. */
+.evaluation-dialog-body #section-reports > .record-tools { display:none !important; }
+
+/* Give every evaluation criterion its own readable card and room for each rating. */
+.evaluation-dialog-body #section-criteria > .criteria-heading { display:none; }
+.evaluation-dialog-body #section-criteria .criteria-row {
+    display:block;
+    min-width:0;
+    margin:0 0 12px;
+    padding:16px;
+    border:1px solid #dce8df;
+    border-radius:12px;
+    background:linear-gradient(145deg,#fff,#f8fbf9);
+    box-shadow:0 3px 12px rgb(17 57 35 / 4%);
+}
+.evaluation-dialog-body #section-criteria .criteria-row legend {
+    display:grid;
+    grid-template-columns:32px minmax(0,1fr);
+    align-items:start;
+    gap:11px;
+    width:100%;
+    margin:0 0 13px;
+}
+.evaluation-dialog-body #section-criteria .criteria-number {
+    display:grid;
+    width:30px;
+    height:30px;
+    place-items:center;
+    border-radius:9px;
+    background:#e8f4ec;
+    color:#08734f;
+    font-size:10px;
+    font-weight:800;
+}
+.evaluation-dialog-body #section-criteria .criteria-label { padding-top:5px; color:#173d32; font-size:13px; line-height:1.5; }
+.evaluation-dialog-body #section-criteria .criteria-options { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.evaluation-dialog-body #section-criteria .rating-option { min-height:52px; padding:8px 8px 8px 30px; border-radius:9px; }
+.evaluation-dialog-body #section-criteria .rating-option input { left:10px; }
+.evaluation-dialog-body #section-criteria .rating-option__name { font-size:11px; }
+.evaluation-dialog-body #section-criteria .rating-option__range { font-size:9px; }
+.evaluation-dialog-body #section-criteria .rating-option:focus-within { outline:2px solid #16835b; outline-offset:1px; }
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .criteria-row { border-color:#355644; background:linear-gradient(145deg,#192f25,#172a21); box-shadow:none; }
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .criteria-label { color:#e3eee7; }
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .criteria-number { background:#244535; color:#bde6cb; }
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .rating-option { border-color:#355644; background:#14271e; }
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .rating-option__name { color:#e3eee7; }
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .rating-option:has(input:checked),
+[data-theme="dark"] .evaluation-dialog-body #section-criteria .rating-option.is-selected { border-color:#5da477; background:#1b3b2b; }
+
+#MainContent_SubmitEvaluation { border:1px solid #08734f; background:#08734f; color:#fff; opacity:1; font-weight:750; }
+#MainContent_SubmitEvaluation:hover:not(:disabled) { border-color:#065e3d; background:#065e3d; color:#fff; }
+#MainContent_SubmitEvaluation:disabled { border-color:#64776d; background:#64776d; color:#fff; opacity:1; box-shadow:none; cursor:not-allowed; }
+[data-theme="dark"] #MainContent_SubmitEvaluation:disabled { border-color:#586d60; background:#586d60; color:#fff; }
+@media(max-width:640px) {
+    .evaluation-dialog-body #section-criteria .criteria-options { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .evaluation-dialog-body #section-criteria .criteria-row { padding:13px; }
+}
+
+@media print {
+    html.evaluation-print-mode,
+    html.evaluation-print-mode body { height:auto !important; overflow:visible !important; background:#fff !important; }
+    html.evaluation-print-mode .evaluation-dialog {
+        position:static !important;
+        display:block !important;
+        width:auto !important;
+        height:auto !important;
+        max-height:none !important;
+        margin:0 !important;
+        padding:0 !important;
+        overflow:visible !important;
+        border:0 !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        background:#fff !important;
+    }
+    html.evaluation-print-mode .evaluation-dialog::backdrop,
+    html.evaluation-print-mode .evaluation-dialog-heading { display:none !important; }
+    html.evaluation-print-mode .evaluation-dialog-body { height:auto !important; overflow:visible !important; padding:0 !important; }
+    html.evaluation-print-mode .evaluation-layout > .evaluation-main { display:block !important; width:auto !important; }
+    html.evaluation-print-mode .evaluation-workspace { max-height:none !important; overflow:visible !important; }
+}

@@ -9,6 +9,15 @@
     const closeInfo = () => { infoModal.hidden = true; document.body.classList.remove('progress-note-open'); if (infoOpener) infoOpener.focus(); };
     document.querySelectorAll('[data-open-student-info]').forEach(button => button.addEventListener('click', () => {
       infoOpener = button;
+      const photo = infoModal.querySelector('[data-progress-dialog-photo]');
+      if (photo) {
+        photo.dataset.studentPhotoUrl = button.dataset.profileImageUrl || '';
+        photo.removeAttribute('data-student-photo-ready');
+        photo.querySelectorAll('.uims-student-photo-image').forEach(image => image.remove());
+        const initials = photo.querySelector('[data-progress-dialog-initials]');
+        if (initials) initials.textContent = button.dataset.initials || 'ST';
+        window.UimsStudentPhotos && window.UimsStudentPhotos.enhance(infoModal);
+      }
       infoModal.querySelectorAll('[data-info-field]').forEach(field => { field.textContent = button.dataset[field.dataset.infoField] || 'Not provided'; });
       infoModal.hidden = false;
       document.body.classList.add('progress-note-open');

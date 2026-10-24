@@ -47,7 +47,7 @@
                     <asp:Repeater ID="AssignedStudents" runat="server">
                         <ItemTemplate>
                             <tr data-student-row>
-                                <td><span class="student-cell"><span class="student-avatar"><%# Html(Eval("Initials")) %></span><span><strong><%# Html(Eval("StudentName")) %></strong><small>ID <%# Html(Eval("StudentNumber")) %></small></span></span></td>
+                                <td><span class="student-cell"><span class="student-avatar uims-student-photo-avatar" data-student-photo-url='<%# Html(Eval("ProfileImageUrl")) %>'><span><%# Html(Eval("Initials")) %></span></span><span><strong><%# Html(Eval("StudentName")) %></strong><small>ID <%# Html(Eval("StudentNumber")) %></small></span></span></td>
                                 <td><span class="company-name"><%# Html(Eval("CompanyName")) %></span></td>
                                 <td><span class="placement-badge <%# PlacementBadgeClass(Eval("PlacementStatus")) %>"><%# PlacementStatusLabel(Eval("PlacementStatus")) %></span></td>
                                 <td><div class="training-cell"><div class="training-label"><span><%# Html(Eval("TaskProgressLabel")) %></span><strong><%# Eval("ProgressPercent") %>%</strong></div><div class="training-track" role="progressbar" aria-label="<%# Html(Eval("StudentName")) %> training progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<%# Eval("ProgressPercent") %>"><span style="width:<%# Eval("ProgressPercent") %>%"></span></div></div></td>

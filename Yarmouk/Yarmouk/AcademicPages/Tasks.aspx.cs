@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using Newtonsoft.Json.Linq;
 using Yarmouk.Helpers;
+using Yarmouk.Models;
 using Yarmouk.Services;
 
 namespace Yarmouk.AcademicPages
@@ -23,13 +24,18 @@ namespace Yarmouk.AcademicPages
                 var auth = GetSupervisorSession("academic");
                 var service = new SupervisorWorkspaceService();
                 var students = await service.GetAcademicStudentsAsync(auth.Uid, auth.IdToken);
-                var names = students.GroupBy(x => x.StudentUid).ToDictionary(x => x.Key, x => x.First().StudentName);
+                var studentsById = students.GroupBy(x => x.StudentUid).ToDictionary(x => x.Key, x => x.First());
+                var profileStudents = await new FirebaseHelper().GetAsync<System.Collections.Generic.Dictionary<string, Student>>(DatabasePaths.Students, auth.IdToken)
+                    ?? new System.Collections.Generic.Dictionary<string, Student>();
                 var data = await new FirebaseHelper().GetAsync<JObject>(DatabasePaths.Tasks, auth.IdToken);
                 var rows = (data == null ? Enumerable.Empty<JProperty>() : data.Properties())
-                    .Select(x => x.Value as JObject).Where(x => x != null && names.ContainsKey((string)x["studentUid"] ?? string.Empty))
+                    .Select(x => x.Value as JObject).Where(x => x != null && studentsById.ContainsKey((string)x["studentUid"] ?? string.Empty))
                     .Select(x => new TaskItem
                     {
-                        StudentName = names[(string)x["studentUid"]],
+                        StudentName = studentsById[(string)x["studentUid"]].StudentName,
+                        Initials = GetInitials(studentsById[(string)x["studentUid"]].StudentName),
+                        ProfileImageUrl = StudentProfileImages.GetUrl(profileStudents.ContainsKey((string)x["studentUid"])
+                            ? profileStudents[(string)x["studentUid"]].ProfileImageFileName : null),
                         Title = (string)x["title"] ?? "Untitled task",
                         Description = (string)x["description"] ?? string.Empty,
                         StatusKey = Normalize((string)x["status"]),
@@ -50,6 +56,13 @@ namespace Yarmouk.AcademicPages
             }
         }
         private static string Normalize(string value) { return (value ?? "todo").Replace(" ", "").ToLowerInvariant(); }
+        private static string GetInitials(string name)
+        {
+            var parts = (name ?? string.Empty).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0) return "ST";
+            return parts.Length == 1 ? parts[0].Substring(0, 1).ToUpperInvariant()
+                : (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpperInvariant();
+        }
         private static string StatusLabel(string value)
         {
             if (value == "inprogress") return "In progress";
@@ -64,6 +77,8 @@ namespace Yarmouk.AcademicPages
         private sealed class TaskItem
         {
             public string StudentName { get; set; }
+            public string Initials { get; set; }
+            public string ProfileImageUrl { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
             public string StatusKey { get; set; }

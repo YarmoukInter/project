@@ -1,18 +1,21 @@
 <%@ Page Title="Home" Language="C#" AutoEventWireup="true" CodeBehind="Home.aspx.cs" Inherits="Yarmouk.PublicPages.Home" %>
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>Yarmouk University — Your practical training journey</title>
-  <meta name="description" content="Explore practical training at Yarmouk University. Discover an opportunity, confirm your placement, develop your skills and complete your internship.">
+  <script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=9") %>' defer></script>
+  <title><%: Yarmouk.Helpers.SiteSettingsStore.Read(Server)["homeTitle"] %></title>
+  <meta id="HomeDescriptionMeta" runat="server" name="description" content="Explore practical training at Yarmouk University. Discover an opportunity, confirm your placement, develop your skills and complete your internship.">
+  <meta id="HomeKeywordsMeta" runat="server" name="keywords" content="Yarmouk University, practical training, internship">
   <link rel="icon" runat="server" href="~/assets/yarmouk-mark.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" runat="server" href="~/Content/PublicPages/Home.css?v=emblem-reveal-21" />
   <script src='<%= ResolveUrl("~/Scripts/PublicPages/Home.js") %>?v=public-routes-1' defer></script>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head>
 <body data-scene="discover" data-home-root='<%= ResolveUrl("~/") %>'>
   <form id="form1" runat="server">
@@ -209,6 +212,7 @@
   <p id="a11y-announcer" class="a11y-sr-only" aria-live="polite" aria-atomic="true"></p>
   <noscript><p class="noscript-banner">Use the links below to explore your training journey. The interactive scene requires JavaScript.</p></noscript>
   </form>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>
 

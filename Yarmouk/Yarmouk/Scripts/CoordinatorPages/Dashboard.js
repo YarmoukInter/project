@@ -30,7 +30,8 @@
             { title: 'Students', description: 'Accounts & academic records', icon: 'student', route: 'ManageStudents.aspx' },
             { title: 'Academic supervisors', description: 'Faculty & student assignments', icon: 'supervisor', route: 'ManageAcademicSupervisors.aspx' },
             { title: 'Partner companies', description: 'Training providers & employers', icon: 'building', route: 'ManageCompanies.aspx' },
-            { title: 'Student internships', description: 'Placements & training progress', icon: 'briefcase', route: 'MonitorPlacements.aspx' }
+            { title: 'Student internships', description: 'Placements & training progress', icon: 'briefcase', route: 'MonitorPlacements.aspx' },
+            { title: 'Training tasks', description: 'Review assigned trainee tasks', icon: 'check', route: 'ManageTasks.aspx' }
         ],
         reviews: [
             { title: 'Training hours to review', value: counts?.pendingHours ?? 0, route: 'MonitorPlacements.aspx' },
@@ -43,27 +44,12 @@
     function mount() {
         const form = document.querySelector('form');
         const main = form && form.querySelector('main');
-        const header = form && form.querySelector('.yu-dashboard-main > header, :scope > header');
         const footer = form && form.querySelector('.yu-dashboard-main > footer, :scope > footer');
         if (!main || main.querySelector('.co-overview')) return;
 
         document.body.classList.add('co-dashboard');
         document.title = 'College overview — Yarmouk University';
-        const script = Array.from(document.scripts).find(item => /\/CoordinatorPages\/Dashboard\.js(?:\?|$)/i.test(item.src));
-        const applicationRoot = script ? new URL('../../', script.src) : new URL('../', location.href);
-        const logo = new URL('assets/yarmouk-logo-on-light.svg', applicationRoot).href;
         const today = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Amman' }).format(new Date());
-
-        if (header) header.innerHTML = `
-            <a class="co-skip" href="#main">Skip to dashboard</a>
-            <a class="co-brand" href="Dashboard.aspx" aria-label="Yarmouk University dashboard">
-                <img src="${logo}" alt="" width="120" height="44" />
-                <span class="co-brand-copy"><strong>Yarmouk University</strong><span>Internship administration</span></span>
-            </a>
-            <div class="co-header-actions">
-                <a class="co-notifications" href="ContactMessages.aspx" aria-label="Open contact messages">${icon('bell')}</a>
-                <a class="co-account" href="Account.aspx" aria-label="My coordinator account"><span class="co-avatar" aria-hidden="true">YU</span><span>University coordinator</span>${icon('chevron')}</a>
-            </div>`;
 
         main.id = 'main';
         main.tabIndex = -1;
@@ -72,6 +58,7 @@
                 <div class="co-title-row">
                     <div class="co-title-group"><span class="co-eyebrow">Yarmouk University · Internship administration</span><h1 id="co-title">College overview<span aria-hidden="true">.</span></h1><p>A clear picture of your people, placements, and priorities.</p></div>
                     <div class="co-title-tools"><time class="co-date">${today}</time><div class="co-actions">
+                        <button class="co-button co-button-secondary" type="button" data-export-dashboard>Export Excel</button>
                         <a class="co-button co-button-secondary" href="ManageAcademicSupervisors.aspx">${icon('people')}<span>Add supervisor</span></a>
                         <a class="co-button co-button-primary" href="ManageStudents.aspx">${icon('plus')}<span>Add student</span></a>
                     </div></div>
@@ -113,6 +100,11 @@
                             <a href="ManageStudents.aspx">Review assignments ${icon('arrow')}</a>
                 </aside>
             </section>`;
+        main.querySelector('[data-export-dashboard]')?.addEventListener('click', () => {
+            const rows = [...overview.statistics.map(item => [item.label, item.value, item.description]),
+                ...overview.reviews.map(item => [item.title, item.value, 'Pending actions'])];
+            window.UimsExcelExport?.download(`coordinator-dashboard-${new Date().toISOString().slice(0,10)}.csv`, ['Metric','Value','Description'], rows);
+        });
         main.querySelector('[data-dashboard-error]').textContent = state.error || '';
         if (footer) footer.innerHTML = '<span>Yarmouk University</span><span>Faculty of Information Technology and Computer Science</span>';
     }

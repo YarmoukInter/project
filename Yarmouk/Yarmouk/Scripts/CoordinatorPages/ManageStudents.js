@@ -5,7 +5,7 @@
     window.YarmoukRoster.mount({
         page:'ManageStudents', title:'Students', singular:'student', plural:'students',
         accountAccess:true, permanentDelete:true,
-        columns:[{key:'name',type:'identity'},{key:'department'},{key:'gpa',type:'gpa'},{key:'college'},{key:'supervisor',type:'supervisor',options:supervisors}],
+        columns:[{key:'name',label:'Student',type:'identity'},{key:'department',label:'Department'},{key:'gpa',label:'GPA',type:'gpa'},{key:'college',label:'College'},{key:'supervisor',label:'Assigned supervisor',type:'supervisor',options:supervisors}],
         fields:[
             {key:'name',label:'Name (Arabic)',required:true}, {key:'email',label:'Email address',type:'email',required:true},
             {key:'department',label:'Department',options:departments,required:true}, {key:'gpa',label:'GPA (0–100)',type:'number',min:0,max:100,step:0.01,required:true},

@@ -25,6 +25,8 @@ namespace Yarmouk.CompanyPages
         {
             public string StudentUid;
             public string StudentName;
+            public string ProfileImageUrl;
+            public string StudentInitials;
             public string Id;
             public string Number;
             public string Title;
@@ -89,7 +91,7 @@ namespace Yarmouk.CompanyPages
 
         private string GetFirebaseUrl(string path, AuthSession auth)
         {
-            var databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"];
+            var databaseUrl = Yarmouk.Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             if (string.IsNullOrWhiteSpace(databaseUrl) || !Uri.IsWellFormedUriString(databaseUrl, UriKind.Absolute)
                 || new Uri(databaseUrl).Scheme != Uri.UriSchemeHttps)
                 throw new ConfigurationErrorsException("FirebaseDatabaseUrl must be a valid HTTPS URL.");
@@ -175,7 +177,7 @@ namespace Yarmouk.CompanyPages
                     .ToDictionary(group => group.Key, group => group.First().Id, StringComparer.Ordinal);
                 var rows = options.SelectMany(option => BuildTaskRows(option.Uid, taskData, submissionData,
                         placementByStudent.ContainsKey(option.Uid) ? placementByStudent[option.Uid] : string.Empty)
-                    .Select(row => { row.StudentUid = option.Uid; row.StudentName = option.Name; return row; }))
+                    .Select(row => { var trainee = trainees.FirstOrDefault(item => item.StudentUid == option.Uid); row.StudentUid = option.Uid; row.StudentName = option.Name; row.ProfileImageUrl = trainee == null ? string.Empty : trainee.ProfileImageUrl; row.StudentInitials = GetInitials(option.Name); return row; }))
                     .Where(row => selected == null || row.StudentUid == selected.Uid)
 
                     .Where(row => string.IsNullOrWhiteSpace(statusFilter) || row.Status == statusFilter)
@@ -447,6 +449,14 @@ namespace Yarmouk.CompanyPages
             return FirstNonEmpty(fullName, uid);
         }
 
+        private static string GetInitials(string name)
+        {
+            var parts = (name ?? string.Empty).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0) return "ST";
+            return parts.Length == 1 ? parts[0].Substring(0, 1).ToUpperInvariant()
+                : (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpperInvariant();
+        }
+
         private static JProperty FindStudentRecord(JObject students, string uid)
         {
             if (students == null || string.IsNullOrWhiteSpace(uid)) return null;
@@ -497,7 +507,7 @@ namespace Yarmouk.CompanyPages
             {
                 var id = HttpUtility.HtmlAttributeEncode(row.Id);
                 html.Append("<article class=\"task-review-card\" data-status=\"").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">")
-                    .Append("<div class=\"task-review-card__student\"><span class=\"task-card-label\">Student</span><strong class=\"task-card-student\">").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</strong></div>")
+                    .Append("<div class=\"task-review-card__student\"><span class=\"task-card-label\">Student</span><span class=\"task-review-student uims-student-photo-avatar\" data-student-photo-url=\"").Append(HttpUtility.HtmlAttributeEncode(row.ProfileImageUrl)).Append("\"><span>").Append(HttpUtility.HtmlEncode(row.StudentInitials)).Append("</span></span><strong class=\"task-card-student\">").Append(HttpUtility.HtmlEncode(row.StudentName)).Append("</strong></div>")
                     .Append("<div class=\"task-review-card__task\"><span class=\"task-card-label\">Task</span><strong>").Append(HttpUtility.HtmlEncode(row.Number)).Append("</strong><span class=\"task-card-title\">").Append(HttpUtility.HtmlEncode(row.Title)).Append("</span></div>")
                     .Append("<div class=\"task-review-card__deadline\"><span class=\"task-card-label\">Deadline</span><time class=\"task-card-deadline\">").Append(row.DueAt > 0 ? HttpUtility.HtmlEncode(FormatDate(row.DueAt)) : "—").Append("</time></div>")
                     .Append("<div class=\"task-review-card__status\"><span class=\"task-card-label\">Status</span><span class=\"status-pill status-").Append(HttpUtility.HtmlAttributeEncode(row.Status)).Append("\">").Append(HttpUtility.HtmlEncode(row.StatusLabel)).Append("</span></div>")

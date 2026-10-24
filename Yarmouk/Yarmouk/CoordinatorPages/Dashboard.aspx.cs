@@ -65,7 +65,10 @@ namespace Yarmouk.CoordinatorPages
             foreach (var pair in users.Where(p => p.Value != null && AuthPolicy.NormalizeRole(p.Value.Role) == role))
             {
                 var user = pair.Value;
-                Student student; students.TryGetValue(pair.Key, out student);
+                Student student;
+                if (!students.TryGetValue(pair.Key, out student))
+                    student = students.Values.FirstOrDefault(candidate => candidate != null
+                        && string.Equals(candidate.Uid, pair.Key, StringComparison.Ordinal));
                 Major major = null;
                 if (student != null && !string.IsNullOrEmpty(student.MajorId)) majors.TryGetValue(student.MajorId, out major);
                 var company = companies.Values.FirstOrDefault(c => c != null && c.SupervisorUid == pair.Key);
@@ -75,6 +78,7 @@ namespace Yarmouk.CoordinatorPages
                     Department = major == null ? user.Department : major.Name,
                     College = major == null ? user.College : major.Faculty,
                     Gpa = student == null ? null : student.Gpa,
+                    ProfileImageUrl = student == null ? string.Empty : StudentProfileImages.GetUrl(student.ProfileImageFileName),
                     Supervisor = student == null ? "" : student.AcademicSupervisorId ?? "",
                     AssignedStudents = students.Values.Count(st => st != null && st.AcademicSupervisorId == pair.Key),
                     Status = role == "company" ? (company != null && company.IsApproved ? "Approved" : "Pending review") : (user.IsActive ? "Active" : "Inactive"),
@@ -88,6 +92,8 @@ namespace Yarmouk.CoordinatorPages
                     student.StudentNumber = string.IsNullOrWhiteSpace(student.StudentNumber) ? student.StudentId : student.StudentNumber;
                     student.CompletedCredits = student.CompletedCredits > 0 ? student.CompletedCredits : student.CompletedCreditHours;
                     JsonConvert.PopulateObject(JsonConvert.SerializeObject(student, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }), row);
+                    // Keep the image URL derived from the stored filename after merging profile fields.
+                    row.ProfileImageUrl = StudentProfileImages.GetUrl(student.ProfileImageFileName);
                 }
                 rows.Add(row);
             }
@@ -340,6 +346,7 @@ namespace Yarmouk.CoordinatorPages
         public string Department { get; set; }
         public string College { get; set; }
         public string Gpa { get; set; }
+        public string ProfileImageUrl { get; set; }
         public string Supervisor { get; set; }
         public int AssignedStudents { get; set; }
         public string Status { get; set; }

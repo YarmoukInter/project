@@ -31,6 +31,7 @@ namespace Yarmouk.Services
         public string StudentUid { get; set; }
         public string StudentName { get; set; }
         public string StudentNumber { get; set; }
+        public string ProfileImageUrl { get; set; }
         public string MajorId { get; set; }
         public string AcademicSupervisorUid { get; set; }
         public string CompanyName { get; set; }
@@ -237,6 +238,10 @@ namespace Yarmouk.Services
                 DatabasePaths.Evaluations, token).ConfigureAwait(false) ?? new Dictionary<string, JObject>();
             var company = await firebase.GetAsync<JObject>(
                 DatabasePaths.Companies + "/" + companyId, token).ConfigureAwait(false);
+            var allTasks = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.Tasks, token).ConfigureAwait(false) ?? new Dictionary<string, JObject>();
+            var allSubmissions = await firebase.GetAsync<Dictionary<string, JObject>>(
+                DatabasePaths.TaskSubmissions, token).ConfigureAwait(false) ?? new Dictionary<string, JObject>();
 
             var result = new List<CompanyEvaluationRow>();
             foreach (var studentItem in assignedStudents)
@@ -263,6 +268,21 @@ namespace Yarmouk.Services
                 // خذ الـ uid الصحيح من الـ placement (بيحل مشكلة uid الغلط عند w15CYl2A…)
                 if (placement != null && !string.IsNullOrWhiteSpace(Read(placement, "studentUid")))
                     studentUid = Read(placement, "studentUid");
+
+                // A final evaluation can only be opened after every task assigned to this
+                // trainee for this company placement has been approved as completed.
+                // Students without an assigned task do not appear in the evaluation queue.
+                var assignedTasks = allTasks.Where(x => x.Value != null
+                        && Same(Read(x.Value, "studentUid"), studentUid)
+                        && (string.IsNullOrWhiteSpace(Read(x.Value, "companyId"))
+                            || Same(Read(x.Value, "companyId"), companyId))
+                        && (string.IsNullOrWhiteSpace(Read(x.Value, "placementId"))
+                            || Same(Read(x.Value, "placementId"), placementId))
+                        && (string.IsNullOrWhiteSpace(Read(x.Value, "supervisorUid"))
+                            || Same(Read(x.Value, "supervisorUid"), uid)))
+                    .ToList();
+                if (assignedTasks.Count == 0 || assignedTasks.Any(task => !IsTaskCompleted(task, studentUid, allSubmissions)))
+                    continue;
 
                 var studentNumber = First(Read(student, "studentNumber"), Read(student, "studentId"));
                 var majorId = Read(student, "majorId");
@@ -308,9 +328,11 @@ namespace Yarmouk.Services
                     StudentUid = studentUid,
                     StudentName = studentName,
                     StudentNumber = studentNumber,
+                    ProfileImageUrl = StudentProfileImages.GetUrl(Read(student, "profileImageFileName")),
                     MajorId = majorId,
-                    AcademicSupervisorUid = First(Read(student, "academicSupervisorId"),
-                        Read(placement, "academicSupervisorUid"), Read(placement, "academicSupervisorId")),
+                    // The academic evaluation queue is keyed from students/{uid}/academicSupervisorId.
+                    // Do not enable company submission from a placement-only fallback that the academic queue cannot see.
+                    AcademicSupervisorUid = Read(student, "academicSupervisorId"),
                     CompanyName = First(Read(company, "name"), Read(student, "companyName")),
                     PlacementStatus = placement == null ? "Placement not linked" : Read(placement, "status"),
                     StartDate = Read(placement, "startDate"),
@@ -460,5 +482,26 @@ namespace Yarmouk.Services
         private static bool HasValue(JObject value, string key) { var item = value == null ? null : value[key]; double number; return item != null && item.Type != JTokenType.Null && double.TryParse(item.ToString(), out number); }
         private static bool Same(string a, string b) { return string.Equals(a, b, StringComparison.Ordinal); }
         private static string First(params string[] values) { return values.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ?? string.Empty; }
+
+        private static bool IsTaskCompleted(KeyValuePair<string, JObject> task, string studentUid,
+            IDictionary<string, JObject> submissions)
+        {
+            if (IsCompletedStatus(Read(task.Value, "status"))) return true;
+            var taskId = Read(task.Value, "id", task.Key);
+            var latestSubmission = (submissions ?? new Dictionary<string, JObject>())
+                .Where(x => x.Value != null && Same(Read(x.Value, "taskId"), taskId)
+                    && Same(Read(x.Value, "studentUid"), studentUid))
+                .OrderByDescending(x => ReadLong(x.Value, "submittedAtUnixMs"))
+                .FirstOrDefault();
+            return latestSubmission.Value != null && IsCompletedStatus(First(
+                Read(latestSubmission.Value, "reviewStatus"), Read(latestSubmission.Value, "status")));
+        }
+
+        private static bool IsCompletedStatus(string value)
+        {
+            var normalized = (value ?? string.Empty).Replace("_", string.Empty).Replace("-", string.Empty)
+                .Replace(" ", string.Empty).ToLowerInvariant();
+            return normalized == "completed" || normalized == "complete" || normalized == "approved";
+        }
     }
 }

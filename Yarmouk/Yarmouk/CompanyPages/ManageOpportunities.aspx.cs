@@ -252,6 +252,7 @@ namespace Yarmouk.CompanyPages
         public string Id { get; set; }
         public string StudentUid { get; set; }
         public string Name { get; set; }
+        public string ProfileImageUrl { get; set; }
         public string Number { get; set; }
         public string Major { get; set; }
         public string Email { get; set; }
@@ -386,6 +387,7 @@ namespace Yarmouk.CompanyPages
                     Id = entry.Key,
                     StudentUid = studentUid,
                     Name = First(Text(user, "fullName"), "Student"),
+                    ProfileImageUrl = StudentProfileImages.GetUrl(Text(student, "profileImageFileName")),
                     Number = First(Text(student, "studentNumber"), Text(student, "studentId"), Text(user, "studentId"), "—"),
                     Major = First(Text(major, "name"), Text(student, "majorId"), Text(user, "majorId"), "—"),
                     Email = First(Text(user, "email"), ""),
@@ -418,6 +420,8 @@ namespace Yarmouk.CompanyPages
         public async System.Threading.Tasks.Task SetApplicationStatusAsync(string companyId, string reviewerUid, string id, string status, string reason, string idToken)
         {
             ValidateKey(id);
+            reason = (reason ?? string.Empty).Trim();
+            if (reason.Length > 500) throw new System.ArgumentException("The rejection reason must be 500 characters or fewer.");
             var app = await firebase.GetAsync<JObject>(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, idToken);
             if (app == null) throw new System.ArgumentException("Application not found.");
             var opportunity = await firebase.GetAsync<JObject>(Yarmouk.Helpers.DatabasePaths.Opportunities + "/" + Text(app, "opportunityId"), idToken);
@@ -443,7 +447,7 @@ namespace Yarmouk.CompanyPages
                     && IsConfirmedPlacementStatus(Text(placement, "status"))))
                     throw new System.InvalidOperationException("This student has already confirmed another internship placement.");
             }
-            await firebase.UpdateAsync(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, new { companyId = companyId, status = value, rejectionReason = value == "Rejected" ? reason.Trim() : string.Empty, reviewedByUid = reviewerUid, reviewedAtUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, idToken);
+            await firebase.UpdateAsync(Yarmouk.Helpers.DatabasePaths.Applications + "/" + id, new { companyId = companyId, status = value, rejectionReason = value == "Rejected" ? reason : string.Empty, reviewedByUid = reviewerUid, reviewedAtUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, idToken);
         }
 
         private async System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, JObject>> GetMapAsync(string path, string token)

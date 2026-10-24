@@ -102,7 +102,7 @@ namespace Yarmouk.CompanyPages
                     .Take(5).Select(x => BuildApplicationRow(x, companyOpportunities, users, students, majors)).ToList();
                 ApplicationsRepeater.DataBind();
                 SubmissionsRepeater.DataSource = pendingSubmissions.OrderByDescending(x => Number(x.Value, "submittedAtUnixMs"))
-                    .Take(5).Select(x => BuildSubmissionRow(x, tasks, users)).ToList();
+                    .Take(5).Select(x => BuildSubmissionRow(x, tasks, users, students)).ToList();
                 SubmissionsRepeater.DataBind();
                 OpportunitiesRepeater.DataSource = companyOpportunities.OrderByDescending(x => IsActive(x.Value))
                     .Take(4).Select(x => BuildOpportunityRow(x, applications)).ToList();
@@ -129,13 +129,13 @@ namespace Yarmouk.CompanyPages
             var user = Find(users, uid); var student = Find(students, uid); var opportunity = opportunities.FirstOrDefault(x => x.Key == Text(item.Value, "opportunityId")).Value;
             var major = Find(majors, Text(student, "majorId"));
             return new { Name = Text(user, "fullName", "Applicant"), Major = Text(major, "name", Text(student, "majorId", "Student")),
-                Opportunity = Text(opportunity, "title", "Opportunity"), Applied = FormatDate(Number(item.Value, "appliedAtUnixMs")), Initials = Initials(Text(user, "fullName", "A")) };
+                Opportunity = Text(opportunity, "title", "Opportunity"), Applied = FormatDate(Number(item.Value, "appliedAtUnixMs")), Initials = Initials(Text(user, "fullName", "A")), ProfileImageUrl = StudentProfileImages.GetUrl(Text(student, "profileImageFileName")) };
         }
-        private static object BuildSubmissionRow(KeyValuePair<string, JObject> item, List<KeyValuePair<string, JObject>> tasks, Dictionary<string, JObject> users)
+        private static object BuildSubmissionRow(KeyValuePair<string, JObject> item, List<KeyValuePair<string, JObject>> tasks, Dictionary<string, JObject> users, Dictionary<string, JObject> students)
         {
             string taskId = Text(item.Value, "taskId"); var task = tasks.FirstOrDefault(x => Text(x.Value, "id", x.Key) == taskId).Value;
-            var user = Find(users, Text(item.Value, "studentUid"));
-            return new { Name = Text(user, "fullName", "Trainee"), Task = Text(task, "title", "Task"), Submitted = FormatDate(Number(item.Value, "submittedAtUnixMs")), Initials = Initials(Text(user, "fullName", "T")) };
+            string uid = Text(item.Value, "studentUid"); var user = Find(users, uid); var student = Find(students, uid);
+            return new { Name = Text(user, "fullName", "Trainee"), Task = Text(task, "title", "Task"), Submitted = FormatDate(Number(item.Value, "submittedAtUnixMs")), Initials = Initials(Text(user, "fullName", "T")), ProfileImageUrl = StudentProfileImages.GetUrl(Text(student, "profileImageFileName")) };
         }
         private static object BuildOpportunityRow(KeyValuePair<string, JObject> item, List<KeyValuePair<string, JObject>> applications)
         {
@@ -155,7 +155,7 @@ namespace Yarmouk.CompanyPages
             int completed = TrainingProgress.CountSubmitted(tasks, submissions.Select(s => s.Value), uid,
                 placement.Key, Text(placement.Value, "opportunityId"));
             int total = TrainingProgress.RequiredTasks;
-            return new { Name = Text(user, "fullName", "Trainee"), Program = Text(major, "name", "Active trainee"), Initials = Initials(Text(user, "fullName", "T")),
+            return new { Name = Text(user, "fullName", "Trainee"), Program = Text(major, "name", "Active trainee"), Initials = Initials(Text(user, "fullName", "T")), ProfileImageUrl = StudentProfileImages.GetUrl(Text(student, "profileImageFileName")),
                 Completed = completed, Total = total, Percent = TrainingProgress.Percent(completed) };
         }
         private static bool IsSupervisor(JObject company, string uid)

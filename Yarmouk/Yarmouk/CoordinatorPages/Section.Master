@@ -1,17 +1,23 @@
 <%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Section.Master.cs" Inherits="Yarmouk.CoordinatorPages.SectionMaster" %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'>
 <head runat="server">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>UIMS</title>
+<script src='<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=9") %>' defer></script>
+<link runat="server" href="~/Content/Shared/student-profile-images.css?v=1" rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/Shared/student-profile-images.js") %>?v=1' defer></script>
 <link runat="server" href="~/Content/bootstrap.min.css?v=dashboard-assets-3" rel="stylesheet" />
 <link runat="server" href="~/Content/CoordinatorPages/shared.css?v=dashboard-assets-3" rel="stylesheet" />
 
-<link runat="server" href="~/Content/CoordinatorPages/sidebar.css?v=dashboard-assets-3" rel="stylesheet" />
-<link runat="server" href="~/Content/CoordinatorPages/notifications.css?v=1" rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/sidebar.js") %>?v=dashboard-assets-3' defer></script>
+<link runat="server" href="~/Content/CoordinatorPages/sidebar.css?v=coordinator-content-1" rel="stylesheet" />
+<link runat="server" href="~/Content/CoordinatorPages/notifications.css?v=theme-2" rel="stylesheet" />
+<link runat="server" href="~/Content/CoordinatorPages/coordinator-header.css?v=1" rel="stylesheet" />
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/sidebar.js") %>?v=coordinator-header-2' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/Shared/excel-export.js") %>?v=1' defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head>
 <body>
 <form id="form1" runat="server">
@@ -35,16 +41,18 @@
     </aside>
   </div>
   <div class="yu-sidebar-shade" hidden aria-hidden="true"></div>
-  <button type="button" class="yu-sidebar-menu" data-sidebar-menu aria-controls="dashboard-navigation" aria-expanded="false" hidden><svg aria-hidden="true"><use href="#ys-icon-menu"></use></svg><span>Menu</span></button>
-
   <div class="yu-dashboard-main">
-  <header class="container py-3 border-bottom"><a href='<%= ResolveUrl("~/PublicPages/Home.aspx") %>'>Yarmouk University</a><span class="ms-3">Coordinator</span></header>
+  <header class="container py-3 border-bottom co-global-header">
+    <a class="co-global-account" href='<%= ResolveUrl("~/CoordinatorPages/Account.aspx") %>' aria-label="My coordinator account"><span class="co-global-avatar" aria-hidden="true">YU</span><span><strong>University coordinator</strong><small>Coordinator account</small></span></a>
+    <div class="co-global-actions"><a class="co-notifications cn-bell" href='<%= ResolveUrl("~/CoordinatorPages/ContactMessages.aspx") %>' aria-label="Open contact messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-11 12a2 2 0 0 0 4 0"/></svg></a><button type="button" class="yu-sidebar-menu" data-sidebar-menu aria-controls="dashboard-navigation" aria-expanded="false" aria-label="Open navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="visually-hidden">Open navigation</span></button></div>
+  </header>
   <main class="container py-4" id="main" tabindex="-1"><asp:ContentPlaceHolder ID="MainContent" runat="server" /></main>
   <footer class="container py-3 border-top"><small>Yarmouk University — Internship Management System</small></footer>
 </div>
 </div>
 </form>
 <script type="application/json" id="co-notification-config"><%= NotificationConfigJson %></script>
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/notifications.js") %>?v=1' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/notifications.js") %>?v=coordinator-header-2' defer></script>
+<%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
 </body>
 </html>

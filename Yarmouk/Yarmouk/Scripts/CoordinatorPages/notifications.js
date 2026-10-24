@@ -15,12 +15,16 @@
         bell.setAttribute('aria-expanded', 'false');
         bell.setAttribute('aria-controls', 'co-notification-panel');
         bell.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-11 12a2 2 0 0 0 4 0"/></svg><span class="cn-badge" hidden></span>';
+        const actions = header.querySelector('.co-global-actions');
         const previous = header.querySelector('.co-notifications');
         if (previous) previous.replaceWith(bell);
         else {
-            const account = header.querySelector('.yr-header-account, .co-account');
-            if (account) account.before(bell);
-            else header.append(bell);
+            if (actions) actions.prepend(bell);
+            else {
+                const account = header.querySelector('.yr-header-account, .co-account, .co-global-account');
+                if (account) account.before(bell);
+                else header.append(bell);
+            }
         }
         const announcement = document.createElement('span');
         announcement.className = 'cn-announcement';

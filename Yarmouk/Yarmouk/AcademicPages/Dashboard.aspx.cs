@@ -87,7 +87,7 @@ namespace Yarmouk.AcademicPages
 
         private static async Task<Dictionary<string, JObject>> GetRecordsAsync(string path, string idToken)
         {
-            string databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"];
+            string databaseUrl = Yarmouk.Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             if (string.IsNullOrWhiteSpace(databaseUrl)
                 || !Uri.IsWellFormedUriString(databaseUrl, UriKind.Absolute)
                 || new Uri(databaseUrl).Scheme != Uri.UriSchemeHttps)
@@ -150,6 +150,7 @@ namespace Yarmouk.AcademicPages
                 StudentUid = studentUid,
                 StudentName = name,
                 Initials = GetInitials(name),
+                ProfileImageUrl = StudentProfileImages.GetUrl(Read(student, "profileImageFileName")),
                 StudentNumber = Read(student, "studentId", Read(student, "studentNumber", "—")),
                 CompanyName = Read(company, "name", string.IsNullOrWhiteSpace(companyId) ? "Company not assigned" : companyId),
                 PlacementStatus = Read(placement, "status", "In progress"),

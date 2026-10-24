@@ -4,7 +4,7 @@
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
 <script src="../Scripts/Shared/record-lists.js?v=record-cards-3" defer></script>
-<link href="../Content/CompanyPages/ManageTasks.css?v=horizontal-dark-cards-4" rel="stylesheet" />
+<link href="../Content/CompanyPages/ManageTasks.css?v=filter-icon-center-1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <main class="manage-tasks-page">

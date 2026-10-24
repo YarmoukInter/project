@@ -61,8 +61,14 @@ namespace Yarmouk.CoordinatorPages
             string json = Serializer.Serialize(rows ?? new List<CompletionReviewRow>());
             string safeJson = HttpUtility.JavaScriptStringEncode(json);
             string safeMessage = HttpUtility.JavaScriptStringEncode(message ?? string.Empty);
+            string requestToken = Convert.ToString(Session["FinalCompletionReviewActionToken"]);
+            if (string.IsNullOrWhiteSpace(requestToken))
+            {
+                requestToken = Guid.NewGuid().ToString("N");
+                Session["FinalCompletionReviewActionToken"] = requestToken;
+            }
             ClientScript.RegisterStartupScript(GetType(), "uimsFinalReviewData",
-                "window.uimsFinalReviewData=JSON.parse(\"" + safeJson + "\");window.uimsFinalReviewMessage=\"" + safeMessage + "\";", true);
+                "window.uimsFinalReviewData=JSON.parse(\"" + safeJson + "\");window.uimsFinalReviewMessage=\"" + safeMessage + "\";window.uimsFinalReviewRequestToken=\"" + HttpUtility.JavaScriptStringEncode(requestToken) + "\";", true);
         }
 
         private static List<CompletionReviewRow> BuildRows(
@@ -115,6 +121,7 @@ namespace Yarmouk.CoordinatorPages
                     name = name,
                     studentId = First(Text(studentRecord, "studentId"), Text(studentRecord, "studentNumber")),
                     initials = Initials(name),
+                    profileImageUrl = StudentProfileImages.GetUrl(Text(studentRecord, "profileImageFileName")),
                     program = Text(studentRecord, "majorId"),
                     company = string.IsNullOrWhiteSpace(companyName) ? "Training provider unavailable" : companyName,
                     opportunity = opportunityTitle,
@@ -123,7 +130,9 @@ namespace Yarmouk.CoordinatorPages
                     academicSubmitted = academicSubmitted,
                     companyScore = Score(evaluation, "companyScore", companySubmitted),
                     academicScore = Score(evaluation, "academicScore", academicSubmitted),
+                    overallScore = AverageScore(evaluation, companySubmitted, academicSubmitted),
                     coordinatorApproved = coordinatorApproved,
+                    officialCertificateGenerated = !string.IsNullOrWhiteSpace(Text(evaluation, "officialCertificateGeneratedAtUnixMs")),
                     approvedHours = approvedHours,
                     requiredHours = requiredHours,
                     hoursConfigured = hoursConfigured,
@@ -195,6 +204,17 @@ namespace Yarmouk.CoordinatorPages
             return string.IsNullOrWhiteSpace(value) ? "Submitted · score unavailable" : value;
         }
 
+        private static string AverageScore(JObject evaluation, bool companySubmitted, bool academicSubmitted)
+        {
+            if (!companySubmitted || !academicSubmitted) return "Awaiting both evaluations";
+            double company;
+            double academic;
+            if (!double.TryParse(Text(evaluation, "companyScore"), NumberStyles.Number, CultureInfo.InvariantCulture, out company)
+                || !double.TryParse(Text(evaluation, "academicScore"), NumberStyles.Number, CultureInfo.InvariantCulture, out academic))
+                return "Score unavailable";
+            return Math.Round((company + academic) / 2d, 2).ToString("0.##", CultureInfo.InvariantCulture) + " / 100";
+        }
+
         private static string First(string first, string second) { return string.IsNullOrWhiteSpace(first) ? second : first; }
         private static int StatusOrder(string status) { return status == "ready" ? 0 : status == "missing" ? 1 : 2; }
         private static string Initials(string name)
@@ -206,10 +226,10 @@ namespace Yarmouk.CoordinatorPages
         private sealed class CompletionReviewRow
         {
             public string id { get; set; } public string name { get; set; } public string studentId { get; set; }
-            public string initials { get; set; } public string program { get; set; } public string company { get; set; }
+            public string initials { get; set; } public string profileImageUrl { get; set; } public string program { get; set; } public string company { get; set; }
             public string opportunity { get; set; } public string status { get; set; } public bool companySubmitted { get; set; }
-            public bool academicSubmitted { get; set; } public string companyScore { get; set; } public string academicScore { get; set; }
-            public bool coordinatorApproved { get; set; } public int approvedHours { get; set; } public int requiredHours { get; set; }
+            public bool academicSubmitted { get; set; } public string companyScore { get; set; } public string academicScore { get; set; } public string overallScore { get; set; }
+            public bool coordinatorApproved { get; set; } public bool officialCertificateGenerated { get; set; } public int approvedHours { get; set; } public int requiredHours { get; set; }
             public bool hoursConfigured { get; set; } public bool placementFound { get; set; } public CompletionCheck[] checks { get; set; }
         }
         private sealed class CompletionCheck { public string label { get; set; } public string detail { get; set; } public bool complete { get; set; } }

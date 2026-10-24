@@ -2,7 +2,7 @@
 <asp:Content ID="HeadSection" ContentPlaceHolderID="HeadContent" runat="server">
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
-    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=horizontal-pages-7' rel="stylesheet" />
+    <link href='<%= ResolveUrl("~/Content/CompanyPages/ApplicationsReview.css") %>?v=horizontal-pages-8' rel="stylesheet" />
 <script src="../Scripts/Shared/record-lists.js?v=record-cards-3" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -28,7 +28,7 @@
                 </div>
                 <div class="co-candidate-list" aria-label="Candidate applications"><asp:Repeater ID="ApplicationsRepeater" runat="server"><ItemTemplate>
                     <article class='co-candidate-card <%# CandidateRowCss(Eval("Id")) %>' data-status='<%# Attribute(Eval("Status")) %>'>
-                        <div class="co-candidate-identity"><span class="co-candidate-avatar" aria-hidden="true"><%# Encode(Initials(Eval("Name"))) %></span><div><span class="co-student-name"><%# Encode(Eval("Name")) %></span><span class="co-student-number"><%# Encode(Eval("Number")) %></span></div></div>
+                        <div class="co-candidate-identity"><span class="co-candidate-avatar uims-student-photo-avatar" data-student-photo-url='<%# Encode(Eval("ProfileImageUrl")) %>'><span><%# Encode(Initials(Eval("Name"))) %></span></span><div><span class="co-student-name"><%# Encode(Eval("Name")) %></span><span class="co-student-number"><%# Encode(Eval("Number")) %></span></div></div>
                         <div class="co-candidate-meta"><span class="co-card-label">Major</span><span class="co-major-cell"><%# Encode(Eval("Major")) %></span></div>
                         <div class="co-candidate-meta co-candidate-applied"><span class="co-card-label">Applied</span><span><%# FormatDate(Eval("AppliedAtUnixMs")) %></span></div>
                         <div class="co-candidate-status"><span class="co-card-label">Status</span><span class='<%# StatusCss(Eval("Status")) %>'><%# StatusLabel(Eval("Status")) %></span></div>
@@ -45,7 +45,7 @@
         <div id="applicationDetailModal" class="co-modal-backdrop co-application-modal-backdrop" hidden>
             <section class="co-modal co-application-modal" role="dialog" aria-modal="true" aria-labelledby="applicationModalTitle">
                     <header class="co-detail-head"><div><p class="co-eyebrow">APPLICATION DETAILS</p><h2 id="applicationModalTitle" data-detail-name></h2><p data-detail-summary></p></div><div class="co-detail-head-actions"><span data-detail-status></span><button type="button" class="co-icon-button" data-application-close aria-label="Close application details">×</button></div></header>
-                    <div class="co-profile-strip"><span class="co-profile-avatar" data-detail-initials></span><div><strong data-detail-name-secondary></strong><span data-detail-number></span></div></div>
+                    <div class="co-profile-strip"><span class="co-profile-avatar uims-student-photo-avatar" data-detail-photo data-student-photo-url=""><span data-detail-initials></span></span><div><strong data-detail-name-secondary></strong><span data-detail-number></span></div></div>
                     <div class="co-detail-facts"><span class="co-detail-fact"><span>Email</span><strong data-detail-email></strong></span><span class="co-detail-fact"><span>Applied</span><strong data-detail-applied></strong></span><span class="co-detail-fact"><span>Opportunity</span><strong data-detail-opportunity></strong></span></div>
                     <section class="co-detail-section"><h3>CV / RESUME</h3><a data-detail-cv class="co-cv-link" target="_blank" rel="noopener noreferrer">Open student CV</a><p data-detail-no-cv class="co-empty-copy">No CV attached to this profile.</p></section>
                     <section class="co-detail-section"><h3>COMPANY QUESTIONS &amp; ANSWERS</h3><div data-detail-answers></div></section>
@@ -65,5 +65,5 @@
             </section>
         </div>
     </section>
-    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=2' defer></script>
+    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=3' defer></script>
 </asp:Content>

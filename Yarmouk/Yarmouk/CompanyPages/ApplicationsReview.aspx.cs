@@ -104,6 +104,7 @@ namespace Yarmouk.CompanyPages
             {
                 item.Id,
                 item.Name,
+                item.ProfileImageUrl,
                 item.Number,
                 item.Major,
                 item.Email,

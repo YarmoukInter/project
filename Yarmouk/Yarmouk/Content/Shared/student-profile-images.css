@@ -1,0 +1,9 @@
+.uims-student-photo-avatar{position:relative;overflow:hidden}
+.uims-student-photo-avatar>.uims-student-photo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.uims-student-photo-avatar>.uims-student-photo-failed{display:none}
+.yr-person-photo{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 2.25rem;width:2.25rem;height:2.25rem;margin-right:.65rem;border-radius:50%;overflow:hidden;background:var(--surface-soft,#e8f2ec);color:var(--brand-strong,#08764f);font-weight:700}
+.yr-person-copy{display:flex;min-width:0;flex-direction:column;gap:.2rem}
+.task-student-identity,.evaluation-student-identity{display:inline-flex;align-items:center;gap:.6rem}
+.task-student-identity .student-avatar,.evaluation-student-identity .student-avatar{position:relative;flex:none;width:2.3rem;height:2.3rem;overflow:hidden;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.evaluation-student-name,.evaluation-student-number{display:block}
+.progress-note-dialog>[data-progress-dialog-photo]{display:flex;width:3rem;height:3rem;align-items:center;justify-content:center;margin-bottom:.65rem;border-radius:1rem}

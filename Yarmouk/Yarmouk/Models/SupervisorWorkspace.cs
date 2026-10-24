@@ -6,6 +6,7 @@ namespace Yarmouk.Models
         public string StudentUid { get; set; }
         public string StudentName { get; set; }
         public string Initials { get; set; }
+        public string ProfileImageUrl { get; set; }
         public string StudentNumber { get; set; }
         public string StudentEmail { get; set; }
         public string StudentPhone { get; set; }
@@ -35,6 +36,8 @@ namespace Yarmouk.Models
         public string EvaluationId { get; set; }
         public string StudentUid { get; set; }
         public string StudentName { get; set; }
+        public string Initials { get; set; }
+        public string ProfileImageUrl { get; set; }
         public string StudentNumber { get; set; }
         public string CompanyName { get; set; }
         public string PlacementStatus { get; set; }

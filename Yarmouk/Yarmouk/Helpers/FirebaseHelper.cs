@@ -16,7 +16,7 @@ namespace Yarmouk.Helpers
         { ContractResolver = new CamelCasePropertyNamesContractResolver() };
         public FirebaseHelper()
         {
-            databaseUrl = ConfigurationManager.AppSettings["FirebaseDatabaseUrl"];
+            databaseUrl = SiteSettingsStore.GetFirebaseDatabaseUrl();
             if (string.IsNullOrWhiteSpace(databaseUrl) || !Uri.IsWellFormedUriString(databaseUrl, UriKind.Absolute)
                 || new Uri(databaseUrl).Scheme != Uri.UriSchemeHttps)
                 throw new ConfigurationErrorsException("Set FirebaseDatabaseUrl to a valid HTTPS URL in Web.config.");

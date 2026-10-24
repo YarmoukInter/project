@@ -17,5 +17,16 @@ namespace Yarmouk.StudentPages
         protected global::System.Web.UI.WebControls.Repeater MilestoneRepeater;
         protected global::System.Web.UI.WebControls.Repeater ProgressNotes;
         protected global::System.Web.UI.WebControls.Panel NoProgressNotes;
+
+        protected global::System.Web.UI.WebControls.Panel NextStepCard;
+        protected global::System.Web.UI.WebControls.Panel AcademicMeetingCard;
+        protected global::System.Web.UI.WebControls.Literal AcademicMeetingStatus;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl AcademicMeetingDateRow;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl AcademicMeetingNoteRow;
+        protected global::System.Web.UI.WebControls.Literal AcademicMeetingDate;
+        protected global::System.Web.UI.WebControls.Literal AcademicMeetingNote;
+        protected global::System.Web.UI.WebControls.HyperLink AcademicMeetingLink;
+        protected global::System.Web.UI.WebControls.HyperLink CompletionCertificateLink;
+        protected global::System.Web.UI.WebControls.Panel CertificatePendingLabel;
     }
 }

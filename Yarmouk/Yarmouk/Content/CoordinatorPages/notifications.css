@@ -14,3 +14,13 @@
 .cn-all { display:block; padding:14px 18px; border-top:1px solid #dce7df; color:#075f3d; font-weight:600; text-align:center; text-decoration:none; }
 .cn-item:hover, .cn-all:hover, .cn-close:hover { background:#eff6f1; color:#075f3d; }
 .cn-bell:focus-visible, .cn-panel a:focus-visible, .cn-close:focus-visible { outline:3px solid #168253; outline-offset:2px; }
+.cn-bell.co-notifications:hover,.cn-bell.co-notifications[aria-expanded="true"]{background:#eaf3ed;border-color:#86b69a;color:#06482f}
+[data-theme="dark"] .cn-bell.co-notifications{background:#203b2e;color:#a9e3c5;border-color:#3c604b}
+[data-theme="dark"] .cn-bell.co-notifications:hover,[data-theme="dark"] .cn-bell.co-notifications[aria-expanded="true"]{background:#2b4c3a;color:#e1ffed;border-color:#75b990}
+[data-theme="dark"] .cn-badge{border-color:#203b2e}
+[data-theme="dark"] .cn-panel{background:#192f24;color:#e4f1e9;border-color:#3c604b;box-shadow:0 18px 44px #0006}
+[data-theme="dark"] .cn-status,[data-theme="dark"] .cn-item span,[data-theme="dark"] .cn-item small{color:#b3c9bd}
+[data-theme="dark"] .cn-item,[data-theme="dark"] .cn-all{border-color:#3c604b}
+[data-theme="dark"] .cn-all{color:#a9e3c5}
+[data-theme="dark"] .cn-item:hover,[data-theme="dark"] .cn-all:hover,[data-theme="dark"] .cn-close:hover{background:#284535;color:#e1ffed}
+[data-theme="dark"] .cn-bell:focus-visible,[data-theme="dark"] .cn-panel a:focus-visible,[data-theme="dark"] .cn-close:focus-visible{outline-color:#8bdbb4}

@@ -1,5 +1,6 @@
 <%@ Page Title="Sign In" Language="C#" Async="true" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Yarmouk.PublicPages.Login" %>
-<!DOCTYPE html><html lang="en"><head runat="server"><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Sign In — Yarmouk University</title>
+<!DOCTYPE html><html lang="en" data-site-settings-endpoint='<%= ResolveUrl("~/SiteSettings.ashx") %>' data-site-default-theme='<%= Yarmouk.Helpers.SiteSettingsStore.Read(Server)["defaultTheme"] %>'><head runat="server"><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Sign In — Yarmouk University</title>
+<script src="<%= ResolveUrl("~/Scripts/Shared/site-settings.js?v=9") %>" defer></script>
 <link href="<%= ResolveUrl("~/Content/bootstrap.min.css") %>" rel="stylesheet" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,6 +19,7 @@
   };
 </script>
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
+<%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
 </head><body id="page-login"><form id="AuthForm" runat="server" novalidate>
     <div class="login-page">
       <div class="lb-ambience" aria-hidden="true"></div>
@@ -163,4 +165,5 @@
         </section>
       </div>
     </div>
-  </form></body></html>
+  </form><%= Yarmouk.Helpers.SiteSettingsStore.GetBodyPlugins(Server) %>
+</body></html>

@@ -124,3 +124,53 @@
 body.progress-note-open { overflow:hidden; }
 @media(max-width:560px) { .progress-workspace .progress-note-dialog { padding:23px 18px; } }
 .progress-card-actions{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:1rem}.progress-card-actions .progress-note-button{width:auto;flex:1 1 12rem;margin:0}.progress-card-actions .progress-info-button{background:transparent;color:var(--yu-green,#086c48);border:1px solid currentColor}.progress-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem;margin:1.2rem 0}.progress-info-grid div{padding:.8rem;border-radius:.75rem;background:rgba(13,111,75,.06)}.progress-info-grid dt{font-size:.75rem;color:#64748b;text-transform:uppercase;letter-spacing:.04em}.progress-info-grid dd{margin:.25rem 0 0;font-weight:650;overflow-wrap:anywhere}@media(max-width:540px){.progress-info-grid{grid-template-columns:1fr}}
+
+/* Keep progress workspace surfaces and text readable in the dark theme. */
+[data-theme="dark"] .progress-workspace { --progress-ink:#e3eee7; --progress-muted:#a9bdb1; --progress-line:#2c483b; }
+[data-theme="dark"] .progress-workspace .workspace-metric { border-color:#2c483b; background:#192f25; box-shadow:inset 0 1px 0 #ffffff08; }
+[data-theme="dark"] .progress-workspace .workspace-metric:hover { border-color:#42684f; background:#1d382a; box-shadow:0 8px 20px #07170f55; }
+[data-theme="dark"] .progress-workspace .workspace-metric > span:not(.metric-icon),
+[data-theme="dark"] .progress-workspace .workspace-metric small { color:#b5c8bb; }
+[data-theme="dark"] .progress-workspace .workspace-metric strong { color:#e8f3eb; }
+[data-theme="dark"] .progress-workspace .metric-icon { border-color:#355b45; background:#244535; color:#a8dfb9; box-shadow:none; }
+[data-theme="dark"] .progress-workspace .workspace-search,
+[data-theme="dark"] .progress-workspace .workspace-count { border-color:#355344; background:#172c22; color:#dceae0; box-shadow:none; }
+[data-theme="dark"] .progress-workspace .workspace-search::placeholder { color:#93aa9a; }
+[data-theme="dark"] .progress-workspace .workspace-search-wrap svg { stroke:#a9bdb1; }
+[data-theme="dark"] .progress-workspace .student-progress-card { border-color:#2c483b; background:#192f25; box-shadow:inset 0 1px 0 #ffffff08; }
+[data-theme="dark"] .progress-workspace .student-progress-card:hover { border-color:#47745a; background:#1d382a; box-shadow:0 10px 24px #07170f55; }
+[data-theme="dark"] .progress-workspace .student-progress-card::before { background:radial-gradient(circle,#24563a99,#1c392a66 49%,transparent 72%); }
+[data-theme="dark"] .progress-workspace .student-avatar { border-color:#3a684a; background:#244535; color:#bde6c8; box-shadow:none; }
+[data-theme="dark"] .progress-workspace .student-identity h3,
+[data-theme="dark"] .progress-workspace .progress-label-row strong { color:#e3eee7; }
+[data-theme="dark"] .progress-workspace :is(.student-identity p,.detail-label,.progress-meta,.progress-meta span:last-child) { color:#a9bdb1; }
+[data-theme="dark"] .progress-workspace .placement-status { border-color:#3c6949; background:#244535; color:#c2e6cb; box-shadow:none; }
+[data-theme="dark"] .progress-workspace .progress-card-grid { border-color:#2c483b; }
+[data-theme="dark"] .progress-workspace .progress-percent { color:#78d6a0; }
+[data-theme="dark"] .progress-workspace .progress-track { background:#294336; box-shadow:inset 0 1px 2px #07170f88; }
+[data-theme="dark"] .progress-workspace .progress-track span { background:linear-gradient(90deg,#15966a,#6bc98b); }
+[data-theme="dark"] .progress-workspace .detail-item { border-color:#2c483b; border-left-color:#4c9b68; background:#1d3528; box-shadow:none; }
+[data-theme="dark"] .progress-workspace .detail-item strong { color:#d8e9dd; }
+[data-theme="dark"] .progress-workspace .company-feedback { border-color:#2c483b; background:#1d3528; }
+[data-theme="dark"] .progress-workspace .feedback-mark { border-color:#355b45; background:#244535; color:#a8dfb9; box-shadow:none; }
+[data-theme="dark"] .progress-workspace .company-feedback p { color:#c0d0c5; }
+[data-theme="dark"] .progress-workspace .workspace-alert--success { border-color:#326747; background:#193b2a; color:#bce6c8; }
+[data-theme="dark"] .progress-workspace .workspace-alert--error { border-color:#784640; background:#392522; color:#ffd0c8; }
+[data-theme="dark"] .progress-workspace .progress-note-button { border-color:#3b6849; background:#203b2c; color:#c6ebd1; }
+[data-theme="dark"] .progress-workspace .progress-note-button:hover { background:#294c37; }
+[data-theme="dark"] .progress-workspace .progress-card-actions .progress-info-button { background:transparent; color:#9bd9af; }
+[data-theme="dark"] .progress-workspace .progress-card-actions .progress-info-button:hover { background:#244535; }
+[data-theme="dark"] .progress-workspace .progress-note-dialog { border-color:#355344; background:#172c22; color:#e3eee7; }
+[data-theme="dark"] .progress-workspace .progress-note-dialog h2,
+[data-theme="dark"] .progress-workspace .progress-note-dialog label { color:#e3eee7; }
+[data-theme="dark"] .progress-workspace .progress-note-dialog p,
+[data-theme="dark"] .progress-workspace .progress-note-dialog small { color:#a9bdb1; }
+[data-theme="dark"] .progress-workspace .progress-note-dialog textarea { border-color:#355344; background:#102219; color:#e3eee7; color-scheme:dark; }
+[data-theme="dark"] .progress-workspace .progress-note-close { background:#244535; color:#d5e9dc; }
+[data-theme="dark"] .progress-workspace .progress-note-actions button { border-color:#3b6849; background:#203b2c; color:#c6ebd1; }
+[data-theme="dark"] .progress-workspace .progress-note-actions input { border-color:#087a50; background:#087a50; color:#fff; }
+[data-theme="dark"] .progress-workspace .progress-info-grid div { background:#1d3528; }
+[data-theme="dark"] .progress-workspace .progress-info-grid dt { color:#a9bdb1; }
+[data-theme="dark"] .progress-workspace .workspace-empty,
+[data-theme="dark"] .progress-workspace .search-empty { border-color:#355344; background:#172c22; color:#a9bdb1; }
+[data-theme="dark"] .progress-workspace .workspace-empty h3 { color:#e3eee7; }

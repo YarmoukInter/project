@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const menus = {
-    coordinator: [['dashboard','Coordinator Dashboard','grid'],['students','Manage Students','people'],['companies','Manage Companies','building'],['supervisors','Manage Academic Supervisors','badge'],['progress','Monitor Placements & Progress','chart'],['completion','Final Completion Review','check'],['messages','Contact Messages','mail']]
+    coordinator: [['dashboard','Coordinator Dashboard','grid'],['students','Manage Students','people'],['companies','Manage Companies','building'],['opportunities','Training Opportunities','briefcase'],['applications','Opportunity Applications','send'],['supervisors','Manage Academic Supervisors','badge'],['progress','Monitor Placements & Progress','chart'],['tasks','Manage Tasks','tasks'],['completion','Final Completion Review','check'],['messages','Contact Messages','mail'],['settings','Site settings','check']]
   };
   function initialize() {
     document.querySelectorAll('[data-dashboard-sidebar]').forEach(root => {
@@ -13,10 +13,10 @@
       const base = new URL(root.dataset.baseUrl || './', document.baseURI);
       const pages = {
         coordinator: {
-        dashboard:'Dashboard.aspx', students:'ManageStudents.aspx', companies:'ManageCompanies.aspx',
+        dashboard:'Dashboard.aspx', students:'ManageStudents.aspx', companies:'ManageCompanies.aspx', opportunities:'ManageOpportunities.aspx', applications:'ApplicationsReview.aspx',
         supervisors:'ManageAcademicSupervisors.aspx', assignments:'AssignAcademicSupervisors.aspx',
-        progress:'MonitorPlacements.aspx', completion:'FinalCompletionReview.aspx',
-        messages:'ContactMessages.aspx', account:'Account.aspx'
+        progress:'MonitorPlacements.aspx', tasks:'ManageTasks.aspx', completion:'FinalCompletionReview.aspx',
+        messages:'ContactMessages.aspx', settings:'Settings.aspx', account:'Account.aspx'
         }
       };
       const folder = 'CoordinatorPages';
@@ -50,15 +50,19 @@
         aside.classList.toggle('is-collapsed',!open); aside.classList.toggle('is-mobile-open',small.matches && mobileOpen);
         aside.inert = small.matches && !mobileOpen;
         toggle.setAttribute('aria-expanded',String(open)); toggle.setAttribute('aria-label',open?'Collapse navigation':'Expand navigation');
-        pin.setAttribute('aria-checked',String(pinned)); menu.setAttribute('aria-expanded',String(small.matches && mobileOpen));
+        pin.setAttribute('aria-checked',String(pinned)); menu.setAttribute('aria-expanded',String(open));
+        menu.setAttribute('aria-label',open?'Close navigation':'Open navigation');
+        menu.querySelector('svg').innerHTML = open
+          ? '<path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+          : '<path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
         shade.hidden = !(small.matches && mobileOpen);
       }
       function save() { try { sessionStorage.setItem(storageKey,String(pinned)); } catch (_) {} }
       function closeMobile(restoreFocus) { mobileOpen=false;render();if (restoreFocus) menu.focus(); }
       aside.addEventListener('pointerenter',event=>{if(small.matches || event.pointerType==='touch')return;clearTimeout(timer);hovering=true;suppressed=false;render();});
-      aside.addEventListener('pointerleave',()=>{if(small.matches)return;timer=setTimeout(()=>{hovering=false;manual=false;suppressed=false;render();},220);});
+      aside.addEventListener('pointerleave',()=>{if(small.matches)return;timer=setTimeout(()=>{hovering=false;if(!manual&&!pinned&&!focused)suppressed=false;render();},220);});
       aside.addEventListener('focusin',event=>{if(!small.matches && event.target.matches(':focus-visible')){focused=true;suppressed=false;render();}});
-      aside.addEventListener('focusout',event=>{if(!aside.contains(event.relatedTarget)){focused=false;if(small.matches)closeMobile(false);else render();}});
+      aside.addEventListener('focusout',event=>{if(!aside.contains(event.relatedTarget)&&event.relatedTarget!==menu){focused=false;if(small.matches)closeMobile(false);else render();}});
       toggle.addEventListener('click',()=>{
         if(small.matches){closeMobile(true);return;}
         if(rail.classList.contains('is-open')){pinned=false;manual=false;hovering=false;focused=false;suppressed=true;save();}
@@ -66,7 +70,13 @@
         render();
       });
       pin.addEventListener('click',()=>{pinned=!pinned;manual=false;save();render();});
-      menu.addEventListener('click',()=>{mobileOpen=!mobileOpen;render();if(mobileOpen)list.querySelector('a').focus();});
+      menu.addEventListener('click',()=>{
+        if(small.matches){mobileOpen=!mobileOpen;render();if(mobileOpen)list.querySelector('a').focus();return;}
+        const open=rail.classList.contains('is-open');
+        if(open){pinned=false;manual=false;hovering=false;focused=false;suppressed=true;save();}
+        else{manual=true;suppressed=false;}
+        render();
+      });
       shade.addEventListener('click',()=>closeMobile(true));
       document.addEventListener('keydown',event=>{
         if(event.key!=='Escape')return;
@@ -83,7 +93,7 @@
         theme.querySelector('span').textContent=dark?'Light mode':'Dark mode';
         theme.querySelector('use').setAttribute('href','#ys-icon-'+(dark?'sun':'moon'));
       }
-      try {document.documentElement.dataset.theme=localStorage.getItem('yarmouk:portal-theme')==='dark'?'dark':'light';}catch(_){}
+      try {const savedTheme=localStorage.getItem('yarmouk:portal-theme');document.documentElement.dataset.theme=savedTheme?savedTheme:(document.documentElement.dataset.siteDefaultTheme==='dark'?'dark':'light');}catch(_){}
       theme.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('yarmouk:portal-theme',next);}catch(_){}syncTheme();document.dispatchEvent(new CustomEvent('yarmouk:themechange',{detail:{theme:next}}));});
       render();syncTheme();
     });
