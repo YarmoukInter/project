@@ -82,7 +82,7 @@ namespace Yarmouk.StudentPages
                         || (long)source.Width * source.Height > 16000000L)
                     { ShowError("The selected file is not a supported photo or its dimensions are too large."); return; }
 
-                    var folder = Server.MapPath("~/Uploads/StudentProfileImages");
+                    var folder = StudentProfileImages.GetStorageDirectory(Server);
                     Directory.CreateDirectory(folder);
                     var fileName = Guid.NewGuid().ToString("N") + ".png";
                     destination = Path.Combine(folder, fileName);
@@ -360,15 +360,11 @@ namespace Yarmouk.StudentPages
             litFullName.Text = SafeText(fullName);
             lblInitials.Text = SafeText(GetInitials(fullName));
             var profileImageFileName = student == null ? null : student.ProfileImageFileName;
-            var safeProfileImageFileName = string.IsNullOrWhiteSpace(profileImageFileName) ? null : Path.GetFileName(profileImageFileName);
-            var profileImagePath = safeProfileImageFileName == null ? null : Server.MapPath("~/Uploads/StudentProfileImages/" + safeProfileImageFileName);
-            var hasProfileImage = !string.IsNullOrWhiteSpace(safeProfileImageFileName)
-                && string.Equals(safeProfileImageFileName, profileImageFileName, StringComparison.Ordinal)
-                && string.Equals(Path.GetExtension(safeProfileImageFileName), ".png", StringComparison.OrdinalIgnoreCase)
-                && File.Exists(profileImagePath);
+            string photoUrl = StudentProfileImages.GetUrl(profileImageFileName);
+            var hasProfileImage = !string.IsNullOrEmpty(photoUrl);
             imgProfileImage.Visible = true;
             profileInitialAvatar.Visible = !hasProfileImage;
-            if (hasProfileImage) imgProfileImage.ImageUrl = ResolveUrl("~/Uploads/StudentProfileImages/" + safeProfileImageFileName);
+            if (hasProfileImage) imgProfileImage.ImageUrl = photoUrl;
             imgProfileImage.Style["display"] = hasProfileImage ? "" : "none";
             txtFullName.Text = fullName;
             txtPhone.Text = user.Phone ?? "";
@@ -394,7 +390,8 @@ namespace Yarmouk.StudentPages
             if (string.IsNullOrWhiteSpace(supervisor))
                 supervisor = string.IsNullOrWhiteSpace(student.AcademicSupervisorId) ? "Not assigned" : "Assigned";
             litSupervisor.Text = SafeText(supervisor);
-            litStatus.Text = SafeText(student.InternshipStatus ?? (user.IsActive ? "Active" : "Inactive"));
+            litStatus.Text = user.IsActive ? "Active" : "Inactive";
+            litTrainingStatus.Text = SafeText(student.InternshipStatus ?? "Not started");
 
 
             litEnglishName.Text = SafeText(student.EnglishName);

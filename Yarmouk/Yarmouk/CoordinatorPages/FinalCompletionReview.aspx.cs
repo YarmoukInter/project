@@ -215,7 +215,7 @@ namespace Yarmouk.CoordinatorPages
             if (!double.TryParse(Text(evaluation, "companyScore"), NumberStyles.Number, CultureInfo.InvariantCulture, out company)
                 || !double.TryParse(Text(evaluation, "academicScore"), NumberStyles.Number, CultureInfo.InvariantCulture, out academic))
                 return "Score unavailable";
-            return Math.Round((company + academic) / 2d, 2).ToString("0.##", CultureInfo.InvariantCulture) + " / 100";
+            return Evaluation.CalculateFinalScore(company, academic).ToString("0.##", CultureInfo.InvariantCulture) + " / 100";
         }
 
         private static string First(string first, string second) { return string.IsNullOrWhiteSpace(first) ? second : first; }

@@ -34,7 +34,8 @@ namespace Yarmouk.CoordinatorPages
                 var placement = await firebase.GetAsync<JObject>(DatabasePaths.Placements + "/" + Read(evaluation, "placementId"), auth.IdToken).ConfigureAwait(false);
                 var company = placement == null ? null : await firebase.GetAsync<JObject>(DatabasePaths.Companies + "/" + Read(placement, "companyId"), auth.IdToken).ConfigureAwait(false);
                 var opportunity = placement == null ? null : await firebase.GetAsync<JObject>(DatabasePaths.Opportunities + "/" + Read(placement, "opportunityId"), auth.IdToken).ConfigureAwait(false);
-                var bytes = CompletionCertificatePdf.Create(First(Read(student, "englishName"), Read(student, "fullName")), First(Read(student, "studentId"), Read(student, "studentNumber")), Read(company, "name"), Read(opportunity, "title"), evaluationId, evaluation);
+                var studentUser = await firebase.GetAsync<JObject>(DatabasePaths.Users + "/" + studentUid, auth.IdToken).ConfigureAwait(false);
+                var bytes = CompletionCertificatePdf.Create(First(Read(student, "englishName"), First(Read(studentUser, "fullName"), Read(student, "fullName"))), First(Read(student, "studentId"), Read(student, "studentNumber")), Read(company, "name"), Read(opportunity, "title"), evaluationId, evaluation);
                 context.Response.ContentType = "application/pdf";
                 context.Response.AddHeader("Content-Disposition", "attachment; filename=\"internship-completion-certificate.pdf\"");
                 context.Response.OutputStream.Write(bytes, 0, bytes.Length);

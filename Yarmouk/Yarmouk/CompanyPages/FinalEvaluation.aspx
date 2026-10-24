@@ -3,11 +3,11 @@
 <link href="../Content/Shared/workspace-polish.css?v=1" rel="stylesheet" />
 <link href="../Content/Shared/record-lists.css?v=organized-2" rel="stylesheet" />
 <link href="<%= ResolveUrl("~/Content/CompanyPages/FinalEvaluation.css?v=criteria-2") %>" rel="stylesheet" />
-<script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=modal-7") %>" defer></script>
+<script src="<%= ResolveUrl("~/Scripts/CompanyPages/FinalEvaluation.js?v=modal-8") %>" defer></script>
 <script src="../Scripts/Shared/record-lists.js?v=organized-2" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<main class="company-evaluation" id="companyEvaluation">
+<section class="company-evaluation" id="companyEvaluation">
   <header class="evaluation-hero">
     <div class="evaluation-hero__copy">
       <p class="evaluation-eyebrow">YARMOUK UNIVERSITY · FACULTY OF INFORMATION TECHNOLOGY</p>
@@ -94,7 +94,7 @@
       <asp:Panel ID="EvaluationEmpty" runat="server" CssClass="evaluation-placeholder" Visible="true"><span class="empty-state__icon" aria-hidden="true">✓</span><h2>Select a trainee</h2><p>Choose a trainee from the list above to review reports and complete the final company evaluation.</p></asp:Panel>
     </section>
   </div>
-</main>
+</section>
 <dialog id="evaluationDialog" class="evaluation-dialog"><header class="evaluation-dialog-heading"><div><span>COMPANY ASSESSMENT</span><h2>Reports &amp; final evaluation</h2></div><button type="button" data-close-evaluation aria-label="Close evaluation">×</button></header><div id="evaluationDialogBody" class="evaluation-dialog-body"></div></dialog>
 </asp:Content>
 

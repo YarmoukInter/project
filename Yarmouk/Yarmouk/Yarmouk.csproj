@@ -45,6 +45,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Helpers\StudentProfileImages.cs" />
+    <Compile Include="Helpers\PdfText.cs" />
     <Reference Include="PdfSharp-gdi">
       <HintPath>..\packages\PDFsharp-MigraDoc-GDI.1.50.5147\lib\net20\PdfSharp-gdi.dll</HintPath>
       <Private>True</Private>
@@ -131,6 +132,7 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="PublicPages\AccountSetup.Master" />
     <Content Include="PublicPages\Home.Master" />
     <Content Include="PublicPages\Section.Master" />
     <Content Include="Controls\PublicPages\SiteFooter.ascx" />
@@ -179,6 +181,7 @@
     <Content Include="Content\StudentPages\Profile.css" />
     <Content Include="Scripts\StudentPages\Profile.js" />
     <Content Include="Uploads\StudentProfileImages\.gitkeep" />
+    <Content Include="StudentProfileImage.ashx" />
     <Content Include="StudentPages\Opportunities.aspx" />
     <Content Include="Content\StudentPages\Opportunities.css" />
     <Content Include="Scripts\StudentPages\Opportunities.js" />

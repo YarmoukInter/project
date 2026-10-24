@@ -405,15 +405,9 @@ namespace Yarmouk.Services
             string proposed = "Waiting for company evaluation";
             if (companySubmitted && hasAcademicScore)
             {
-                double academicWeight = ReadDouble(record, "academicWeight", 0.6);
-                double companyWeight = ReadDouble(record, "companyWeight", 0.4);
-                double totalWeight = academicWeight + companyWeight;
-                if (totalWeight <= 0) { academicWeight = 0.6; companyWeight = 0.4; totalWeight = 1; }
-                double score = ReadDouble(record, "academicScore", 0) * academicWeight / totalWeight
-                    + ReadDouble(record, "companyScore", 0) * companyWeight / totalWeight;
-                proposed = coordinatorApproved && HasNumber(record, "finalScore")
-                    ? Read(record, "finalScore") + " / 100 (approved)"
-                    : score.ToString("0.##") + " / 100 · awaiting university approval";
+                double score = Evaluation.CalculateFinalScore(ReadDouble(record, "companyScore", 0), ReadDouble(record, "academicScore", 0));
+                proposed = score.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
+                    + (coordinatorApproved ? " / 100 (approved)" : " / 100 · awaiting university approval");
             }
             return new AcademicEvaluationItem
             {

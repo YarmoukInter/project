@@ -29,6 +29,7 @@ class WorkflowRegressionTests
     static async Task Run()
     {
         TestTrainingProgress();
+        await TestQaRegressions();
         var db = JObject.Parse(@"{
           'students': {
             'unplaced': {'academicSupervisorId':'doctor', 'englishName':'Unplaced'},
@@ -149,23 +150,129 @@ class WorkflowRegressionTests
             "Student progress has ten milestones and reaches three after three submissions");
     }
 
+    static async Task TestQaRegressions()
+    {
+        Check(Evaluation.CalculateFinalScore(88, 92) == 90.4, "Final grade consistently uses 40% company and 60% academic");
+        var reviewed = typeof(Yarmouk.StudentPages.Dashboard).GetMethod("IsReviewed", BindingFlags.Static | BindingFlags.NonPublic);
+        Check((bool)reviewed.Invoke(null, new object[] { JObject.Parse("{'reviewStatus':'completed','grade':9}") }), "Completed graded task submissions count as evaluations");
+        Check((bool)reviewed.Invoke(null, new object[] { JObject.Parse("{'reviewStatus':'approved','grade':0}") }), "Zero is a real reviewed grade");
+        var db = JObject.Parse(@"{
+          'students': {'a':{'majorId':'CS','academicSupervisorId':'doctor'},'b':{'majorId':'CS'},'c':{'majorId':'CS'}},
+          'users': {'doctor':{'role':'academic','isActive':true}},
+          'companies': {'company':{'isApproved':true,'supervisorUid':'reviewer'}},
+          'opportunities': {'op':{'id':'op','companyId':'company','isActive':true,'status':'active','availablePositions':2,'requiredTrainingHours':140}},
+          'applications': {'offer-a':{'studentUid':'a','opportunityId':'op','status':'offered'},'offer-b':{'studentUid':'b','opportunityId':'op','status':'offered'},'offer-c':{'studentUid':'c','opportunityId':'op','status':'offered'}},
+          'placements':{}, 'tasks':{}, 'evaluations':{}, 'trainingLogs':{}, 'majors':{}
+        }");
+        var fixture = new FirebaseFixture(db);
+        typeof(FirebaseHelper).GetField("Client", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, new HttpClient(fixture));
+        var students = new StudentService();
+        await students.SetAcceptedApplicationAsync("a", "offer-a", "token");
+        Check((int)db["opportunities"]["op"]["filledPositions"] == 1 && db["placements"]["PLACEMENT_offer-a"] != null,
+            "Confirming an offer reserves one seat and creates its placement");
+        await students.SetAcceptedApplicationAsync("a", "offer-a", "token");
+        Check((int)db["opportunities"]["op"]["filledPositions"] == 1 && ((JObject)db["placements"]).Count == 1,
+            "Confirmation retry does not consume another seat or duplicate the placement");
+        var available = await new CompanyWorkflowService().GetOpportunitiesAsync("company", "token");
+        Check(available.Single().Seats == 1 && available.Single().TotalSeats == 2,
+            "Company displays remaining seats while preserving total capacity for editing");
+        var savedOpportunity = db["opportunities"]["op"].DeepClone();
+        ((JObject)db["opportunities"]["op"]).Remove("filledPositions");
+        ((JObject)db["opportunities"]["op"]).Remove("seatReservations");
+        Check((await new CompanyWorkflowService().GetOpportunitiesAsync("company", "token")).Single().Seats == 1,
+            "Legacy confirmed applications also reduce displayed capacity before migration");
+        db["opportunities"]["op"] = savedOpportunity;
+        await new CompanyWorkflowService().SaveOpportunityAsync("company", "token", new CompanyOpportunityInput {
+            Id = "op", Title = "Updated internship", Description = "Training description", Majors = new List<string> { "CS" },
+            Seats = 2, Hours = 140, Status = "active", WorkMode = "OnSite"
+        });
+        Check((int)db["opportunities"]["op"]["filledPositions"] == 1
+            && (string)db["opportunities"]["op"]["seatReservations"]["a"] == "offer-a",
+            "Editing an opportunity preserves existing occupied capacity and reservations");
+        // Simulate a different student's confirmation between GET and PUT.
+        fixture.BeforeConditionalWrite = () => {
+            db["opportunities"]["op"]["seatReservations"]["b"] = "offer-b";
+            db["opportunities"]["op"]["filledPositions"] = 2;
+        };
+        try { await students.SetAcceptedApplicationAsync("c", "offer-c", "token"); throw new Exception("Overbooking succeeded"); }
+        catch (ArgumentException) { Check(true, "Concurrent seat conflict retries and rejects overbooking"); }
+        Check(db["placements"]["PLACEMENT_offer-c"] == null, "Full opportunity creates no unreserved placement");
+        db["opportunities"]["op"]["isActive"] = false;
+        db["opportunities"]["op"]["status"] = "closed";
+        Check(await students.GetActiveAcceptedOpportunityIdAsync("a", "token") == "op", "Closing recruitment preserves trainee task access");
+        var workspace = new SupervisorWorkspaceService();
+        await workspace.RecordApprovedHoursAsync("PLACEMENT_offer-a", "doctor", "token", 20, "Verified attendance");
+        Check((int)db["students"]["a"]["approvedTrainingHours"] == 20
+            && ((JObject)db["trainingLogs"]).Count == 1, "Academic hours workflow saves an approved audit record and totals");
+        try { await workspace.RecordApprovedHoursAsync("PLACEMENT_offer-a", "other", "token", 1, ""); throw new Exception("Wrong supervisor approved hours"); }
+        catch (UnauthorizedAccessException) { Check(true, "Unassigned account cannot approve training hours"); }
+        try { await workspace.RecordApprovedHoursAsync("PLACEMENT_offer-a", "doctor", "token", 121, ""); throw new Exception("Hours exceeded requirement"); }
+        catch (SupervisorWorkflowException) { Check(true, "Approved hours cannot exceed the placement requirement"); }
+        db["users"]["a"] = JObject.Parse("{'fullName':'رشا أحمد الخطيب','isActive':true,'role':'student'}");
+        db["evaluations"]["evaluation"] = JObject.Parse("{'studentUid':'a','placementId':'PLACEMENT_offer-a','companySubmitted':true,'academicSubmitted':true,'companyScore':88,'academicScore':92}");
+        var builder = typeof(Yarmouk.CoordinatorPages.FinalCompletionReview).GetMethod("BuildRows", BindingFlags.Static | BindingFlags.NonPublic);
+        Func<string, Dictionary<string, JObject>> map = key => ((JObject)db[key]).Properties().ToDictionary(p => p.Name, p => (JObject)p.Value);
+        var review = ((System.Collections.IEnumerable)builder.Invoke(null, new object[] {
+            map("evaluations"), map("placements"), map("students"), map("users"), map("companies"), map("opportunities"), map("trainingLogs") })).Cast<object>().Single();
+        Check((string)review.GetType().GetProperty("name").GetValue(review) == "رشا أحمد الخطيب", "Completion review uses the user name when English name is absent");
+        Check((string)review.GetType().GetProperty("overallScore").GetValue(review) == "90.4 / 100", "Coordinator result matches the weighted academic result");
+        var certificateScore = typeof(CompletionCertificatePdf).GetMethod("Average", BindingFlags.Static | BindingFlags.NonPublic);
+        Check((string)certificateScore.Invoke(null, new object[] { db["evaluations"]["evaluation"] }) == "90.4 / 100", "Official certificate uses the same weighted final score");
+        var setupUser = new User { IsActive = true, Role = "company", MustChangePassword = true };
+        Check(AuthPolicy.ProtectedPageRedirect(setupUser, "~/StudentPages/ChangePassword.aspx") == null
+            && AuthPolicy.ProtectedPageRedirect(setupUser, "~/CompanyPages/Dashboard.aspx") == "~/StudentPages/ChangePassword.aspx",
+            "Staff can access neutral password setup and must finish it before their workspace");
+        var helper = new FirebaseHelper();
+        var task = JObject.Parse("{'status':'todo','title':'One assignment'}");
+        await helper.TransactAsync("tasks/stable-request", "token", row => row == null, task);
+        db["tasks"]["stable-request"]["status"] = "completed";
+        await helper.TransactAsync("tasks/stable-request", "token", row => row == null, task);
+        Check(((JObject)db["tasks"]).Count == 1 && (string)db["tasks"]["stable-request"]["status"] == "completed",
+            "Retrying task creation cannot duplicate or overwrite a reviewed assignment");
+    }
+
     sealed class FirebaseFixture : HttpMessageHandler
     {
         readonly JObject db;
+        int version;
+        public Action BeforeConditionalWrite;
         public FirebaseFixture(JObject db) { this.db = db; }
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
-            var path = request.RequestUri.AbsolutePath.Trim('/');
-            path = path.Substring(0, path.Length - 5);
-            JToken row = db;
-            foreach (var key in path.Split('/')) row = row == null ? null : row[key];
-            if (request.Method.Method == "PATCH") {
-                var changes = JObject.Parse(await request.Content.ReadAsStringAsync());
-                foreach (var change in changes.Properties()) row[change.Name] = change.Value;
+            string body = request.Content == null ? null : await request.Content.ReadAsStringAsync();
+            lock (db) {
+                string path = request.RequestUri.AbsolutePath.Trim('/');
+                path = path.Substring(0, path.Length - 5).Trim('/');
+                JToken row = db;
+                if (path.Length > 0) foreach (var key in path.Split('/')) row = row == null ? null : row[key];
+                if (request.Method == HttpMethod.Put && request.Headers.IfMatch.Count > 0) {
+                    if (BeforeConditionalWrite != null) {
+                        var action = BeforeConditionalWrite; BeforeConditionalWrite = null; action(); version++;
+                    }
+                    if (request.Headers.IfMatch.First().ToString() != "\"" + version + "\"")
+                        return new HttpResponseMessage(HttpStatusCode.PreconditionFailed) { Content = new StringContent("null") };
+                }
+                if (request.Method.Method == "PATCH") {
+                    var changes = JObject.Parse(body);
+                    foreach (var change in changes.Properties()) Set(path.Length == 0 ? change.Name : path + "/" + change.Name, change.Value);
+                    version++;
+                } else if (request.Method == HttpMethod.Put) { Set(path, JToken.Parse(body)); version++; }
+                row = db;
+                if (path.Length > 0) foreach (var key in path.Split('/')) row = row == null ? null : row[key];
+                var response = new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(row == null ? "null" : row.ToString())
+                };
+                response.Headers.ETag = new System.Net.Http.Headers.EntityTagHeaderValue("\"" + version + "\"");
+                return response;
             }
-            return new HttpResponseMessage(HttpStatusCode.OK) {
-                Content = new StringContent(row == null ? "null" : row.ToString())
-            };
+        }
+        void Set(string path, JToken value) {
+            string[] parts = path.Split('/'); JToken parent = db;
+            for (int i = 0; i < parts.Length - 1; i++) {
+                if (parent[parts[i]] == null) parent[parts[i]] = new JObject();
+                parent = parent[parts[i]];
+            }
+            parent[parts[parts.Length - 1]] = value.DeepClone();
         }
     }
 }

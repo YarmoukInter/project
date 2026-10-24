@@ -20,6 +20,7 @@
     <div><dt>Training hours</dt><dd><asp:Literal ID="litTrainingHours" runat="server" /></dd></div>
     <div><dt>Academic supervisor</dt><dd><asp:Literal ID="litSupervisor" runat="server" /></dd></div>
     <div><dt>Account status</dt><dd><asp:Literal ID="litStatus" runat="server" /></dd></div>
+    <div><dt>Training status</dt><dd><asp:Literal ID="litTrainingStatus" runat="server" /></dd></div>
   </dl>
 </section>
 

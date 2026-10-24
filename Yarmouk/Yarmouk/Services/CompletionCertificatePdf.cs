@@ -37,16 +37,22 @@ namespace Yarmouk.Services
             Center(title, 24, true, Colors.DarkSlateGray);
             title.Format.SpaceAfter = Unit.FromPoint(15);
             Center(section.AddParagraph("This is to certify that"), 10.5, false, Colors.DimGray);
-            var student = section.AddParagraph(Safe(studentName, "Student"));
+            var student = section.AddParagraph();
+            Helpers.PdfText.Add(student, Safe(studentName, "Student"), 20, true);
             Center(student, 20, true, Colors.DarkGreen);
             student.Format.SpaceBefore = Unit.FromPoint(3);
             student.Format.SpaceAfter = Unit.FromPoint(3);
             var identifier = section.AddParagraph("Student ID · " + Safe(studentNumber, "Not recorded"));
             Center(identifier, 9.5, false, Colors.DimGray);
             identifier.Format.SpaceAfter = Unit.FromPoint(16);
-            var completion = section.AddParagraph("has successfully completed the field-training requirements with " + Safe(companyName, "the assigned training provider") + ".");
+            var completion = section.AddParagraph();
+            Helpers.PdfText.Add(completion, "has successfully completed the field-training requirements with " + Safe(companyName, "the assigned training provider") + ".", 11);
             Center(completion, 11, false, Colors.DarkSlateGray);
-            if (!string.IsNullOrWhiteSpace(opportunityTitle)) Center(section.AddParagraph("Training opportunity · " + opportunityTitle), 9.5, false, Colors.DimGray);
+            if (!string.IsNullOrWhiteSpace(opportunityTitle)) {
+                var opportunity = section.AddParagraph();
+                Helpers.PdfText.Add(opportunity, "Training opportunity · " + opportunityTitle, 9.5);
+                Center(opportunity, 9.5, false, Colors.DimGray);
+            }
 
             var scoreTable = section.AddTable();
             scoreTable.AddColumn(Unit.FromCentimeter(16.8));
@@ -56,7 +62,7 @@ namespace Yarmouk.Services
             scoreTable.Borders.Width = Unit.FromPoint(0.8);
             var scoreRow = scoreTable.AddRow();
             scoreRow.Shading.Color = Colors.Honeydew;
-            Center(scoreRow.Cells[0].AddParagraph("OVERALL FINAL AVERAGE"), 9, true, Colors.DarkOliveGreen);
+            Center(scoreRow.Cells[0].AddParagraph("WEIGHTED FINAL SCORE · 40% COMPANY + 60% ACADEMIC"), 9, true, Colors.DarkOliveGreen);
             var score = scoreRow.Cells[0].AddParagraph(Average(evaluation));
             Center(score, 25, true, Colors.DarkGreen);
             score.Format.SpaceAfter = Unit.FromPoint(0);
@@ -153,7 +159,8 @@ namespace Yarmouk.Services
         private static void AddDetail(Row row, int index, string label, string value)
         {
             Center(row.Cells[index].AddParagraph(label), 7.5, true, Colors.DimGray);
-            var content = row.Cells[index].AddParagraph(value);
+            var content = row.Cells[index].AddParagraph();
+            Helpers.PdfText.Add(content, value, 9, true, 140);
             Center(content, 9, true, Colors.DarkSlateGray);
             content.Format.SpaceAfter = Unit.FromPoint(0);
         }
@@ -162,7 +169,7 @@ namespace Yarmouk.Services
             double company, academic;
             return double.TryParse(Value(record, "companyScore", string.Empty), NumberStyles.Number, CultureInfo.InvariantCulture, out company)
                 && double.TryParse(Value(record, "academicScore", string.Empty), NumberStyles.Number, CultureInfo.InvariantCulture, out academic)
-                ? Math.Round((company + academic) / 2d, 2).ToString("0.##", CultureInfo.InvariantCulture) + " / 100" : "Not recorded";
+                ? Yarmouk.Models.Evaluation.CalculateFinalScore(company, academic).ToString("0.##", CultureInfo.InvariantCulture) + " / 100" : "Not recorded";
         }
         private static string Value(JObject record, string key, string fallback) { return record == null || record[key] == null || string.IsNullOrWhiteSpace(record[key].ToString()) ? fallback : record[key].ToString(); }
         private static string Safe(string value, string fallback) { return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim(); }

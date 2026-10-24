@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 using Yarmouk.Helpers;
 using Yarmouk.Models;
 namespace Yarmouk.Services
@@ -117,7 +118,42 @@ namespace Yarmouk.Services
                 changes[studentPath + "internshipStatus"] = "InProgress";
                 if (string.IsNullOrEmpty(student.TrainingStartDate)) changes[studentPath + "trainingStartDate"] = startDate;
             }
-            // Confirm the offer and establish its placement together, without partial saves.
+            var otherApplications = await new ApplicationService().GetForStudentAsync(verifiedUid, idToken);
+            foreach (var other in otherApplications.Where(a => a.Id != applicationId
+                && !new[] { "rejected", "declined", "withdrawn", "cancelled" }.Contains((a.Status ?? "").ToLowerInvariant())))
+                changes[DatabasePaths.Applications + "/" + other.Id + "/status"] = "withdrawn";
+            // Reserve capacity on the opportunity with an ETag before confirming.
+            // The student-keyed reservation is stable across retries, including a
+            // response lost after saving. Never release an uncertain reservation.
+            var existingPlacements = await firebase.GetAsync<Dictionary<string, Placement>>(DatabasePaths.Placements, idToken)
+                ?? new Dictionary<string, Placement>();
+            var occupants = new HashSet<string>(existingPlacements.Values.Where(p => p != null
+                && p.OpportunityId == application.OpportunityId
+                && !new[] { "cancelled", "canceled", "rejected", "declined" }.Contains((p.Status ?? "").ToLowerInvariant()))
+                .Select(p => p.StudentUid).Where(uid => !string.IsNullOrWhiteSpace(uid)), StringComparer.Ordinal);
+            await firebase.TransactAsync(DatabasePaths.Opportunities + "/" + application.OpportunityId, idToken, record =>
+            {
+                if (record == null) throw new ArgumentException("The internship opportunity is unavailable.");
+                var reservations = record["seatReservations"] as JObject ?? new JObject();
+                string reservedOffer = (string)reservations[verifiedUid];
+                if (reservedOffer == applicationId) return false;
+                if (!string.IsNullOrEmpty(reservedOffer)) throw new ArgumentException("You already reserved another offer for this opportunity.");
+                var current = record.ToObject<Opportunity>();
+                int occupied = Math.Max(current.FilledPositions, occupants.Union(reservations.Properties().Select(p => p.Name)).Count());
+                if (!occupants.Contains(verifiedUid))
+                {
+                    current.FilledPositions = occupied;
+                    if (!OpportunityService.IsAvailableForStudent(current, student))
+                        throw new ArgumentException("This opportunity is closed, full, or no longer available for your major.");
+                    occupied++;
+                }
+                reservations[verifiedUid] = applicationId;
+                record["seatReservations"] = reservations;
+                record["filledPositions"] = occupied;
+                return true;
+            });
+            // If this save fails, the same confirmation retries the reserved seat
+            // without consuming another seat or creating another placement.
             await firebase.UpdateRootAsync(changes, idToken);
         }
 
@@ -133,7 +169,8 @@ namespace Yarmouk.Services
                     && !string.Equals(application.Status, "offerreceived", StringComparison.OrdinalIgnoreCase))
                 || string.IsNullOrWhiteSpace(application.OpportunityId)) return null;
             var opportunity = await firebase.GetAsync<Opportunity>(DatabasePaths.Opportunities + "/" + application.OpportunityId, idToken);
-            return opportunity != null && opportunity.IsActive ? application.OpportunityId : null;
+            // Recruitment may close while an existing trainee continues working.
+            return opportunity != null ? application.OpportunityId : null;
         }
     }
 }

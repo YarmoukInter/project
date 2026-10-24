@@ -40,10 +40,22 @@ namespace Yarmouk.CompanyPages
             public string PlacementId;
         }
 
+        protected string TaskCreationToken
+        {
+            get {
+                if (Session["TaskCreationToken"] == null) Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
+                return (string)Session["TaskCreationToken"];
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                if (Session["TaskCreatedMessage"] != null) {
+                    ShowSuccess((string)Session["TaskCreatedMessage"]);
+                    Session.Remove("TaskCreatedMessage");
+                }
                 if (Request.QueryString["placementId"] != null) { RedirectToFilters(Request.QueryString["studentUid"], Request.QueryString["status"], Request.QueryString["q"]); return; }
                 RegisterAsyncTask(new PageAsyncTask(() => LoadPageAsync(
                     SafeFilter(Request.QueryString["studentUid"]),
@@ -68,7 +80,7 @@ namespace Yarmouk.CompanyPages
                     await CreateTaskAsync(selectedStudentUid);
                 else if (!string.IsNullOrWhiteSpace(action))
                     await ProcessDecisionAsync(action, selectedStudentUid);
-                await LoadPageAsync(selectedStudentUid, selectedStatus, searchText);
+                if (!Response.IsRequestBeingRedirected) await LoadPageAsync(selectedStudentUid, selectedStatus, searchText);
             }));
         }
 
@@ -298,6 +310,9 @@ namespace Yarmouk.CompanyPages
             if (auth == null) { ShowError("Your sign-in has expired. Sign in again."); return; }
             try
             {
+                string requestToken = Request.Form["taskCreationToken"];
+                if (string.IsNullOrEmpty(requestToken) || requestToken != TaskCreationToken)
+                { ShowError("This task form has already been submitted. Refresh before creating another task."); return; }
                 var number = (Request.Form["newTaskNumber"] ?? string.Empty).Trim();
                 var title = (Request.Form["newTaskTitle"] ?? string.Empty).Trim();
                 var deadlineText = (Request.Form["newTaskDeadline"] ?? string.Empty).Trim();
@@ -340,9 +355,7 @@ namespace Yarmouk.CompanyPages
                     var opportunityId = await new StudentService().GetActiveAcceptedOpportunityIdAsync(uid, auth.IdToken);
                     if (string.IsNullOrWhiteSpace(opportunityId))
                     { ShowError("Every selected trainee must have an accepted, active internship opportunity before receiving tasks."); return; }
-                    var safeUid = new string(uid.Where(char.IsLetterOrDigit).ToArray());
-                    var suffix = safeUid.Length > 6 ? safeUid.Substring(safeUid.Length - 6) : safeUid;
-                    var recordId = number + "-" + suffix + "-" + Guid.NewGuid().ToString("N").Substring(0, 6);
+                    var recordId = "TASK_" + requestToken + "_" + uid;
                     additions[recordId] = new JObject
                     {
                         ["id"] = recordId,
@@ -360,8 +373,18 @@ namespace Yarmouk.CompanyPages
                         ["createdAtUnixMs"] = now
                     };
                 }
-                await PatchFirebaseObjectAsync(DatabasePaths.Tasks, additions, auth);
-                ShowSuccess("Task " + number + " was added to " + targetUids.Count + (targetUids.Count == 1 ? " student" : " students") + " in To do.");
+                // Stable request keys make network retries safe. Do not overwrite
+                // an assignment already created by this form submission.
+                foreach (var addition in additions.Properties())
+                {
+                    await new FirebaseHelper().TransactAsync(DatabasePaths.Tasks + "/" + addition.Name, auth.IdToken, record => {
+                        if (record != null) return false;
+                        return true;
+                    }, (JObject)addition.Value);
+                }
+                Session["TaskCreationToken"] = Guid.NewGuid().ToString("N");
+                Session["TaskCreatedMessage"] = "Task " + number + " was added to " + targetUids.Count + (targetUids.Count == 1 ? " student" : " students") + " in To do.";
+                RedirectToFilters(selectedStudentUid, Request.Form[TaskStatusSelector.UniqueID], Request.Form[TaskSearchTextBox.UniqueID]);
             }
             catch (Exception)
             {

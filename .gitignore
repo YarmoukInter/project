@@ -15,3 +15,6 @@ onboarding-worker/*.log
 *.user
 *.suo
 /yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json
+
+# Local QA build and rendering evidence
+/tmp/

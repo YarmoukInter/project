@@ -54,9 +54,11 @@ namespace Yarmouk.StudentPages
                 var assignedTasks = GetAssignedTasks(tasks, auth.Uid, activeOpportunityId, placementId);
                 int completedTasks = CountCompletedTasks(assignedTasks, auth.Uid, submissions);
                 bool allAssignedTasksCompleted = assignedTasks.Count > 0 && completedTasks == assignedTasks.Count;
-                int percent = TrainingProgress.Percent(completedTasks);
+                int submittedTasks = TrainingProgress.CountSubmitted(assignedTasks, submissions.Values,
+                    auth.Uid, placementId, activeOpportunityId);
+                int percent = TrainingProgress.Percent(submittedTasks);
 
-                CompletedTaskCount.Text = completedTasks.ToString(CultureInfo.InvariantCulture);
+                CompletedTaskCount.Text = submittedTasks.ToString(CultureInfo.InvariantCulture);
                 RequiredHours.Text = TrainingProgress.RequiredTasks.ToString(CultureInfo.InvariantCulture);
                 TargetHours.Text = RequiredHours.Text;
                 TrackTarget.Text = RequiredHours.Text;
@@ -66,7 +68,7 @@ namespace Yarmouk.StudentPages
                 progressRing.Style["--progress"] = percent + "%";
                 progressRing.Attributes["aria-valuenow"] = percent.ToString(CultureInfo.InvariantCulture);
                 hoursProgressBar.Attributes["aria-valuemax"] = RequiredHours.Text;
-                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(completedTasks, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
+                hoursProgressBar.Attributes["aria-valuenow"] = Math.Min(submittedTasks, TrainingProgress.RequiredTasks).ToString(CultureInfo.InvariantCulture);
                 hoursTrack.Style["width"] = percent + "%";
 
                 var notes = (await notesTask ?? new Dictionary<string, JObject>()).Values
@@ -82,7 +84,7 @@ namespace Yarmouk.StudentPages
                 ProgressNotes.DataSource = notes;
                 ProgressNotes.DataBind();
                 NoProgressNotes.Visible = notes.Count == 0;
-                MilestoneRepeater.DataSource = BuildMilestones(completedTasks, TrainingProgress.RequiredTasks);
+                MilestoneRepeater.DataSource = BuildMilestones(submittedTasks, TrainingProgress.RequiredTasks);
                 MilestoneRepeater.DataBind();
 
                 NextStepCard.Visible = !allAssignedTasksCompleted;

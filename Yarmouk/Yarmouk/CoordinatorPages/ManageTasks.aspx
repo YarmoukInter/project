@@ -9,7 +9,7 @@
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>
-<main class="yu-roster coordinator-task-page" data-coordinator-tasks aria-labelledby="coordinator-tasks-title">
+<section class="yu-roster coordinator-task-page" data-coordinator-tasks aria-labelledby="coordinator-tasks-title">
   <header class="task-admin-heading">
     <div><p class="task-admin-eyebrow">COORDINATOR WORKSPACE</p><h1 id="coordinator-tasks-title">Training tasks</h1><p>Review tasks assigned to trainees across active and completed placements.</p></div>
     <span class="task-admin-count" data-task-count>0 tasks</span>
@@ -26,5 +26,5 @@
     <div class="task-detail-content" data-task-detail-content></div>
     <div class="task-detail-actions"><button type="button" class="task-detail-done" data-task-close>Close details</button></div>
   </dialog>
-</main>
+</section>
 </asp:Content>

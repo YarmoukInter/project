@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $webRoot = Join-Path $projectRoot 'Yarmouk/Yarmouk'
-$testOutput = Join-Path $projectRoot 'output/regression'
+$testOutput = Join-Path $projectRoot 'tmp/qa-regression'
 New-Item -ItemType Directory -Force $testOutput | Out-Null
 # Build the application before running this script.
 & (Join-Path $webRoot 'bin/roslyn/csc.exe') /nologo "/out:$testOutput/WorkflowRegressionTests.exe" "/reference:$webRoot/bin/Yarmouk.dll" "/reference:$webRoot/bin/Newtonsoft.Json.dll" /reference:System.Net.Http.dll (Join-Path $PSScriptRoot 'WorkflowRegressionTests.cs')

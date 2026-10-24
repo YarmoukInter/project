@@ -13,6 +13,9 @@
         var responseForm = responseDocument.forms[0];
         if (!currentForm || !responseForm) return;
         currentForm.action = actionUrl;
+        currentForm.querySelectorAll('input[type="hidden"]').forEach(function (field) {
+            if (/^__(VIEWSTATE|VIEWSTATEGENERATOR|VIEWSTATEENCRYPTED|EVENTVALIDATION)/.test(field.name)) field.remove();
+        });
         Array.prototype.forEach.call(responseForm.querySelectorAll('input[type="hidden"]'), function (source) {
             if (!/^__(VIEWSTATE|VIEWSTATEGENERATOR|VIEWSTATEENCRYPTED|EVENTVALIDATION)/.test(source.name)) return;
             var matches = currentForm.querySelectorAll('input[type="hidden"][name="' + source.name + '"]');
@@ -92,6 +95,7 @@
             fetch(targetUrl.href, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (response) {
                     if (!response.ok) throw new Error('Evaluation could not be loaded.');
+                    targetUrl = new URL(response.url);
                     return response.text();
                 })
                 .then(function (html) {
@@ -99,6 +103,8 @@
                     var parsed = new DOMParser().parseFromString(html, 'text/html');
                     var nextWorkspace = parsed.querySelector('.evaluation-main');
                     if (!nextWorkspace || !nextWorkspace.querySelector('.evaluation-workspace')) throw new Error('Evaluation form was not found.');
+                    var originalWorkspace = document.querySelector('.evaluation-layout > .evaluation-main');
+                    if (originalWorkspace) originalWorkspace.remove();
                     syncPostbackState(parsed, targetUrl.href);
                     host.replaceChildren(nextWorkspace);
                     if (window.uimsInitEvaluationTabs) window.uimsInitEvaluationTabs(nextWorkspace);

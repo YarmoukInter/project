@@ -7,7 +7,8 @@
 <link href="../Content/CompanyPages/ManageTasks.css?v=filter-icon-center-1" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
-<main class="manage-tasks-page">
+<section class="manage-tasks-page">
+  <input type="hidden" name="taskCreationToken" value="<%= TaskCreationToken %>" />
   <header class="manage-tasks-heading">
     <p class="eyebrow">Company workspace</p>
     <h1>Manage trainee tasks</h1>
@@ -31,7 +32,7 @@
     </div>
     <asp:Literal ID="TaskTable" runat="server" />
   </section>
-</main>
+</section>
 
 <div id="add-task-modal" class="add-task-modal" hidden>
   <section class="add-task-dialog" role="dialog" aria-modal="true" aria-labelledby="add-task-title" tabindex="-1">

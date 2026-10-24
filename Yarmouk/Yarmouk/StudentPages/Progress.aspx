@@ -15,7 +15,7 @@
             <div>
                 <p class="eyebrow">STUDENT TRAINING</p>
                 <h1 id="progress-title">My Progress</h1>
-                <p class="heading-copy">Complete 10 tasks to reach 100% internship progress.</p>
+                <p class="heading-copy">Submit 10 tasks to reach 100% task submission progress. Completion approval also requires reviewed work and approved hours.</p>
             </div>
             <div class="program-pill"><span class="status-dot"></span> Internship journey</div>
         </header>
@@ -38,13 +38,13 @@
                     <div class="progress-ring" id="progressRing" runat="server" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Internship completion progress">
                         <div class="ring-center">
                             <span class="completion-number"><asp:Literal ID="CompletionPercent" runat="server" /></span><span class="percent-sign">%</span>
-                            <span class="ring-caption">completed</span>
+                            <span class="ring-caption">submitted</span>
                         </div>
                     </div>
                     <div class="completion-summary">
-                        <p class="hours-total"><asp:Literal ID="CompletedTaskCount" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks completed</span></p>
-                        <p class="summary-copy">Each completed task adds 10% toward your internship progress.</p>
-                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Completed tasks" aria-valuemin="0" aria-valuemax="0">
+                        <p class="hours-total"><asp:Literal ID="CompletedTaskCount" runat="server" /> <span>of <asp:Literal ID="RequiredHours" runat="server" /> tasks submitted</span></p>
+                        <p class="summary-copy">Each submitted task adds 10% toward your internship progress.</p>
+                        <div id="hoursProgressBar" runat="server" class="progress-track" role="progressbar" aria-label="Submitted tasks" aria-valuemin="0" aria-valuemax="0">
                             <span id="hoursTrack" runat="server"></span>
                         </div>
                         <div class="track-labels"><span>0 tasks</span><span><asp:Literal ID="TrackTarget" runat="server" /> tasks</span></div>
@@ -67,7 +67,7 @@
                 </div>
                 <div class="plan-divider"></div>
                 <div class="plan-detail"><span class="detail-icon calendar-icon" aria-hidden="true">✓</span><span><strong><asp:Literal ID="PlanApprovedHours" runat="server" /></strong><small>Approved hours so far</small></span></div>
-                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each completed task adds 10%</small></span></div>
+                <div class="plan-detail"><span class="detail-icon weeks-icon" aria-hidden="true">10</span><span><strong>10 tasks</strong><small>Each submitted task adds 10%</small></span></div>
                 <p class="plan-note">Only tasks marked Completed count toward your progress.</p>
             </article>
         </div>

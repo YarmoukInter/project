@@ -5,7 +5,7 @@
 </asp:Content>
 <asp:Content ID="SettingsBody" ContentPlaceHolderID="MainContent" runat="server">
 <script type="application/json" id="backend-data"><%= BackendJson %></script>
-<main class="site-settings-page" data-site-settings-page data-default-favicon="<%= ResolveUrl("~/assets/yarmouk-mark.svg") %>" aria-labelledby="settings-title">
+<section class="site-settings-page" data-site-settings-page data-default-favicon="<%= ResolveUrl("~/assets/yarmouk-mark.svg") %>" aria-labelledby="settings-title">
   <header class="settings-hero"><div><p class="settings-eyebrow">COORDINATOR WORKSPACE</p><h1 id="settings-title">Site settings</h1><p>Manage the university identity, default appearance, homepage metadata, and subscription plan.</p></div><span class="settings-lock">Coordinator only</span></header>
   <p class="settings-feedback" data-settings-feedback role="status" aria-live="polite"></p>
   <div class="settings-form" data-settings-form>
@@ -45,6 +45,6 @@
     </section>
     <div class="settings-actions"><span class="settings-dirty" data-settings-dirty hidden>Unsaved changes · preview active</span><button class="settings-save" type="button" data-save-settings>Save site settings</button><button class="settings-reset" type="button" data-reset-settings>Discard unsaved changes</button></div>
   </div>
-</main>
+</section>
 </asp:Content>
 

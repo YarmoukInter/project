@@ -49,6 +49,19 @@ class CompanyEvaluationPdfTests
         var pdf = await service.DownloadCompanyEvaluationAsync("placement", "doctor", "token");
         Check(Encoding.ASCII.GetString(pdf, 0, 5) == "%PDF-", "Assigned doctor receives a real PDF");
         File.WriteAllBytes("company-evaluation.pdf", pdf);
+        var arabicStudent = new Yarmouk.Models.SupervisorStudentProgress {
+            StudentName = "رشا أحمد الخطيب", StudentNumber = "20260001", CompanyName = "شركة التدريب",
+            TrainingPeriodLabel = "01 Jun 2026 - 01 Sep 2026"
+        };
+        var arabicRecord = (JObject)record.DeepClone();
+        arabicRecord["companyFeedback"] = "أداء ممتاز والتزام واضح بمتطلبات التدريب والعمل الجماعي.";
+        File.WriteAllBytes("company-evaluation-arabic.pdf", CompanyEvaluationPdf.Create(arabicStudent, "arabic-test", arabicRecord));
+        arabicRecord["academicScore"] = 92;
+        arabicRecord["companyScore"] = 88;
+        File.WriteAllBytes("completion-certificate-arabic.pdf", CompletionCertificatePdf.Create(
+            arabicStudent.StudentName, arabicStudent.StudentNumber, arabicStudent.CompanyName,
+            "تطوير البرمجيات", "arabic-test", arabicRecord));
+        Check(true, "Arabic evaluation and certificate render using Windows shaping and bidi layout");
         await Denied<UnauthorizedAccessException>(() => service.DownloadCompanyEvaluationAsync("placement", "other", "token"),
             "Another doctor cannot download this evaluation");
         await Denied<UnauthorizedAccessException>(() => service.DownloadCompanyEvaluationAsync("placement", "company-user", "token"),

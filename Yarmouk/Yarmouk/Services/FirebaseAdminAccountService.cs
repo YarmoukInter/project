@@ -23,12 +23,20 @@ namespace Yarmouk.Services
         {
             string root = FindProjectRoot();
             string script = Path.Combine(root, "onboarding-worker", "admin-cli.js");
-            string credential = Path.Combine(root, "yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json");
-            var start = new ProcessStartInfo(System.Configuration.ConfigurationManager.AppSettings["FirebaseAdminNodePath"] ?? "node", "\"" + script + "\"") {
+            string credential = Environment.GetEnvironmentVariable("YARMOUK_FIREBASE_SERVICE_ACCOUNT")
+                ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")
+                ?? System.Configuration.ConfigurationManager.AppSettings["FirebaseAdminCredentialPath"];
+            string node = Environment.GetEnvironmentVariable("YARMOUK_NODE_PATH")
+                ?? System.Configuration.ConfigurationManager.AppSettings["FirebaseAdminNodePath"] ?? "node";
+            var start = new ProcessStartInfo(node, "\"" + script + "\"") {
                 UseShellExecute = false, RedirectStandardInput = true, RedirectStandardOutput = true,
                 RedirectStandardError = true, CreateNoWindow = true
             };
-            start.EnvironmentVariables["YARMOUK_FIREBASE_SERVICE_ACCOUNT"] = credential;
+            if (!string.IsNullOrWhiteSpace(credential)) {
+                if (!File.Exists(credential)) throw new InvalidOperationException("The configured Firebase Admin credential file was not found. Check the server environment configuration.");
+                start.EnvironmentVariables["YARMOUK_FIREBASE_SERVICE_ACCOUNT"] = credential;
+            }
+            start.EnvironmentVariables["YARMOUK_FIREBASE_DATABASE_URL"] = Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             Process started;
             try { started = Process.Start(start); }
             catch (System.ComponentModel.Win32Exception ex)
@@ -73,11 +81,10 @@ namespace Yarmouk.Services
             while (directory != null)
             {
                 string script = Path.Combine(directory.FullName, "onboarding-worker", "admin-cli.js");
-                string credential = Path.Combine(directory.FullName, "yarmouk-uims-firebase-adminsdk-fbsvc-a3b29f5bc6.json");
-                if (File.Exists(script) && File.Exists(credential)) return directory.FullName;
+                if (File.Exists(script)) return directory.FullName;
                 directory = directory.Parent;
             }
-            throw new InvalidOperationException("Firebase Admin files were not found. Keep onboarding-worker/admin-cli.js and the Firebase service-account JSON in the project root.");
+            throw new InvalidOperationException("Firebase Admin runtime was not found. Deploy onboarding-worker/admin-cli.js alongside the application.");
         }
     }
 }

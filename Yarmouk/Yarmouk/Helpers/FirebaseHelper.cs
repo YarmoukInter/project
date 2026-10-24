@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 namespace Yarmouk.Helpers
 {
     // Firebase database rules enforce permissions. Never use a client-supplied UID for authorization.
@@ -81,6 +82,42 @@ namespace Yarmouk.Helpers
         public async Task DeleteAsync(string path, string idToken)
         {
             await SendAsync(HttpMethod.Delete, path, idToken).ConfigureAwait(false);
+        }
+
+        // Conditional writes protect a single record from concurrent updates.
+        public async Task TransactAsync(string path, string idToken, Func<JObject, bool> mutate, JObject initialValue = null)
+        {
+            string url = GetUrl(path, idToken);
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                JObject snapshot;
+                string etag;
+                using (var read = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    read.Headers.TryAddWithoutValidation("X-Firebase-ETag", "true");
+                    using (var response = await Client.SendAsync(read).ConfigureAwait(false))
+                    {
+                        if (!response.IsSuccessStatusCode) throw new InvalidOperationException("Firebase HTTP error " + (int)response.StatusCode);
+                        if (response.Headers.ETag == null) throw new InvalidOperationException("Firebase did not return a transaction version.");
+                        etag = response.Headers.ETag.ToString();
+                        snapshot = JsonConvert.DeserializeObject<JObject>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+                    }
+                }
+                if (!mutate(snapshot)) return;
+                if (snapshot == null) snapshot = initialValue;
+                using (var write = new HttpRequestMessage(HttpMethod.Put, url))
+                {
+                    write.Headers.TryAddWithoutValidation("if-match", etag);
+                    write.Content = new StringContent(JsonConvert.SerializeObject(snapshot), Encoding.UTF8, "application/json");
+                    using (var response = await Client.SendAsync(write).ConfigureAwait(false))
+                    {
+                        if (response.StatusCode == System.Net.HttpStatusCode.PreconditionFailed) continue;
+                        if (!response.IsSuccessStatusCode) throw new InvalidOperationException("Firebase HTTP error " + (int)response.StatusCode);
+                        return;
+                    }
+                }
+            }
+            throw new InvalidOperationException("The record changed during saving. Please try again.");
         }
     }
 }
