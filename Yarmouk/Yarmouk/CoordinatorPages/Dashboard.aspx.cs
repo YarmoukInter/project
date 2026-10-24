@@ -179,7 +179,9 @@ namespace Yarmouk.CoordinatorPages
                 changes[userPath + "uid"] = uid;
                 changes[userPath + "email"] = entry.Email;
                 changes[userPath + "role"] = role;
-                changes[userPath + "mustChangePassword"] = true;
+                // Student onboarding has a dedicated password-change page. Staff do
+                // not, so do not create an unusable first-login redirect for them.
+                changes[userPath + "mustChangePassword"] = role == "student";
                 changes[userPath + "onboardingRequestedAtUnixMs"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             }
             else if (emailChanged) changes[userPath + "email"] = entry.Email;

@@ -377,6 +377,14 @@ namespace Yarmouk.CompanyPages
                     : string.IsNullOrWhiteSpace(status) || status == "pending" || status == "new" || status == "submitted" ? "new"
                     : "unknown";
                 string acceptedApplicationId = Text(student, "acceptedApplicationId");
+                bool confirmedHere = Same(acceptedApplicationId, Text(app, "id") ?? entry.Key)
+                    || placements.Values.Any(placement => placement != null
+                        && Same(Text(placement, "applicationId"), Text(app, "id") ?? entry.Key)
+                        && IsConfirmedPlacementStatus(Text(placement, "status")));
+                // Older records can still say Offered after the student has
+                // confirmed the offer. The placement/student relationship is
+                // authoritative, so never present a confirmed trainee as pending.
+                if (confirmedHere) status = "accepted";
                 bool confirmedElsewhere = !string.IsNullOrWhiteSpace(acceptedApplicationId)
                     && !Same(acceptedApplicationId, Text(app, "id") ?? entry.Key);
                 confirmedElsewhere = confirmedElsewhere || placements.Values.Any(placement => placement != null

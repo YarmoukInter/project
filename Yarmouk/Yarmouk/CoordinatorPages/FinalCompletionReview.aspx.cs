@@ -37,13 +37,14 @@ namespace Yarmouk.CoordinatorPages
                 var evaluationsRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Evaluations, auth.IdToken);
                 var placementsRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Placements, auth.IdToken);
                 var studentsRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Students, auth.IdToken);
+                var usersRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Users, auth.IdToken);
                 var companiesRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Companies, auth.IdToken);
                 var opportunitiesRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.Opportunities, auth.IdToken);
                 var logsRequest = firebase.GetAsync<Dictionary<string, JObject>>(DatabasePaths.TrainingLogs, auth.IdToken);
 
-                await Task.WhenAll(evaluationsRequest, placementsRequest, studentsRequest, companiesRequest, opportunitiesRequest, logsRequest);
+                await Task.WhenAll(evaluationsRequest, placementsRequest, studentsRequest, usersRequest, companiesRequest, opportunitiesRequest, logsRequest);
 
-                var rows = BuildRows(await evaluationsRequest, await placementsRequest, await studentsRequest, await companiesRequest, await opportunitiesRequest, await logsRequest);
+                var rows = BuildRows(await evaluationsRequest, await placementsRequest, await studentsRequest, await usersRequest, await companiesRequest, await opportunitiesRequest, await logsRequest);
                 RegisterClientData(rows, rows.Count == 0
                     ? "No final evaluations are currently available for coordinator review."
                     : string.Empty);
@@ -73,7 +74,7 @@ namespace Yarmouk.CoordinatorPages
 
         private static List<CompletionReviewRow> BuildRows(
             IDictionary<string, JObject> evaluations, IDictionary<string, JObject> placements,
-            IDictionary<string, JObject> students, IDictionary<string, JObject> companies, IDictionary<string, JObject> opportunities,
+            IDictionary<string, JObject> students, IDictionary<string, JObject> users, IDictionary<string, JObject> companies, IDictionary<string, JObject> opportunities,
             IDictionary<string, JObject> logs)
         {
             var result = new List<CompletionReviewRow>();
@@ -89,6 +90,7 @@ namespace Yarmouk.CoordinatorPages
                 string placementId = Text(evaluation, "placementId");
                 JObject placementRecord = FindPlacement(placements, placementId, studentUid);
                 JObject studentRecord = Find(students, studentUid);
+                JObject userRecord = Find(users, studentUid);
                 string companyId = Text(placementRecord, "companyId");
                 string opportunityId = Text(placementRecord, "opportunityId");
                 JObject company = Find(companies, companyId);
@@ -111,6 +113,7 @@ namespace Yarmouk.CoordinatorPages
                 string name = Text(studentRecord, "englishName");
                 if (string.IsNullOrWhiteSpace(name)) name = Text(studentRecord, "fullName");
                 if (string.IsNullOrWhiteSpace(name)) name = Text(studentRecord, "name");
+                if (string.IsNullOrWhiteSpace(name)) name = Text(userRecord, "fullName");
                 if (string.IsNullOrWhiteSpace(name)) name = "Student";
                 string companyName = Text(company, "name");
                 string opportunityTitle = Text(opportunity, "title");

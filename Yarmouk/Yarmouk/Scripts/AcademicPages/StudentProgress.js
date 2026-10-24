@@ -40,6 +40,48 @@
     search.addEventListener('input', filter);
   }
 
+  const hoursModal = document.getElementById('approvedHoursModal');
+  const hoursPlacementField = document.getElementById('HoursPlacementId');
+  const hoursField = document.getElementById('ApprovedHoursInput');
+  const hoursNoteField = document.getElementById('ApprovedHoursNote');
+  const hoursInlineError = document.getElementById('approvedHoursInlineError');
+  if (hoursModal && hoursPlacementField && hoursField) {
+    let hoursOpener = null;
+    const closeHours = () => {
+      hoursModal.hidden = true;
+      document.body.classList.remove('progress-note-open');
+      if (hoursOpener) hoursOpener.focus();
+    };
+    document.querySelectorAll('[data-open-approved-hours]').forEach(button => {
+      button.addEventListener('click', () => {
+        hoursOpener = button;
+        hoursPlacementField.value = button.dataset.placementId || '';
+        hoursField.value = '';
+        if (hoursNoteField) hoursNoteField.value = '';
+        if (hoursInlineError) hoursInlineError.hidden = true;
+        const current = button.dataset.currentHours || '0';
+        const required = button.dataset.requiredHours || 'not set';
+        document.getElementById('approvedHoursStudent').textContent =
+          'For ' + (button.dataset.studentName || 'this student') + ' · currently ' + current + ' of ' + required + ' approved hours.';
+        hoursModal.hidden = false;
+        document.body.classList.add('progress-note-open');
+        hoursField.focus();
+      });
+    });
+    hoursModal.addEventListener('click', event => {
+      if (event.target === hoursModal || event.target.closest('[data-close-approved-hours]')) closeHours();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !hoursModal.hidden) closeHours();
+    });
+    if (hoursPlacementField.value) {
+      const pageError = document.querySelector('.progress-workspace .workspace-alert--error');
+      if (hoursInlineError && pageError) { hoursInlineError.textContent = pageError.textContent.trim(); hoursInlineError.hidden = false; }
+      hoursModal.hidden = false;
+      document.body.classList.add('progress-note-open');
+    }
+  }
+
   const modal = document.getElementById('progressNoteModal');
   const placementField = document.getElementById('NotePlacementId');
   const bodyField = document.getElementById('NoteBody');

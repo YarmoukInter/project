@@ -76,37 +76,52 @@ namespace Yarmouk.Services
                 throw new UnauthorizedAccessException("Student mismatch.");
 
             string placementId = "PLC_" + application.Id;
-            var company = await firebase.GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, idToken)
-                .ConfigureAwait(false);
-            var placement = new Placement
+            var companyTask = firebase.GetAsync<Company>(DatabasePaths.Companies + "/" + opportunity.CompanyId, idToken);
+            var existingPlacementTask = firebase.GetAsync<Placement>(DatabasePaths.Placements + "/" + placementId, idToken);
+            var applicationsTask = GetForStudentAsync(verifiedUid, idToken);
+            await Task.WhenAll(companyTask, existingPlacementTask, applicationsTask).ConfigureAwait(false);
+            var company = await companyTask.ConfigureAwait(false);
+            var existingPlacement = await existingPlacementTask.ConfigureAwait(false);
+            if (existingPlacement != null && (existingPlacement.StudentUid != verifiedUid || existingPlacement.OpportunityId != opportunity.Id))
+                throw new UnauthorizedAccessException("The existing placement does not match this offer.");
+
+            string studentPath = DatabasePaths.Students + "/" + verifiedUid + "/";
+            string applicationPath = DatabasePaths.Applications + "/" + application.Id + "/";
+            string placementPath = DatabasePaths.Placements + "/" + placementId + "/";
+            var changes = new Dictionary<string, object>
             {
-                Id = placementId,
-                ApplicationId = application.Id,
-                StudentUid = verifiedUid,
-                CompanyId = opportunity.CompanyId,
-                OpportunityId = opportunity.Id,
-                AcademicSupervisorUid = student.AcademicSupervisorId,
-                CompanySupervisorUid = company == null ? string.Empty : company.SupervisorUid,
-                Status = "confirmed",
-                RequiredHours = opportunity.RequiredTrainingHours
+                { studentPath + "acceptedApplicationId", application.Id },
+                { studentPath + "companyId", opportunity.CompanyId },
+                { studentPath + "internshipStatus", "InProgress" },
+                { studentPath + "requiredTrainingHours", Math.Max(0, opportunity.RequiredTrainingHours) },
+                { applicationPath + "status", "accepted" },
+                { applicationPath + "isConfirmedPlacement", true },
+                { applicationPath + "placementId", placementId },
+                { placementPath + "id", placementId },
+                { placementPath + "applicationId", application.Id },
+                { placementPath + "studentUid", verifiedUid },
+                { placementPath + "companyId", opportunity.CompanyId },
+                { placementPath + "opportunityId", opportunity.Id },
+                { placementPath + "academicSupervisorUid", student.AcademicSupervisorId ?? string.Empty },
+                { placementPath + "companySupervisorUid", company == null ? string.Empty : company.SupervisorUid ?? string.Empty },
+                { placementPath + "requiredHours", Math.Max(0, opportunity.RequiredTrainingHours) }
             };
-
-            // Create the placement first so the company workspace can never receive an
-            // accepted application without the record it uses to display the trainee.
-            await firebase.SaveAsync(DatabasePaths.Placements + "/" + placementId, placement, idToken).ConfigureAwait(false);
-            await firebase.UpdateAsync(DatabasePaths.Students + "/" + verifiedUid, new
+            if (existingPlacement == null)
             {
-                acceptedApplicationId = application.Id,
-                companyId = opportunity.CompanyId,
-                internshipStatus = "confirmed",
-                requiredTrainingHours = opportunity.RequiredTrainingHours
-            }, idToken).ConfigureAwait(false);
-            await SetStatusAsync(application.Id, "accepted", idToken).ConfigureAwait(false);
+                string startDate = DateTime.UtcNow.AddHours(3).ToString("yyyy-MM-dd");
+                changes[placementPath + "status"] = "Active";
+                changes[placementPath + "startDate"] = startDate;
+                changes[placementPath + "createdAtUnixMs"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                if (string.IsNullOrWhiteSpace(student.TrainingStartDate)) changes[studentPath + "trainingStartDate"] = startDate;
+            }
 
-            var otherApplications = await GetForStudentAsync(verifiedUid, idToken).ConfigureAwait(false);
-            foreach (var other in otherApplications.Where(item => item.Id != application.Id &&
+            foreach (var other in (await applicationsTask.ConfigureAwait(false)).Where(item => item.Id != application.Id &&
                 Normalize(item.Status) != "rejected" && Normalize(item.Status) != "declined" && Normalize(item.Status) != "withdrawn"))
-                await SetStatusAsync(other.Id, "withdrawn", idToken).ConfigureAwait(false);
+                changes[DatabasePaths.Applications + "/" + other.Id + "/status"] = "withdrawn";
+
+            // Application acceptance, placement creation, and competing-offer closure are
+            // one root update: no user can be accepted without a usable placement.
+            await firebase.UpdateRootAsync(changes, idToken).ConfigureAwait(false);
         }
 
         private static string Normalize(string value)

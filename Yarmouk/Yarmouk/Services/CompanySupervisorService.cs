@@ -265,9 +265,16 @@ namespace Yarmouk.Services
                 var placement = placementItem.Value;
                 var placementId = string.IsNullOrWhiteSpace(placementItem.Key) ? string.Empty : Read(placement, "id", placementItem.Key);
 
-                // خذ الـ uid الصحيح من الـ placement (بيحل مشكلة uid الغلط عند w15CYl2A…)
-                if (placement != null && !string.IsNullOrWhiteSpace(Read(placement, "studentUid")))
-                    studentUid = Read(placement, "studentUid");
+                // A legacy duplicate student record can point at another student's
+                // placement. Keep the placement owner only, otherwise the company
+                // sees the same trainee twice and may evaluate the wrong profile.
+                string placementStudentUid = Read(placement, "studentUid");
+                if (placement != null && !string.IsNullOrWhiteSpace(placementStudentUid))
+                {
+                    if (!Same(placementStudentUid, studentItem.Key) && !Same(placementStudentUid, Read(student, "uid", studentItem.Key)))
+                        continue;
+                    studentUid = placementStudentUid;
+                }
 
                 // A final evaluation can only be opened after every task assigned to this
                 // trainee for this company placement has been approved as completed.

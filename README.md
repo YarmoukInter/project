@@ -7,7 +7,7 @@ The application is built with ASP.NET Web Forms and C#, with Firebase Authentica
 ## Product links
 
 - [Trello board — UIMS Group 5](https://trello.com/b/6pw4IcSu/uims-group-5-yarmouk-university)
-- [Figma design — demo link](https://www.figma.com/design/UIMS-Group-5-Yarmouk-UIMS-Demo) *(placeholder link; replace it with the team’s published Figma file when available)*
+- [Figma design — demo link](https://www.figma.com/design/JnQ8iqW3Vn47sh4KsqZE4b/UIMS-—-Website-Wireframes--Mockups---Prototype?node-id=29-1795&t=wKnSjd4UnPC6lXVO-1)
 
 ## What the site does
 

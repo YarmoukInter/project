@@ -60,7 +60,10 @@ namespace Yarmouk.Helpers
             bool setup = path.Equals("~/StudentPages/ChangePassword.aspx", StringComparison.OrdinalIgnoreCase)
                 || path.Equals("~/StudentPages/ChangePassword", StringComparison.OrdinalIgnoreCase);
             string userRole = NormalizeRole(user.Role);
-            if (user.MustChangePassword)
+            // The only password-setup page currently lives in the student workspace.
+            // Staff accounts receive the same temporary-password flag at creation, so
+            // routing them there would put them in the wrong workspace and block access.
+            if (user.MustChangePassword && userRole == "student")
                 return setup ? null : "~/StudentPages/ChangePassword.aspx";
             if (userRole != role || setup) return Home(userRole);
             return null;

@@ -113,8 +113,9 @@
 .progress-workspace .progress-note-dialog p { margin:0 0 22px; color:#647b69; font-size:13px; }
 .progress-workspace .progress-note-dialog .progress-note-inline-error:not([hidden]) { margin:0 0 14px; padding:10px 12px; border:1px solid #efc9c5; border-radius:9px; background:#fff5f3; color:#93362f; font-size:12px; }
 .progress-workspace .progress-note-dialog label { display:block; margin-bottom:7px; color:#2b4e38; font-size:12px; font-weight:700; }
-.progress-workspace .progress-note-dialog textarea { display:block; width:100%; min-height:132px; padding:12px; resize:vertical; border:1px solid #cfdfd3; border-radius:10px; background:#fbfdfb; color:#213e2c; font:400 13px/1.55 "DM Sans",Inter,sans-serif; }
-.progress-workspace .progress-note-dialog textarea:focus { border-color:#4a9e67; outline:3px solid rgba(62,151,88,.15); }
+.progress-workspace .progress-note-dialog :is(textarea,input[type=number]) { display:block; width:100%; min-height:42px; padding:12px; resize:vertical; border:1px solid #cfdfd3; border-radius:10px; background:#fbfdfb; color:#213e2c; font:400 13px/1.55 "DM Sans",Inter,sans-serif; }
+.progress-workspace .progress-note-dialog textarea { min-height:132px; }
+.progress-workspace .progress-note-dialog :is(textarea,input[type=number]):focus { border-color:#4a9e67; outline:3px solid rgba(62,151,88,.15); }
 .progress-workspace .progress-note-dialog small { display:block; margin-top:7px; color:#728478; font-size:11px; }
 .progress-workspace .progress-note-close { position:absolute; top:14px; right:15px; width:34px; height:34px; border:0; border-radius:50%; background:#eef5ef; color:#456c51; font-size:23px; }
 .progress-workspace .progress-note-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:22px; }
@@ -165,7 +166,7 @@ body.progress-note-open { overflow:hidden; }
 [data-theme="dark"] .progress-workspace .progress-note-dialog label { color:#e3eee7; }
 [data-theme="dark"] .progress-workspace .progress-note-dialog p,
 [data-theme="dark"] .progress-workspace .progress-note-dialog small { color:#a9bdb1; }
-[data-theme="dark"] .progress-workspace .progress-note-dialog textarea { border-color:#355344; background:#102219; color:#e3eee7; color-scheme:dark; }
+[data-theme="dark"] .progress-workspace .progress-note-dialog :is(textarea,input[type=number]) { border-color:#355344; background:#102219; color:#e3eee7; color-scheme:dark; }
 [data-theme="dark"] .progress-workspace .progress-note-close { background:#244535; color:#d5e9dc; }
 [data-theme="dark"] .progress-workspace .progress-note-actions button { border-color:#3b6849; background:#203b2c; color:#c6ebd1; }
 [data-theme="dark"] .progress-workspace .progress-note-actions input { border-color:#087a50; background:#087a50; color:#fff; }
@@ -174,3 +175,61 @@ body.progress-note-open { overflow:hidden; }
 [data-theme="dark"] .progress-workspace .workspace-empty,
 [data-theme="dark"] .progress-workspace .search-empty { border-color:#355344; background:#172c22; color:#a9bdb1; }
 [data-theme="dark"] .progress-workspace .workspace-empty h3 { color:#e3eee7; }
+
+/* Caseload records use a stable, horizontal layout: identity, progress, then actions. */
+.progress-workspace .progress-list { grid-template-columns:minmax(0,1fr); gap:13px; }
+.progress-workspace .student-progress-card {
+  display:grid;
+  grid-template-columns:minmax(215px,.88fr) minmax(280px,1.34fr) minmax(240px,.9fr);
+  grid-template-areas:"identity progress actions" "details details details";
+  align-items:center;
+  gap:0 26px;
+  padding:20px 23px;
+  border-radius:16px;
+  background:#fff;
+}
+.progress-workspace .student-progress-card::before { top:auto; right:-42px; bottom:-92px; width:220px; height:220px; opacity:.48; }
+.progress-workspace .student-progress-card::after { right:23px; left:23px; background:linear-gradient(90deg,transparent 0,#62ae7b 18%,#62ae7b 82%,transparent 100%); opacity:.42; }
+.progress-workspace .student-card-top { grid-area:identity; align-self:stretch; padding-right:25px; border-right:1px solid #e5ede7; }
+.progress-workspace .student-identity { gap:13px; }
+.progress-workspace .student-avatar { width:46px; height:46px; border-radius:13px; }
+.progress-workspace .student-identity h3 { font-size:17px; }
+.progress-workspace .placement-status { max-width:none; margin-left:8px; }
+.progress-workspace .progress-card-grid { grid-area:progress; margin:0; padding:0; border:0; }
+.progress-workspace .progress-label-row { margin-bottom:9px; }
+.progress-workspace .progress-label-row strong { font-size:17px; }
+.progress-workspace .progress-percent { font-size:23px; }
+.progress-workspace .progress-track { height:8px; }
+.progress-workspace .progress-meta { margin-top:7px; }
+.progress-workspace .progress-card-actions { grid-area:actions; display:grid; grid-template-columns:1fr; gap:7px; margin:0; padding-left:25px; border-left:1px solid #e5ede7; }
+.progress-workspace .progress-card-actions .progress-note-button { min-height:38px; padding:0 12px; font-size:11px; }
+.progress-workspace .progress-record-details { grid-area:details; margin-top:17px; border-top:1px solid #e6eee8; }
+.progress-workspace .progress-record-details summary { display:flex; align-items:center; min-height:42px; cursor:pointer; color:#38644a; font-size:12px; font-weight:750; list-style:none; }
+.progress-workspace .progress-record-details summary::-webkit-details-marker { display:none; }
+.progress-workspace .progress-record-details summary::after { margin-left:auto; color:#6c8675; content:"+"; font-size:19px; font-weight:400; }
+.progress-workspace .progress-record-details[open] summary::after { content:"–"; }
+.progress-workspace .progress-record-details[open] summary { border-bottom:1px solid #e7eee9; }
+.progress-workspace .progress-detail { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding-top:13px; }
+.progress-workspace .detail-item { min-height:58px; padding:10px 12px; }
+.progress-workspace .company-feedback { margin-top:12px; }
+
+@media (max-width:1060px) {
+  .progress-workspace .student-progress-card { grid-template-columns:minmax(190px,.8fr) minmax(250px,1.2fr); grid-template-areas:"identity progress" "actions actions" "details details"; gap:16px 22px; }
+  .progress-workspace .student-card-top { padding-right:20px; }
+  .progress-workspace .progress-card-actions { grid-template-columns:repeat(3,minmax(0,1fr)); padding:14px 0 0; border-top:1px solid #e5ede7; border-left:0; }
+}
+@media (max-width:700px) {
+  .progress-workspace .student-progress-card { display:flex; flex-direction:column; align-items:stretch; gap:15px; padding:18px; }
+  .progress-workspace .student-card-top { padding:0; border:0; }
+  .progress-workspace .progress-card-grid { width:100%; }
+  .progress-workspace .progress-card-actions { grid-template-columns:1fr; padding:0; border:0; }
+  .progress-workspace .progress-record-details { margin-top:0; }
+}
+
+[data-theme="dark"] .progress-workspace .student-progress-card { border-color:#31503f; background:#172b21; }
+[data-theme="dark"] .progress-workspace .student-card-top,
+[data-theme="dark"] .progress-workspace .progress-card-actions { border-color:#31503f; }
+[data-theme="dark"] .progress-workspace .progress-record-details { border-color:#31503f; }
+[data-theme="dark"] .progress-workspace .progress-record-details summary { color:#b9dac3; }
+[data-theme="dark"] .progress-workspace .progress-record-details summary::after { color:#96bda2; }
+[data-theme="dark"] .progress-workspace .progress-record-details[open] summary { border-color:#31503f; }
