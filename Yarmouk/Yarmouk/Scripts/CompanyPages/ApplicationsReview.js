@@ -173,5 +173,26 @@
         else if (!detailModal.hidden) closeApplication(true);
     });
 
+    var acceptButton = document.getElementById("AcceptApplicationButton");
+    var savingDecision = false;
+    if (acceptButton && acceptButton.form) {
+        acceptButton.form.addEventListener("submit", function (event) {
+            if (savingDecision) { event.preventDefault(); return; }
+            if ((event.submitter || document.activeElement) !== acceptButton) return;
+            savingDecision = true;
+            acceptButton.value = "Sending offer…";
+            acceptButton.setAttribute("aria-disabled", "true");
+            detailModal.setAttribute("aria-busy", "true");
+            // Keep the submit button enabled so Web Forms receives its name
+            // and invokes the acceptance handler during the postback.
+        });
+        window.addEventListener("pageshow", function () {
+            savingDecision = false;
+            acceptButton.value = "Accept application";
+            acceptButton.removeAttribute("aria-disabled");
+            detailModal.removeAttribute("aria-busy");
+        });
+    }
+
     if (selectedInput.value && byId[selectedInput.value]) openApplication(selectedInput.value, null);
 }());

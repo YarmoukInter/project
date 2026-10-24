@@ -50,7 +50,7 @@
                     <section class="co-detail-section"><h3>CV / RESUME</h3><a data-detail-cv class="co-cv-link" target="_blank" rel="noopener noreferrer">Open student CV</a><p data-detail-no-cv class="co-empty-copy">No CV attached to this profile.</p></section>
                     <section class="co-detail-section"><h3>COMPANY QUESTIONS &amp; ANSWERS</h3><div data-detail-answers></div></section>
                     <div data-detail-note class="co-decision-note" hidden></div>
-                    <div id="applicationDecisionActions" class="co-detail-actions"><asp:Button ID="AcceptApplicationButton" runat="server" ClientIDMode="Static" CssClass="co-button co-button-primary" Text="Accept application" CausesValidation="false" OnClick="AcceptApplicationButton_Click" /><button id="openRejectButton" type="button" class="co-button co-button-danger">Reject application</button></div>
+                    <div id="applicationDecisionActions" class="co-detail-actions"><asp:Button ID="AcceptApplicationButton" runat="server" ClientIDMode="Static" CssClass="co-button co-button-primary" Text="Accept application" CausesValidation="false" formnovalidate="formnovalidate" OnClick="AcceptApplicationButton_Click" /><button id="openRejectButton" type="button" class="co-button co-button-danger">Reject application</button></div>
                     <div id="acceptanceBlockedMessage" class="co-blocked-note" hidden></div>
                     <div class="co-modal-actions co-application-modal-actions"><button type="button" class="co-button co-button-quiet" data-application-close>Close</button></div>
             </section>
@@ -65,5 +65,5 @@
             </section>
         </div>
     </section>
-    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=3' defer></script>
+    <script src='<%= ResolveUrl("~/Scripts/CompanyPages/ApplicationsReview.js") %>?v=4' defer></script>
 </asp:Content>
