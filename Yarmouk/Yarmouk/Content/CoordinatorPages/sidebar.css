@@ -102,3 +102,29 @@ body { margin: 0; background: #f5f8f6; }
 [data-theme="dark"] .yu-sidebar-bottom > .yu-sidebar-logout:active { background:#3e2928; color:#ffd4d0; }
 @media (max-height:740px) { .yu-sidebar-header { height:54px; margin-bottom:4px; } .yu-sidebar-link { min-height:34px; padding-block:5px; } .yu-sidebar-bottom { padding-top:5px; margin-top:5px; } }
 @media (max-width:1080px) { .is-enhanced .yu-sidebar-bottom .yu-sidebar-pin { display:none; } }
+
+/* Coordinator navigation keeps a readable rhythm when the full menu opens. */
+.yu-dashboard[data-role="coordinator"] .yu-sidebar { padding:10px; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-header { height:70px; padding:8px 12px; margin-bottom:10px; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-nav { padding:0 2px 6px; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-section { padding:3px 10px 9px; font-size:10px; font-weight:700; letter-spacing:.11em; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-links { gap:5px; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-link,
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom > a,
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom > button { min-height:40px; padding:9px 11px; gap:13px; font-family:Inter,"Segoe UI",Arial,sans-serif; font-size:13px; font-weight:500; line-height:1.25; letter-spacing:0; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-link > span,
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom > :is(a,button) > span { line-height:1.25; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom { gap:5px; margin-top:6px; padding-top:10px; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-profile strong { font-size:13px; letter-spacing:0; }
+.yu-dashboard[data-role="coordinator"] .yu-sidebar-profile small { margin-top:1px; font-size:11px; }
+
+@media (max-height:740px) and (min-width:1081px) {
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar { padding:8px; }
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-header { height:54px; margin-bottom:4px; }
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-nav { padding-bottom:2px; }
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-links { gap:1px; }
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-link,
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom > a,
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom > button { min-height:34px; padding-block:5px; font-size:12px; }
+  .yu-dashboard[data-role="coordinator"] .yu-sidebar-bottom { gap:1px; margin-top:3px; padding-top:5px; }
+}

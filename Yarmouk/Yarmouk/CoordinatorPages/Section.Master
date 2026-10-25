@@ -11,10 +11,10 @@
 <link runat="server" href="~/Content/bootstrap.min.css?v=dashboard-assets-3" rel="stylesheet" />
 <link runat="server" href="~/Content/CoordinatorPages/shared.css?v=dashboard-assets-3" rel="stylesheet" />
 
-<link runat="server" href="~/Content/CoordinatorPages/sidebar.css?v=coordinator-content-1" rel="stylesheet" />
+<link runat="server" href="~/Content/CoordinatorPages/sidebar.css?v=coordinator-nav-3" rel="stylesheet" />
 <link runat="server" href="~/Content/CoordinatorPages/notifications.css?v=theme-2" rel="stylesheet" />
 <link runat="server" href="~/Content/CoordinatorPages/coordinator-header.css?v=1" rel="stylesheet" />
-<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/sidebar.js") %>?v=coordinator-header-2' defer></script>
+<script src='<%= ResolveUrl("~/Scripts/CoordinatorPages/sidebar.js") %>?v=coordinator-hover-2' defer></script>
 <script src='<%= ResolveUrl("~/Scripts/Shared/excel-export.js") %>?v=1' defer></script>
 <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
 <%= Yarmouk.Helpers.SiteSettingsStore.GetHeadPlugins(Server) %>
