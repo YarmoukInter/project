@@ -9,7 +9,7 @@
         fields:[
             {key:'name',label:'Name (Arabic)',required:true}, {key:'email',label:'Email address',type:'email',required:true},
             {key:'department',label:'Department',options:departments,required:true}, {key:'gpa',label:'GPA (0–100)',type:'number',min:0,max:100,step:0.01,required:true},
-            {key:'college',label:'College',default:'Faculty of IT and Computer Science',required:true}, {key:'supervisor',label:'Assigned supervisor',options:supervisors},
+            {key:'college',label:'College',default:'Faculty of Information Technology and Computer Science',required:true}, {key:'supervisor',label:'Assigned supervisor',options:supervisors},
             {key:'englishName',label:'Name (English)'}, {key:'studentNumber',label:'Student number',inputMode:'numeric',pattern:'[0-9]+',description:'Digits only; leading zeros are kept.'},
             {key:'nationalId',label:'National ID',inputMode:'numeric',pattern:'[0-9]+',description:'Digits only; leading zeros are kept.'}, {key:'gender',label:'Gender',options:[{value:'',label:'Not specified'},{value:'male',label:'Male'},{value:'female',label:'Female'}]},
             {key:'nationality',label:'Nationality'}, {key:'birthPlace',label:'Place of birth'},
