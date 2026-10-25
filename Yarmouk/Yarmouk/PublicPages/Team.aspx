@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-    <link href="<%= ResolveUrl("~/Content/PublicPages/Team.css?v=3") %>" rel="stylesheet" />
+    <link href="<%= ResolveUrl("~/Content/PublicPages/Team.css?v=4") %>" rel="stylesheet" />
     <script src="<%= ResolveUrl("~/Scripts/PublicPages/Team.js?v=20261023-profiles") %>" defer></script>
 </asp:Content>
 <asp:Content ID="BodySection" ContentPlaceHolderID="MainContent" runat="server">
@@ -165,10 +165,10 @@
 
                             <div class="dossier-socials" aria-label="Team social profiles">
                                 <a class="dossier-social-button" data-platform="linkedin" aria-disabled="true" tabindex="-1" aria-label="LinkedIn profile coming soon">
-                                    <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><span>LinkedIn</span><span class="social-pending">Coming soon</span>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.5 1 5 2.12 5 3.5ZM.35 8H4.6V22H.35V8ZM7.3 8h4.07v1.91h.06c.57-1.08 1.95-2.22 4.02-2.22 4.3 0 5.1 2.83 5.1 6.51V22h-4.24v-6.9c0-1.65-.03-3.77-2.3-3.77-2.3 0-2.65 1.8-2.65 3.65V22H7.3V8Z" fill="currentColor"/></svg><span>LinkedIn</span><span class="social-pending">Coming soon</span>
                                 </a>
                                 <a class="dossier-social-button" data-platform="github" aria-disabled="true" tabindex="-1" aria-label="GitHub profile coming soon">
-                                    <i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span><span class="social-pending">Coming soon</span>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5 3.4 9.2 8.1 10.7.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.3-3.2-.1-.3-.6-1.6.1-3.2 0 0 1.1-.3 3.4 1.2a11.7 11.7 0 0 1 6.2 0c2.3-1.5 3.4-1.2 3.4-1.2.7 1.6.3 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.7-2.9 5.7-5.6 6 .4.4.8 1 .8 2.1v3.1c0 .3.2.7.8.6A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5Z" fill="currentColor"/></svg><span>GitHub</span><span class="social-pending">Coming soon</span>
                                 </a>
                             </div>
                             <!-- Floating 3D Parallax Badges -->

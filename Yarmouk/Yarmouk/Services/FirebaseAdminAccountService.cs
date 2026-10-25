@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -26,16 +27,21 @@ namespace Yarmouk.Services
             string credential = Environment.GetEnvironmentVariable("YARMOUK_FIREBASE_SERVICE_ACCOUNT")
                 ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")
                 ?? System.Configuration.ConfigurationManager.AppSettings["FirebaseAdminCredentialPath"];
+            // Local IIS Express runs keep the service account beside the solution.
+            // Prefer explicitly configured server credentials, but discover this
+            // local development credential so permanent student deletion and
+            // credential updates do not silently fall back to unavailable ADC.
+            if (string.IsNullOrWhiteSpace(credential))
+                credential = Directory.GetFiles(root, "*-firebase-adminsdk-*.json").FirstOrDefault();
             string node = Environment.GetEnvironmentVariable("YARMOUK_NODE_PATH")
                 ?? System.Configuration.ConfigurationManager.AppSettings["FirebaseAdminNodePath"] ?? "node";
             var start = new ProcessStartInfo(node, "\"" + script + "\"") {
                 UseShellExecute = false, RedirectStandardInput = true, RedirectStandardOutput = true,
                 RedirectStandardError = true, CreateNoWindow = true
             };
-            if (!string.IsNullOrWhiteSpace(credential)) {
-                if (!File.Exists(credential)) throw new InvalidOperationException("The configured Firebase Admin credential file was not found. Check the server environment configuration.");
-                start.EnvironmentVariables["YARMOUK_FIREBASE_SERVICE_ACCOUNT"] = credential;
-            }
+            if (string.IsNullOrWhiteSpace(credential) || !File.Exists(credential))
+                throw new InvalidOperationException("The Firebase Admin credential file was not found. Configure FirebaseAdminCredentialPath or YARMOUK_FIREBASE_SERVICE_ACCOUNT before managing student accounts.");
+            start.EnvironmentVariables["YARMOUK_FIREBASE_SERVICE_ACCOUNT"] = credential;
             start.EnvironmentVariables["YARMOUK_FIREBASE_DATABASE_URL"] = Helpers.SiteSettingsStore.GetFirebaseDatabaseUrl();
             Process started;
             try { started = Process.Start(start); }
